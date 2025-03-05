@@ -82,7 +82,7 @@ const Login = ({ onForgotPassword, onContactUs }) => {
       isValid = false;
     }
     
-    return isValid;
+    return isValid; 
   };
   
   // Función para cerrar el modal
