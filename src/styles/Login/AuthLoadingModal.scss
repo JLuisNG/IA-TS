@@ -1,0 +1,469 @@
+// Variables
+$primary-color: #1890ff; // Más brillante
+$primary-gradient-start: #1484c5;
+$primary-gradient-end: #6b1b99;
+$secondary-color: #34495e;
+$accent-color: #00d2ff; // Más brillante y vibrante
+$success-color: #22c55e; // Verde más vibrante
+$warning-color: #f59e0b;
+$danger-color: #ef4444; // Rojo más vibrante
+$light-color: #ecf0f1;
+$dark-color: #1e293b;
+
+// Fondos de tipo vidrio con colores adaptados a la temática
+$glass-background: rgba(30, 41, 59, 0.85);
+$success-glass-bg: rgba(30, 59, 41, 0.85);
+$error-glass-bg: rgba(59, 30, 41, 0.85);
+
+// Animaciones
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes expandIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+@keyframes pulseBorder {
+  0% { box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(24, 144, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(24, 144, 255, 0); }
+}
+
+@keyframes pulseRing {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { opacity: 0.5; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes slideLeft {
+  from { transform: translateX(20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes scaleIn {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes sparkle {
+  0% { transform: scale(0) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1) rotate(180deg); opacity: 1; box-shadow: 0 0 20px 2px rgba(255, 255, 255, 0.8); }
+  100% { transform: scale(0) rotate(360deg); opacity: 0; }
+}
+
+// Animación del background
+@keyframes gradientBg {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes glowEffect {
+  0% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.4; }
+}
+
+// Estilos principales
+.auth-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: $glass-background;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(12px); // Más blur para un efecto más dramático
+  
+  &.show {
+    opacity: 1;
+    visibility: visible;
+    
+    .auth-loading-content {
+      animation: expandIn 0.5s cubic-bezier(0.26, 0.53, 0.74, 1.48) forwards;
+    }
+  }
+  
+  &.animate-bg {
+    background: linear-gradient(135deg, rgba(20, 30, 48, 0.9), rgba(30, 30, 70, 0.9), rgba(20, 30, 48, 0.9));
+    background-size: 200% 200%;
+    animation: gradientBg 8s ease infinite;
+  }
+  
+  &.success-bg {
+    background: linear-gradient(135deg, rgba(30, 60, 40, 0.9), rgba(40, 70, 50, 0.9), rgba(30, 60, 40, 0.9));
+    background-size: 200% 200%;
+    animation: gradientBg 8s ease infinite;
+  }
+  
+  &.error-bg {
+    background: linear-gradient(135deg, rgba(60, 30, 40, 0.9), rgba(70, 40, 50, 0.9), rgba(60, 30, 40, 0.9));
+    background-size: 200% 200%;
+    animation: gradientBg 8s ease infinite;
+  }
+  
+  .auth-loading-content {
+    text-align: center;
+    max-width: 450px;
+    padding: 2.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    
+    // Efecto de brillo
+    .glow-effect {
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(
+        ellipse at center,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0) 70%
+      );
+      pointer-events: none;
+      animation: glowEffect 4s ease-in-out infinite;
+      z-index: -1;
+    }
+    
+    h3 {
+      font-size: 2rem;
+      margin: 1.5rem 0 1rem;
+      color: white;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+      letter-spacing: 0.5px;
+      
+      &.success {
+        color: $success-color;
+        text-shadow: 0 0 15px rgba($success-color, 0.5);
+      }
+      
+      &.error {
+        color: $danger-color;
+        text-shadow: 0 0 15px rgba($danger-color, 0.5);
+      }
+    }
+    
+    .auth-loading-spinner {
+      position: relative;
+      width: 130px;
+      height: 130px;
+      margin: 0 auto;
+      
+      .spinner-circle {
+        position: absolute;
+        border: 4px solid transparent;
+        border-radius: 50%;
+        
+        &.outer {
+          width: 100%;
+          height: 100%;
+          border-top-color: $primary-color;
+          border-left-color: rgba($primary-color, 0.3);
+          animation: rotate 1.5s linear infinite;
+          box-shadow: 0 0 25px rgba($primary-color, 0.6);
+        }
+        
+        &.middle {
+          width: 75%;
+          height: 75%;
+          top: 12.5%;
+          left: 12.5%;
+          border-right-color: $accent-color;
+          border-bottom-color: rgba($accent-color, 0.3);
+          animation: rotate 1.2s linear infinite reverse;
+        }
+        
+        &.inner {
+          width: 50%;
+          height: 50%;
+          top: 25%;
+          left: 25%;
+          border-bottom-color: $success-color;
+          border-right-color: rgba($success-color, 0.3);
+          animation: rotate 0.9s linear infinite;
+        }
+      }
+      
+      // Anillos de pulso
+      .pulse-rings {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        
+        .pulse-ring {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          border-radius: 50%;
+          border: 2px solid rgba($primary-color, 0.5);
+          
+          &.ring1 {
+            width: 100%;
+            height: 100%;
+            animation: pulseRing 2s infinite;
+          }
+          
+          &.ring2 {
+            width: 95%;
+            height: 95%;
+            animation: pulseRing 2s infinite 0.4s;
+          }
+          
+          &.ring3 {
+            width: 90%;
+            height: 90%;
+            animation: pulseRing 2s infinite 0.8s;
+          }
+        }
+      }
+      
+      .spinner-sparkles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        
+        .sparkle {
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          background: white;
+          border-radius: 50%;
+          transform: scale(0);
+          animation: sparkle 1.5s ease infinite;
+          box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        }
+      }
+      
+      .check-icon, .error-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        font-size: 5rem;
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        
+        &.show {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+          animation: pulse 2s ease-in-out infinite;
+        }
+      }
+      
+      .check-icon {
+        color: $success-color;
+        text-shadow: 0 0 20px rgba($success-color, 0.6);
+      }
+      
+      .error-icon {
+        color: $danger-color;
+        text-shadow: 0 0 20px rgba($danger-color, 0.6);
+      }
+    }
+    
+    .progress-container {
+      display: flex;
+      align-items: center;
+      margin: 1.5rem 0;
+      
+      .progress-bar {
+        flex: 1;
+        height: 8px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+        
+        .progress-bar-inner {
+          height: 100%;
+          background: linear-gradient(to right, $primary-gradient-start, $accent-color, $primary-gradient-end);
+          background-size: 200% 200%;
+          animation: gradientFlow 2s ease infinite;
+          width: 0;
+          transition: width 0.3s ease;
+          box-shadow: 0 0 10px rgba($accent-color, 0.7);
+          border-radius: 4px;
+        }
+      }
+      
+      .progress-percentage {
+        min-width: 50px;
+        text-align: right;
+        font-size: 1rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
+        margin-left: 1rem;
+      }
+    }
+    
+    .status-message {
+      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.9);
+      min-height: 1.8rem;
+      margin-bottom: 1.5rem;
+      animation: fadeIn 0.5s;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      
+      &.success {
+        color: $success-color;
+      }
+      
+      &.error {
+        color: $danger-color;
+      }
+    }
+    
+    .auth-loading-steps {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-top: 1.5rem;
+      text-align: left;
+      gap: 0.8rem;
+      
+      .step-indicator {
+        display: flex;
+        align-items: center;
+        opacity: 0.5;
+        transition: all 0.3s ease;
+        animation: fadeIn 0.5s forwards;
+        width: 100%;
+        
+        &.current {
+          opacity: 1;
+          animation: slideLeft 0.3s ease forwards;
+          
+          .step-dot {
+            border-color: $accent-color;
+            background-color: rgba($accent-color, 0.2);
+            box-shadow: 0 0 0 6px rgba($accent-color, 0.1);
+            transform: scale(1.2);
+            animation: pulseBorder 1.5s infinite;
+          }
+          
+          .step-name {
+            color: $accent-color;
+            font-weight: 600;
+            transform: translateX(5px);
+            letter-spacing: 0.3px;
+          }
+        }
+        
+        &.completed {
+          opacity: 0.8;
+          
+          .step-dot {
+            background-color: $success-color;
+            border-color: $success-color;
+            box-shadow: 0 0 10px rgba($success-color, 0.4);
+            
+            i {
+              opacity: 1;
+              transform: scale(1);
+            }
+          }
+          
+          .step-name {
+            text-decoration: line-through;
+            color: rgba(255, 255, 255, 0.7);
+          }
+        }
+        
+        .step-dot {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          border: 2px solid rgba(255, 255, 255, 0.4);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-right: 12px;
+          transition: all 0.4s ease;
+          position: relative;
+          flex-shrink: 0;
+          
+          i {
+            font-size: 0.8rem;
+            color: white;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+          }
+        }
+        
+        .step-name {
+          font-size: 1rem;
+          color: rgba(255, 255, 255, 0.8);
+          transition: all 0.3s ease;
+        }
+      }
+    }
+    
+    // Se ha eliminado el botón de cierre manual
+  }
+}
+
+// Responsive
+@media (max-width: 576px) {
+  .auth-loading-overlay .auth-loading-content {
+    width: 90%;
+    padding: 2rem 1.5rem;
+    
+    h3 {
+      font-size: 1.7rem;
+    }
+    
+    .auth-loading-spinner {
+      width: 110px;
+      height: 110px;
+    }
+    
+    .status-message {
+      font-size: 1.1rem;
+    }
+    
+    .auth-loading-steps .step-indicator .step-name {
+      font-size: 0.9rem;
+    }
+  }
+}
