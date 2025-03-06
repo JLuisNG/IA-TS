@@ -11,7 +11,95 @@ $bg-dark: #1e2530;
 $bg-darker: #181d25;
 
 // Colores de estado
-$status-active: #10b981;  // Verde
+$status-active: #10b981;  // Verde// Colores principales
+$primary-color: #0073ff;
+$primary-light: #00c6ff;
+$primary-dark: #0050a7;
+
+$secondary-color: #01b49f;
+$secondary-light: #3adfbc;
+$secondary-dark: #008573;
+
+$accent-color: #ff7e00;
+$accent-light: #ffa84d;
+$accent-dark: #cc6500;
+
+// Colores neutros
+$white: #ffffff;
+$light-gray: #f1f5f9;
+$medium-gray: #94a3b8;
+$dark-gray: #334155;
+$black: #0f172a;
+
+// Colores de estado
+$success: #10b981;
+$warning: #fbbf24;
+$error: #ef4444;
+$info: #3b82f6;
+
+// Sombras
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.04);
+
+// Fuentes
+$font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+  Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+// Tamaños de fuente
+$font-size-xs: 0.75rem;     // 12px
+$font-size-sm: 0.875rem;    // 14px
+$font-size-base: 1rem;      // 16px
+$font-size-lg: 1.125rem;    // 18px
+$font-size-xl: 1.25rem;     // 20px
+$font-size-2xl: 1.5rem;     // 24px
+$font-size-3xl: 1.875rem;   // 30px
+$font-size-4xl: 2.25rem;    // 36px
+$font-size-5xl: 3rem;       // 48px
+
+// Espaciado
+$spacing-1: 0.25rem;   // 4px
+$spacing-2: 0.5rem;    // 8px
+$spacing-3: 0.75rem;   // 12px
+$spacing-4: 1rem;      // 16px
+$spacing-5: 1.25rem;   // 20px
+$spacing-6: 1.5rem;    // 24px
+$spacing-8: 2rem;      // 32px
+$spacing-10: 2.5rem;   // 40px
+$spacing-12: 3rem;     // 48px
+$spacing-16: 4rem;     // 64px
+$spacing-20: 5rem;     // 80px
+
+// Bordes
+$border-radius-sm: 0.125rem;  // 2px
+$border-radius-md: 0.25rem;   // 4px
+$border-radius-lg: 0.5rem;    // 8px
+$border-radius-xl: 0.75rem;   // 12px
+$border-radius-2xl: 1rem;     // 16px
+$border-radius-3xl: 1.5rem;   // 24px
+$border-radius-full: 9999px;
+
+// Breakpoints
+$breakpoint-sm: 640px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 1024px;
+$breakpoint-xl: 1280px;
+$breakpoint-2xl: 1536px;
+
+// Transiciones
+$transition-fast: 150ms;
+$transition-base: 300ms;
+$transition-slow: 500ms;
+
+// Z-indices
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;
 $status-inactive: #ef4444; // Rojo
 $status-pending: #f59e0b;  // Naranja
 $status-unsigned: #ef4444;

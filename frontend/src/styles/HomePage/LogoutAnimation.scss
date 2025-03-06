@@ -1,0 +1,184 @@
+// Estilos para la animación de cierre de sesión - Aspecto Profesional
+.logout-animation-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    font-family: 'Poppins', sans-serif;
+    
+    // Fondo con desenfoque
+    .backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(11, 19, 43, 0.85);
+      backdrop-filter: blur(8px);
+      animation: fadeIn 0.3s ease forwards;
+    }
+    
+    // Modal de cierre de sesión
+    .logout-modal {
+      position: relative;
+      width: 450px;
+      background-color: rgba(22, 28, 45, 0.95);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      transform: translateY(20px);
+      opacity: 0;
+      animation: slideUp 0.4s 0.1s ease forwards;
+      border: 1px solid rgba(76, 86, 106, 0.3);
+      
+      // Ícono de cierre
+      .logout-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background-color: rgba(25, 118, 210, 0.15);
+        color: #1976d2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        border: 2px solid rgba(25, 118, 210, 0.3);
+        
+        i {
+          font-size: 1.75rem;
+        }
+      }
+      
+      // Título
+      .logout-title {
+        color: #fff;
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.01em;
+      }
+      
+      // Mensaje de estado
+      .status-message {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 1rem;
+        margin-bottom: 1.25rem;
+        height: 1.5rem;
+        opacity: 0.9;
+      }
+      
+      // Contenedor de la barra de progreso
+      .progress-container {
+        width: 100%;
+        height: 4px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        
+        // Barra de progreso
+        .progress-bar {
+          height: 100%;
+          background: linear-gradient(90deg, #1976d2, #2196f3);
+          border-radius: 2px;
+          transition: width 0.3s ease;
+        }
+      }
+      
+      // Ventana de consola
+      .console-window {
+        width: 100%;
+        background-color: rgba(10, 14, 25, 0.9);
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        text-align: left;
+        
+        // Encabezado de la consola
+        .console-header {
+          background-color: rgba(32, 37, 55, 0.9);
+          padding: 0.5rem 1rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-bottom: 1px solid rgba(52, 58, 70, 0.8);
+          
+          .console-title {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+          }
+          
+          .console-controls {
+            display: flex;
+            align-items: center;
+            
+            span {
+              width: 10px;
+              height: 10px;
+              border-radius: 50%;
+              margin-left: 0.5rem;
+              
+              &:nth-child(1) {
+                background-color: #ff5f57;
+              }
+              
+              &:nth-child(2) {
+                background-color: #ffbd2e;
+              }
+              
+              &:nth-child(3) {
+                background-color: #28c840;
+              }
+            }
+          }
+        }
+        
+        // Cuerpo de la consola
+        .console-body {
+          padding: 1rem;
+          font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+          font-size: 0.85rem;
+          color: #1e88e5; // Azul más profesional
+          
+          .console-line {
+            margin-bottom: 0.75rem;
+            opacity: 0;
+            animation: fadeIn 0.3s forwards;
+            
+            &:nth-child(1) { animation-delay: 0.1s; }
+            &:nth-child(2) { animation-delay: 0.9s; }
+            &:nth-child(3) { animation-delay: 1.7s; }
+            &:nth-child(4) { animation-delay: 2.5s; }
+            &:nth-child(5) { animation-delay: 3.3s; }
+          }
+        }
+      }
+    }
+  }
+  
+  // Animaciones
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
