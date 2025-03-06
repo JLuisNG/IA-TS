@@ -148,7 +148,7 @@ const Login = ({ onForgotPassword, onContactUs }) => {
       
       // Redirigir después de mostrar el mensaje de éxito
       setTimeout(() => {
-        navigate('/welcome');
+        navigate('/homePage');
       }, 2000);
     }, 4500); // Aumentamos a 4.5 segundos para una visualización más completa
   };
