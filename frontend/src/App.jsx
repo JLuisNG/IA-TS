@@ -9,10 +9,11 @@ function App() {
   return (
     <HashRouter>
       <Routes>
-        <Route path="/" element={<LoginCard />} />
+        <Route index element={<LoginCard />} />
         <Route path="/homePage" element={<HomePage />} />
       </Routes>
     </HashRouter>
+
   );
 }
 
