@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLoadingModal from './AuthLoadingModal';
-import PremiumAuthAnimation from './PremiumAuthAnimation';
-import logoImg from '../../images/32A90059-EE8B-4689-A398-D08AC03A1AC6.jpeg';
+import PremiumAuthAnimation from '../../components/Login/PremiumAuthAnimation';
+import logoImg from '../../assets/LogoMHC.jpeg';
 const Login = ({ onForgotPassword, onContactUs }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({

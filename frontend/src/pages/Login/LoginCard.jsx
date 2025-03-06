@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Login from './Login';
-import './PremiumAuthAnimation';
+import '../../components/Login/PremiumAuthAnimation';
 import PasswordRecovery from './PasswordRecovery';
 import '../../styles/Login/Login.scss';
-import '../../styles/Login/PremiumAuthAnimation.scss';
-import '../../styles/Login/AuthLoadingModal.scss'; // Para modal de autenticación
-import '../../styles/Login/PremiumLoadingModal.scss'; // Para modal premium de correo
-import backgroundImg from '../../images/LosAngelesCity.jpg';
+import '../../styles/Login/AuthLoadingModal.scss';
+import '../../styles/Login/PremiumLoadingModal.scss'; 
+import backgroundImg from '../../assets/LosAngelesCity.jpg';
 
 const LoginCard = () => {
   const [isFlipped, setIsFlipped] = useState(false);

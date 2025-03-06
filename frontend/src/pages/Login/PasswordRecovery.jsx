@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PremiumEmailAnimation from './PremiumLoadingModal';
-import logoImg from '../../images/32A90059-EE8B-4689-A398-D08AC03A1AC6.jpeg';
+import logoImg from '../../assets/LogoMHC.jpeg';
 
 const PasswordRecovery = ({ onBackToLogin }) => {
   const [email, setEmail] = useState('');
