@@ -4,21 +4,40 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v2.3.1
+        uses: actions/checkout@v3
 
-      - name: Install, lint, build 🔧
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install y build 🔧
         run: |
           npm install
-          npm run lint:js
           npm run build
 
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@4.1.0
+      - name: Subir artefacto
+        uses: actions/upload-pages-artifact@v1
         with:
-          branch: gh-pages
-          folder: build
+          path: './build'
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy a GitHub Pages 🚀
+        id: deployment
+        uses: actions/deploy-pages@v2
