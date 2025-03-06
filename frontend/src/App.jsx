@@ -1,7 +1,7 @@
 import React from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import LoginCard from './pages/Login/LoginCard';
-import HomePage from './pages/HomePage/HomePage';
+import LoginCard from './pages/login/LoginCard';
+import HomePage from './pages/homePage/HomePage';
 // Importar FontAwesome
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
