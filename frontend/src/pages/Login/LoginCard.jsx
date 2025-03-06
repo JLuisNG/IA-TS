@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Login from './Login';
-import '../../components/Login/PremiumAuthAnimation';
+import './PremiumAuthAnimation';
 import PasswordRecovery from './PasswordRecovery';
 import '../../styles/Login/Login.scss';
 import '../../styles/Login/AuthLoadingModal.scss';

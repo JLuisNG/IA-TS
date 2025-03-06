@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLoadingModal from './AuthLoadingModal';
-import PremiumAuthAnimation from '../../components/Login/PremiumAuthAnimation';
+import PremiumAuthAnimation from './PremiumAuthAnimation';
 import logoImg from '../../assets/LogoMHC.jpeg';
 const Login = ({ onForgotPassword, onContactUs }) => {
   const navigate = useNavigate();
