@@ -10,7 +10,7 @@ function App() {
     <HashRouter>
       <Routes>
         <Route path="/" element={<LoginCard />} />
-        <Route path="/welcome" element={<HomePage />} />
+        <Route path="#/welcome" element={<HomePage />} />
       </Routes>
     </HashRouter>
   );
