@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../styles/HomePage/HomePage.scss';
+import '../../styles/Welcome/Welcome.scss';
 import logoImg from '../../assets/LogoMHC.jpeg';
 import LogoutAnimation from './LogoutAnimation';
 
