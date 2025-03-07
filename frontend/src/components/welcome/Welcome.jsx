@@ -164,7 +164,10 @@ const HomePage = () => {
       
       {/* Contenido principal */}
       <main className="main-content">
- 
+        <div className="welcome-container">
+          <h1 className="welcome-title">Welcome to TherapySync</h1>
+          <p className="welcome-subtitle">Select an option from the navigation menu to get started</p>
+        </div>
       </main>
     </div>
   );
