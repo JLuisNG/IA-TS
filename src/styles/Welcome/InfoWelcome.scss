@@ -1,0 +1,303 @@
+// Estilos para el componente InfoWelcome
+@keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 8px rgba(255, 255, 255, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+    }
+  }
+  
+  @keyframes float {
+    0% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }
+  
+  @keyframes blink {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+  }
+  
+  .info-welcome-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  // Estilos para las tarjetas del dashboard
+  .dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+    
+    .dashboard-card {
+      position: relative;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 1.8rem;
+      transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      height: 220px;
+      overflow: hidden;
+      animation: fadeInUp 0.7s ease-out forwards;
+      animation-delay: calc(var(--i, 0) * 0.1s);
+      opacity: 0;
+      
+      &:nth-child(1) {
+        --i: 1;
+      }
+      
+      &:nth-child(2) {
+        --i: 2;
+      }
+      
+      &:nth-child(3) {
+        --i: 3;
+      }
+      
+      &.hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        border-color: rgba(255, 255, 255, 0.2);
+        
+        .card-bg-decoration {
+          opacity: 0.15;
+          transform: scale(1.1) translateX(-10%);
+        }
+        
+        .icon-container {
+          transform: scale(1.1);
+        }
+      }
+      
+      .card-bg-decoration {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 35%;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.1) 100%);
+        opacity: 0.05;
+        transition: all 0.5s ease;
+        transform: scale(1) translateX(0);
+        z-index: 0;
+        border-radius: 0 16px 16px 0;
+      }
+      
+      .card-content {
+        position: relative;
+        z-index: 1;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        
+        h3 {
+          font-size: 1.3rem;
+          font-weight: 600;
+          color: white;
+          margin: 0;
+        }
+        
+        .icon-container {
+          width: 48px;
+          height: 48px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 1rem;
+          transition: transform 0.3s ease;
+          
+          i {
+            color: white;
+            font-size: 1.4rem;
+          }
+          
+          &.patients-icon {
+            background: linear-gradient(135deg, #36D1DC, #5B86E5);
+            box-shadow: 0 5px 15px rgba(91, 134, 229, 0.4);
+          }
+          
+          &.support-icon {
+            background: linear-gradient(135deg, #FF9966, #FF5E62);
+            box-shadow: 0 5px 15px rgba(255, 94, 98, 0.4);
+          }
+          
+          &.guide-icon {
+            background: linear-gradient(135deg, #56CCF2, #2F80ED);
+            box-shadow: 0 5px 15px rgba(47, 128, 237, 0.4);
+          }
+        }
+      }
+      
+      .card-value {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        
+        .counter {
+          font-size: 3.5rem;
+          font-weight: 700;
+          color: white;
+          line-height: 1;
+          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+      }
+      
+      .card-description {
+        flex: 1;
+        
+        p {
+          color: rgba(255, 255, 255, 0.9);
+          font-size: 1rem;
+          line-height: 1.5;
+          margin-bottom: 1rem;
+        }
+        
+        .support-status {
+          display: flex;
+          align-items: center;
+          
+          .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+          }
+          
+          span {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+          }
+        }
+      }
+      
+      .card-footer {
+        margin-top: auto;
+        display: flex;
+        
+        .action-button {
+          background: rgba(255, 255, 255, 0.15);
+          border: none;
+          border-radius: 8px;
+          color: white;
+          padding: 0.7rem 1.2rem;
+          font-size: 0.9rem;
+          cursor: pointer;
+          transition: background 0.3s ease, transform 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          
+          i {
+            margin-right: 0.5rem;
+            font-size: 1rem;
+          }
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+          }
+          
+          &:active {
+            transform: translateY(1px);
+          }
+        }
+        
+        &.tutorial-options {
+          display: flex;
+          gap: 0.8rem;
+          
+          .tutorial-button {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 0.7rem 0.5rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            
+            i {
+              margin-right: 0.4rem;
+              font-size: 0.9rem;
+            }
+            
+            &:hover {
+              background: rgba(255, 255, 255, 0.25);
+              transform: translateY(-2px);
+            }
+            
+            &:active {
+              transform: translateY(1px);
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // Media queries para dispositivos móviles
+  @media (max-width: 768px) {
+    .dashboard-cards {
+      grid-template-columns: 1fr;
+      
+      .dashboard-card {
+        height: auto;
+        min-height: 200px;
+        
+        .card-header {
+          h3 {
+            font-size: 1.2rem;
+          }
+        }
+        
+        .card-value {
+          .counter {
+            font-size: 2.8rem;
+          }
+        }
+      }
+    }
+  }

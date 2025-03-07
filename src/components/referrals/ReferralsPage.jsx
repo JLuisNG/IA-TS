@@ -1,26 +1,30 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../../styles/Welcome/Welcome.scss';
+import '../../styles/Referrals/ReferralsPage.scss';
 import logoImg from '../../assets/LogoMHC.jpeg';
-import LogoutAnimation from './LogoutAnimation';
-import InfoWelcome from './infoWelcome'; // Importar el nuevo componente
 
-const HomePage = () => {
+const ReferralsPage = () => {
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [activeMenuIndex, setActiveMenuIndex] = useState(1);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [menuTransitioning, setMenuTransitioning] = useState(false); // Añadir estado para transición
+  const [activeMenuIndex, setActiveMenuIndex] = useState(1); // Por defecto en "Create New Referral"
+  const [menuTransitioning, setMenuTransitioning] = useState(false);
+  const [showMenuSwitch, setShowMenuSwitch] = useState(false);
   const userMenuRef = useRef(null);
   const menuRef = useRef(null);
   
-  // Opciones principales del menú
-  const menuOptions = ["Patients", "Referrals", "Support", "System Management", "Accounting"];
+  // Opciones del menú de referrals
+  const menuOptions = [
+    "Admin Referral Inbox",
+    "Create New Referral",
+    "Resend Referral",
+    "View Referral History",
+    "Referral Stats"
+  ];
   
   // Efecto para la rotación automática del carrusel
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!isLoggingOut && !menuTransitioning) { // Verificar también menuTransitioning
+      if (!menuTransitioning) {
         setActiveMenuIndex((prevIndex) => 
           prevIndex >= menuOptions.length - 1 ? 0 : prevIndex + 1
         );
@@ -28,9 +32,26 @@ const HomePage = () => {
     }, 5000);
     
     return () => clearInterval(interval);
-  }, [menuOptions.length, isLoggingOut, menuTransitioning]);
+  }, [menuOptions.length, menuTransitioning]);
   
-  // Cerrar menú de usuario al hacer clic fuera
+  // Efecto para mostrar el indicador de cambio de menú cuando el mouse está cerca del borde
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      // Mostrar el indicador cuando el mouse está a menos de 50px del borde izquierdo
+      if (e.clientX < 50) {
+        setShowMenuSwitch(true);
+      } else if (e.clientX > 100) {
+        setShowMenuSwitch(false);
+      }
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+  
+  // Efecto para cerrar menú de usuario al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
@@ -43,6 +64,16 @@ const HomePage = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+  
+  // Manejar transición al menú principal
+  const handleMainMenuTransition = () => {
+    setMenuTransitioning(true);
+    
+    // Simular la transición y luego navegar
+    setTimeout(() => {
+      navigate('/homePage');
+    }, 300);
+  };
   
   // Manejar la navegación a izquierda en el carrusel
   const handlePrevious = () => {
@@ -58,48 +89,9 @@ const HomePage = () => {
     );
   };
   
-  // Manejar el cierre de sesión con animación
-  const handleLogout = () => {
-    setIsLoggingOut(true);
-    setShowUserMenu(false); // Cerrar el menú de usuario al hacer logout
-    
-    // Después de que la animación se complete, redirigir al login
-    setTimeout(() => {
-      navigate('/');
-    }, 3500); // Tiempo suficiente para mostrar todos los pasos del proceso
-  };
-  
-  // Manejar clic en opción del menú principal
+  // Manejar clic en una opción del menú
   const handleMenuOptionClick = (index) => {
     setActiveMenuIndex(index);
-    setMenuTransitioning(true);
-    
-    // Navegar a la página correspondiente según la opción del menú
-    let targetRoute = '/';
-    switch(menuOptions[index]) {
-      case "Patients":
-        targetRoute = '/patients';
-        break;
-      case "Referrals":
-        targetRoute = '/referrals';
-        break;
-      case "Support":
-        targetRoute = '/support';
-        break;
-      case "System Management":
-        targetRoute = '/management';
-        break;
-      case "Accounting":
-        targetRoute = '/accounting';
-        break;
-      default:
-        targetRoute = '/homePage';
-    }
-    
-    // Breve retraso para permitir efectos visuales de transición
-    setTimeout(() => {
-      navigate(targetRoute);
-    }, 300);
   };
   
   // Obtener las opciones visibles del menú para el carrusel (3 elementos)
@@ -118,22 +110,60 @@ const HomePage = () => {
     return result;
   };
 
+  // Obtener el ícono correspondiente a la opción seleccionada
+  const getOptionIcon = (index) => {
+    switch(index) {
+      case 0: return 'inbox';
+      case 1: return 'plus-circle';
+      case 2: return 'paper-plane';
+      case 3: return 'history';
+      case 4: return 'chart-bar';
+      default: return 'file-medical';
+    }
+  };
+
   return (
-    <div className={`dashboard ${menuTransitioning ? 'transitioning' : ''}`}>
+    <div className={`referrals-dashboard ${menuTransitioning ? 'transitioning' : ''}`}>
       {/* Fondo con efecto parallax */}
       <div className="parallax-background">
         <div className="gradient-overlay"></div>
       </div>
       
-      {/* Componente de animación de logout */}
-      {isLoggingOut && <LogoutAnimation />}
+      {/* Indicador flotante para cambiar al menú principal */}
+      {showMenuSwitch && (
+        <div 
+          className="menu-switch-indicator"
+          onClick={handleMainMenuTransition}
+          title="Volver al menú principal"
+        ></div>
+      )}
       
       {/* Header con logo y perfil */}
       <header className="main-header">
         <div className="header-container">
-          {/* Logo */}
+          {/* Logo y navegación de menús */}
           <div className="logo-container">
             <img src={logoImg} alt="TherapySync Logo" className="logo" />
+            
+            {/* Navegación entre menús */}
+            <div className="menu-navigation">
+              <button 
+                className="nav-button main-menu" 
+                onClick={handleMainMenuTransition}
+                title="Volver al menú principal"
+              >
+                <i className="fas fa-th-large"></i>
+                <span>Menú Principal</span>
+              </button>
+              
+              <button 
+                className="nav-button referrals-menu active" 
+                title="Menú de Referrals"
+              >
+                <i className="fas fa-file-medical"></i>
+                <span>Referrals</span>
+              </button>
+            </div>
           </div>
           
           {/* Carrusel en la parte superior */}
@@ -188,7 +218,7 @@ const HomePage = () => {
                   <span>My Account</span>
                 </div>
                 <div className="menu-divider"></div>
-                <div className="menu-item logout" onClick={handleLogout}>
+                <div className="menu-item logout" onClick={handleMainMenuTransition}>
                   <i className="fas fa-sign-out-alt"></i>
                   <span>Log Out</span>
                 </div>
@@ -200,17 +230,22 @@ const HomePage = () => {
       
       {/* Contenido principal */}
       <main className="main-content">
-        {/* Contenedor de bienvenida (desplazado hacia arriba) */}
-        <div className="welcome-container welcome-container-top">
-          <h1 className="welcome-title">Welcome to TherapySync</h1>
-          <p className="welcome-subtitle">Select an option from the navigation menu to get started</p>
+        <div className="referrals-container">
+          <h1 className="referrals-title">Referral Management</h1>
+          <p className="referrals-subtitle">Select an option from the menu above to manage referrals</p>
+          
+          {/* Contenido dinámico según la opción seleccionada */}
+          <div className="referrals-content">
+            <div className="content-placeholder">
+              <i className={`fas fa-${getOptionIcon(activeMenuIndex)}`}></i>
+              <h2>{menuOptions[activeMenuIndex]}</h2>
+              <p>El contenido para esta sección se cargará aquí.</p>
+            </div>
+          </div>
         </div>
-        
-        {/* Nuevo componente de información */}
-        <InfoWelcome />
       </main>
     </div>
   );
 };
 
-export default HomePage;
+export default ReferralsPage;

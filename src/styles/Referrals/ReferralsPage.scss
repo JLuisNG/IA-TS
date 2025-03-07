@@ -1,0 +1,771 @@
+// Estilos para la página de Referrals
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+// Animaciones
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+// Transiciones de menú
+@keyframes menuTransitionOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+}
+
+@keyframes menuTransitionIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes gradientPulse {
+  0% {
+    background: linear-gradient(
+      180deg,
+      rgba(8, 15, 40, 0.7) 0%,
+      rgba(17, 23, 64, 0.5) 30%,
+      rgba(23, 42, 88, 0.4) 60%,
+      rgba(8, 15, 40, 0.6) 100%
+    );
+  }
+  100% {
+    background: linear-gradient(
+      180deg,
+      rgba(12, 20, 50, 0.7) 0%,
+      rgba(23, 42, 88, 0.5) 30%,
+      rgba(0, 50, 100, 0.4) 60%,
+      rgba(10, 20, 45, 0.6) 100%
+    );
+  }
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pulseWidth {
+  from {
+    width: 60px;
+    opacity: 0.8;
+  }
+  to {
+    width: 80px;
+    opacity: 1;
+  }
+}
+
+@keyframes titleFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes subtitleFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 0.9;
+    transform: translateY(0);
+  }
+}
+
+// Estilos principales
+.referrals-dashboard {
+  min-height: 100vh;
+  position: relative;
+  font-family: 'Poppins', sans-serif;
+  overflow: hidden;
+  
+  &.transitioning {
+    animation: menuTransitionOut 0.3s ease-out forwards;
+  }
+  
+  // Fondo con parallax
+  .parallax-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://images.unsplash.com/photo-1502239608882-93b729c6af43?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    z-index: -2;
+    transform: scale(1.1);
+    transition: transform 8s ease;
+    
+    // Overlay gradient para mejorar contraste
+    .gradient-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        180deg,
+        rgba(8, 15, 40, 0.7) 0%,
+        rgba(17, 23, 64, 0.5) 30%,
+        rgba(23, 42, 88, 0.4) 60%,
+        rgba(8, 15, 40, 0.6) 100%
+      );
+      z-index: -1;
+      animation: gradientPulse 15s infinite alternate;
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(
+        circle at center,
+        rgba(0, 0, 0, 0) 0%,
+        rgba(0, 0, 0, 0.4) 100%
+      );
+      z-index: -1;
+    }
+  }
+  
+  // Header
+  .main-header {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    z-index: 100;
+    
+    .header-container {
+      max-width: 1800px;
+      margin: 0 auto;
+      padding: 0.75rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      
+      // Logo y navegación
+      .logo-container {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        
+        .logo {
+          height: 45px;
+          border-radius: 8px;
+          box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+          transition: all 0.3s ease;
+          
+          &:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+          }
+        }
+        
+        // Navegación entre menús
+        .menu-navigation {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          margin-left: 1.5rem;
+          
+          .nav-button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            
+            i {
+              margin-right: 0.5rem;
+              font-size: 0.9rem;
+            }
+            
+            span {
+              font-size: 0.9rem;
+              font-weight: 500;
+            }
+            
+            &:hover {
+              background: rgba(255, 255, 255, 0.15);
+              color: white;
+              transform: translateY(-2px);
+              box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            }
+            
+            &.active {
+              background: linear-gradient(135deg, rgba(0, 70, 140, 0.5), rgba(0, 40, 80, 0.5));
+              color: #7cb6ff;
+              position: relative;
+              
+              &:after {
+                content: '';
+                position: absolute;
+                bottom: -4px;
+                left: 10%;
+                width: 80%;
+                height: 3px;
+                background: linear-gradient(to right, #3498db, #4facfe);
+                border-radius: 3px;
+                box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+              }
+            }
+          }
+        }
+      }
+      
+      // Carrusel en la parte superior
+      .top-carousel {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        max-width: 1000px;
+        margin: 0 2rem;
+        position: relative;
+        
+        .carousel-arrow {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: white;
+          font-size: 0.8rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          margin: 0 1.5rem;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);
+          }
+          
+          &:active {
+            transform: scale(0.95);
+          }
+        }
+        
+        .carousel-options {
+          display: flex;
+          position: relative;
+          overflow: visible;
+          height: 60px;
+          min-width: 600px;
+          justify-content: center;
+          
+          .carousel-option {
+            position: absolute;
+            height: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            padding: 0.5rem 1.5rem;
+            width: 200px;
+            text-align: center;
+            opacity: 0.7;
+            
+            span {
+              font-size: 1.2rem;
+              transition: all 0.3s ease;
+              white-space: nowrap;
+            }
+            
+            &.center {
+              transform: translateX(0) scale(1.1);
+              z-index: 3;
+              opacity: 1;
+              color: #00BFA5;
+              text-shadow: 0 0 10px rgba(0, 191, 165, 0.5);
+              font-weight: 600;
+              
+              .active-underline {
+                width: 70px;
+                height: 3px;
+                background: linear-gradient(90deg, #00897B, #00BFA5);
+                border-radius: 3px;
+                position: absolute;
+                bottom: 0;
+                animation: pulseWidth 2s infinite alternate;
+                box-shadow: 0 0 10px rgba(0, 191, 165, 0.5);
+              }
+            }
+            
+            &.left {
+              transform: translateX(-220px) scale(0.9);
+              z-index: 2;
+            }
+            
+            &.right {
+              transform: translateX(220px) scale(0.9);
+              z-index: 2;
+            }
+            
+            &:hover {
+              opacity: 1;
+              
+              &:not(.center) {
+                transform: translateX(-220px) translateY(-3px) scale(0.9);
+                
+                &.right {
+                  transform: translateX(220px) translateY(-3px) scale(0.9);
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      // Control de deslizamiento para cambio de menú
+      .menu-slider {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        
+        .slider-handle {
+          position: relative;
+          width: 35px;
+          height: 50px;
+          background: rgba(255, 255, 255, 0.08);
+          border-radius: 0 8px 8px 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.15);
+            width: 40px;
+          }
+          
+          i {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+          }
+          
+          &::after {
+            content: '';
+            position: absolute;
+            right: 5px;
+            height: 20px;
+            width: 2px;
+            border-radius: 1px;
+            background: rgba(255, 255, 255, 0.2);
+          }
+        }
+      }
+      
+      // Perfil de usuario
+      .user-profile {
+        flex: 0 0 auto;
+        position: relative;
+        
+        .profile-button {
+          display: flex;
+          align-items: center;
+          background: linear-gradient(135deg, rgba(0, 60, 120, 0.4), rgba(0, 30, 60, 0.4));
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 50px;
+          padding: 0.4rem 0.75rem 0.4rem 1rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+          
+          &:hover, &.active {
+            background: linear-gradient(135deg, rgba(0, 70, 140, 0.5), rgba(0, 40, 80, 0.5));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+          }
+          
+          .profile-info {
+            display: flex;
+            flex-direction: column;
+            margin-right: 0.75rem;
+            
+            .user-name {
+              font-weight: 500;
+              font-size: 0.9rem;
+            }
+            
+            .user-role {
+              font-size: 0.7rem;
+              opacity: 0.7;
+            }
+          }
+          
+          .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0288d1, #26c6da);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 0.5rem;
+            box-shadow: 0 0 10px rgba(38, 198, 218, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            
+            .avatar-text {
+              font-weight: 600;
+              font-size: 0.9rem;
+            }
+          }
+          
+          i {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            transition: transform 0.3s ease;
+          }
+          
+          &.active i {
+            transform: rotate(180deg);
+          }
+        }
+        
+        // Menú desplegable de usuario
+        .user-menu {
+          position: absolute;
+          top: calc(100% + 0.75rem);
+          right: 0;
+          min-width: 200px;
+          background: rgba(0, 10, 30, 0.85);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border-radius: 12px;
+          overflow: hidden;
+          z-index: 1000;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+          animation: dropdownFadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          transform-origin: top right;
+          
+          .menu-item {
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            
+            &:hover {
+              background: rgba(255, 255, 255, 0.1);
+            }
+            
+            i {
+              margin-right: 0.8rem;
+              font-size: 1rem;
+              width: 20px;
+              text-align: center;
+            }
+            
+            &.logout {
+              color: #f44336;
+              
+              &:hover {
+                background: rgba(244, 67, 54, 0.15);
+              }
+            }
+          }
+          
+          .menu-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0.25rem 0;
+          }
+        }
+      }
+    }
+  }
+  
+  // Contenido principal
+  .main-content {
+    padding: 2rem 1.5rem;
+    position: relative;
+    z-index: 1;
+    min-height: calc(100vh - 80px);
+    
+    .referrals-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      animation: fadeIn 0.5s ease-out;
+      
+      .referrals-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: white;
+        text-align: center;
+        background: linear-gradient(135deg, #ffffff 20%, #00BFA5);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-fill-color: transparent;
+        font-weight: 700;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        text-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+        animation: titleFadeIn 1s ease;
+      }
+      
+      .referrals-subtitle {
+        font-size: 1.2rem;
+        color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        margin-bottom: 2.5rem;
+        animation: subtitleFadeIn 1s ease 0.3s backwards;
+      }
+      
+      // Contenido dinámico según la opción seleccionada
+      .referrals-content {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        padding: 2.5rem;
+        min-height: 300px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        animation: slideIn 0.5s ease-out;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        
+        .content-placeholder {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100%;
+          color: rgba(255, 255, 255, 0.6);
+          text-align: center;
+          
+          i {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            color: #4facfe;
+            animation: fadeIn 1s ease 0.5s backwards;
+            opacity: 0.8;
+          }
+          
+          h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 1rem;
+            animation: fadeIn 1s ease 0.7s backwards;
+          }
+          
+          p {
+            font-size: 1.1rem;
+            max-width: 500px;
+            animation: fadeIn 1s ease 0.9s backwards;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Menú flotante para cambiar entre dashboards
+.menu-switch-indicator {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 100px;
+  background: rgba(0, 191, 165, 0.3);
+  border-radius: 0 4px 4px 0;
+  z-index: 90;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    opacity: 1;
+    width: 12px;
+    box-shadow: 0 0 15px rgba(0, 191, 165, 0.4);
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-30%, -50%);
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-right: 8px solid rgba(255, 255, 255, 0.8);
+  }
+}
+
+// Media queries para responsividad
+@media (max-width: 992px) {
+  .referrals-dashboard {
+    .main-header {
+      .header-container {
+        flex-direction: column;
+        gap: 1rem;
+        
+        .logo-container {
+          margin-bottom: 0.5rem;
+        }
+        
+        .top-carousel {
+          width: 100%;
+          
+          .carousel-options {
+            width: 100%;
+            min-width: unset;
+          }
+        }
+        
+        .user-profile {
+          align-self: flex-end;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .referrals-dashboard {
+    .main-header {
+      .header-container {
+        .logo-container {
+          width: 100%;
+          justify-content: space-between;
+          
+          .menu-navigation {
+            .nav-button {
+              span {
+                display: none;
+              }
+              
+              i {
+                margin-right: 0;
+              }
+            }
+          }
+        }
+        
+        .top-carousel {
+          .carousel-options {
+            min-width: 300px;
+            
+            .carousel-option {
+              width: 150px;
+              
+              &.left {
+                transform: translateX(-150px) scale(0.9);
+              }
+              
+              &.right {
+                transform: translateX(150px) scale(0.9);
+              }
+              
+              &:hover {
+                &:not(.center) {
+                  transform: translateX(-150px) translateY(-3px) scale(0.9);
+                  
+                  &.right {
+                    transform: translateX(150px) translateY(-3px) scale(0.9);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    .main-content {
+      .referrals-container {
+        .referrals-title {
+          font-size: 2.2rem;
+        }
+        
+        .referrals-subtitle {
+          font-size: 1rem;
+        }
+        
+        .referrals-content {
+          padding: 1.5rem;
+        }
+      }
+    }
+  }
+}
