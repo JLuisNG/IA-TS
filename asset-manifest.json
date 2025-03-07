@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "/IA-TS/static/css/main.4d3a65a1.css",
+    "main.css": "/IA-TS/static/css/main.25ad300a.css",
     "main.js": "/IA-TS/static/js/main.d8f5d856.js",
     "static/media/Oceanside.jpg": "/IA-TS/static/media/Oceanside.6ab81bfe75f8157bc29f.jpg",
     "static/media/LosAngelesCity.jpg": "/IA-TS/static/media/LosAngelesCity.f47a3fee6871446c9cde.jpg",
@@ -14,11 +14,11 @@
     "static/media/fa-v4compatibility.ttf": "/IA-TS/static/media/fa-v4compatibility.da94ef451f4969af06e6.ttf",
     "static/media/fa-v4compatibility.woff2": "/IA-TS/static/media/fa-v4compatibility.ea8f94e1d22e0d35ccd4.woff2",
     "index.html": "/IA-TS/index.html",
-    "main.4d3a65a1.css.map": "/IA-TS/static/css/main.4d3a65a1.css.map",
+    "main.25ad300a.css.map": "/IA-TS/static/css/main.25ad300a.css.map",
     "main.d8f5d856.js.map": "/IA-TS/static/js/main.d8f5d856.js.map"
   },
   "entrypoints": [
-    "static/css/main.4d3a65a1.css",
+    "static/css/main.25ad300a.css",
     "static/js/main.d8f5d856.js"
   ]
 }
