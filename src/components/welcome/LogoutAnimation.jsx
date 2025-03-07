@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import '../../styles/Welcome/PremiumAuthAnimation.scss';
+import '../../styles/Welcome/LogoutAnimation.scss';
 
 const LogoutAnimation = () => {
   const [currentStep, setCurrentStep] = useState(0);
