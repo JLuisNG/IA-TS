@@ -1,0 +1,466 @@
+@import '../../_variables.scss';
+@import '../../_mixins.scss';
+
+.create-referral-dashboard {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  font-family: $font-family;
+  color: $text-color;
+  
+  // Fondo con efecto parallax
+  .parallax-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-image: url('https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?q=80&w=2032&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    
+    // Overlay con gradiente para mejorar contraste
+    .gradient-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        135deg,
+        rgba($bg-darker, 0.92) 0%,
+        rgba($bg-dark, 0.88) 50%,
+        rgba($bg-darker, 0.95) 100%
+      );
+    }
+  }
+  
+  // Estilos del header principal
+  .main-header {
+    @include dark-glass-effect(0.8, 10px);
+    @include box-shadow('md');
+    padding: 0.8rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    
+    .header-container {
+      @include flex-between;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      
+      .logo-container {
+        @include flex-center;
+        
+        .logo {
+          height: 40px;
+          margin-right: 1.5rem;
+          border-radius: 8px;
+        }
+        
+        .menu-navigation {
+          display: flex;
+          gap: 1rem;
+          
+          .nav-button {
+            background: none;
+            border: none;
+            color: rgba($text-color, 0.7);
+            font-size: $font-sm;
+            padding: 0.5rem 1rem;
+            border-radius: $border-radius-md;
+            cursor: pointer;
+            @include flex-center;
+            gap: 0.5rem;
+            @include transition(all, 0.2s, ease);
+            
+            &:hover {
+              color: $text-color;
+              background-color: rgba($text-color, 0.1);
+            }
+            
+            &.active {
+              color: $accent-color;
+              background-color: rgba($accent-color, 0.1);
+              font-weight: $font-semibold;
+            }
+            
+            i {
+              font-size: $font-md;
+            }
+          }
+        }
+      }
+      
+      .current-section {
+        text-align: center;
+        position: relative;
+        background-color: rgba(15, 23, 42, 0.3);
+        backdrop-filter: blur(5px);
+        padding: 10px 25px;
+        border-radius: 12px;
+        
+        h2 {
+          font-size: $font-xl;
+          font-weight: $font-medium;
+          color: #FF7E00; // Color naranja para el título
+          margin: 0;
+          display: inline-block;
+          position: relative;
+          padding: 0 15px 8px;
+          
+          // Borde inferior sutil
+          &::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            background: rgba(255, 126, 0, 0.5); // Naranja más claro
+            border-radius: 2px;
+          }
+          
+          &::before, &::before {
+            content: '';
+            position: absolute;
+            border-radius: $border-radius-lg;
+            pointer-events: none;
+          }
+          
+          // Primera barra - rotación en sentido horario
+          &::before {
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            background: 
+              linear-gradient(90deg, transparent 60%, #FF7E00, transparent 40%) border-box;
+            -webkit-mask: 
+              linear-gradient(#fff 0 0) padding-box,
+              linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: rotateClockwise 8s linear infinite;
+          }
+        }
+        
+        // Eliminamos el subrayado original
+        .section-underline {
+          display: none;
+        }
+        
+        // Animación de rotación en sentido horario
+        @keyframes rotateClockwise {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+        
+        // Animación de rotación en sentido antihorario
+        @keyframes rotateCounterClockwise {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(-360deg);
+          }
+        }
+      }
+      
+      .user-profile {
+        position: relative;
+        
+        .profile-button {
+          display: flex;
+          align-items: center;
+          background-color: rgba($text-color, 0.05);
+          border-radius: 40px;
+          padding: 0.3rem 0.3rem 0.3rem 1rem;
+          cursor: pointer;
+          border: 1px solid $border-color;
+          @include transition(all, 0.2s, ease);
+          
+          &:hover, &.active {
+            background-color: rgba($text-color, 0.1);
+            border-color: rgba($text-color, 0.2);
+          }
+          
+          .profile-info {
+            display: flex;
+            flex-direction: column;
+            margin-right: 0.8rem;
+            
+            .user-name {
+              font-size: $font-sm;
+              font-weight: $font-semibold;
+              color: $text-color;
+            }
+            
+            .user-role {
+              font-size: $font-xs;
+              color: rgba($text-color, 0.7);
+            }
+          }
+          
+          .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: $border-radius-circle;
+            background-color: $accent-color;
+            @include flex-center;
+            margin-right: 0.5rem;
+            
+            .avatar-text {
+              color: $text-color;
+              font-weight: $font-semibold;
+              font-size: $font-sm;
+            }
+          }
+          
+          i {
+            font-size: $font-xs;
+            color: rgba($text-color, 0.7);
+          }
+        }
+        
+        .user-menu {
+          position: absolute;
+          top: calc(100% + 0.5rem);
+          right: 0;
+          background-color: $bg-dropdown;
+          border-radius: $border-radius-md;
+          @include box-shadow('lg');
+          width: 180px;
+          z-index: 10;
+          overflow: hidden;
+          animation: fadeInDown 0.2s ease-out;
+          
+          .menu-item {
+            padding: 0.8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+            @include transition(background, 0.2s, ease);
+            
+            &:hover {
+              background-color: rgba($text-color, 0.05);
+            }
+            
+            i {
+              color: rgba($text-color, 0.7);
+              font-size: $font-md;
+              width: 20px;
+              text-align: center;
+            }
+            
+            span {
+              font-size: $font-sm;
+            }
+            
+            &.logout {
+              color: $status-unsigned;
+              
+              i {
+                color: $status-unsigned;
+              }
+            }
+          }
+          
+          .menu-divider {
+            height: 1px;
+            background-color: $border-color;
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+  
+  // Contenido principal
+  .main-content {
+    flex: 1;
+    padding: 2rem;
+    
+    .create-referral-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      
+      // Navegación de miga de pan
+      .breadcrumb-navigation {
+        @include flex-between;
+        margin-bottom: 2rem;
+        
+        .back-button {
+          background-color: rgba($text-color, 0.1);
+          border: none;
+          color: $text-color;
+          padding: 0.5rem 1rem;
+          border-radius: $border-radius-md;
+          cursor: pointer;
+          @include flex-center;
+          gap: 0.5rem;
+          @include transition(all, 0.2s, ease);
+          
+          &:hover {
+            background-color: rgba($text-color, 0.15);
+          }
+          
+          i {
+            font-size: $font-sm;
+          }
+        }
+        
+        .breadcrumb-path {
+          color: rgba($text-color, 0.7);
+          font-size: $font-sm;
+          @include flex-center;
+          gap: 0.5rem;
+          
+          i {
+            font-size: $font-xs;
+          }
+          
+          .current {
+            color: $text-color;
+            font-weight: $font-semibold;
+          }
+        }
+      }
+      
+      // Contenedor del formulario
+      .form-container {
+        @include dark-glass-effect(0.7, 10px);
+        border-radius: $border-radius-lg;
+        @include box-shadow('lg');
+        padding: 2rem;
+        
+        .form-header {
+          margin-bottom: 2rem;
+          padding-bottom: 1.5rem;
+          border-bottom: 1px solid $border-color;
+          
+          h2 {
+            color: #FF7E00;
+            font-size: $font-xl;
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            
+            i {
+              color: #FF7E00;
+              animation: pulseIcon 2s ease-in-out infinite;
+            }
+            
+            @keyframes pulseIcon {
+              0% { transform: scale(1); }
+              50% { transform: scale(1.2); }
+              100% { transform: scale(1); }
+            }
+          }
+          
+          p {
+            color: rgba($text-color, 0.7);
+            margin: 0;
+            font-size: $font-sm;
+          }
+        }
+        
+        // Placeholder para el formulario a futuro
+        .form-placeholder {
+          @include flex-column;
+          align-items: center;
+          justify-content: center;
+          padding: 3rem;
+          background-color: rgba($text-color, 0.03);
+          border-radius: $border-radius-md;
+          border: 1px dashed rgba($text-color, 0.2);
+          
+          .placeholder-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: $border-radius-circle;
+            background-color: rgba(255, 126, 0, 0.1);
+            @include flex-center;
+            margin-bottom: 1.5rem;
+            @include transition(all, 0.3s, ease);
+            box-shadow: 0 0 0 0 rgba(255, 126, 0, 0.3);
+            animation: pulse 3s infinite;
+            
+            i {
+              font-size: 2.5rem;
+              color: #FF7E00;
+              @include transition(all, 0.3s, ease);
+            }
+            
+            &:hover {
+              transform: scale(1.05);
+              background-color: rgba(255, 126, 0, 0.2);
+              
+              i {
+                transform: rotate(90deg);
+              }
+            }
+            
+            @keyframes pulse {
+              0% {
+                box-shadow: 0 0 0 0 rgba(255, 126, 0, 0.5);
+              }
+              70% {
+                box-shadow: 0 0 0 15px rgba(255, 126, 0, 0);
+              }
+              100% {
+                box-shadow: 0 0 0 0 rgba(255, 126, 0, 0);
+              }
+            }
+          }
+          
+          h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: $font-lg;
+            color: $text-color;
+          }
+          
+          p {
+            margin: 0;
+            color: rgba($text-color, 0.7);
+            font-size: $font-sm;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Animaciones
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

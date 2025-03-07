@@ -3,24 +3,36 @@ import { useNavigate } from 'react-router-dom';
 import '../../styles/Welcome/Welcome.scss';
 import logoImg from '../../assets/LogoMHC.jpeg';
 import LogoutAnimation from './LogoutAnimation';
-import InfoWelcome from './infoWelcome'; // Importar el nuevo componente
+import InfoWelcome from './infoWelcome';
+import AIAssistant from './AIAssistant'; // Importamos el asistente
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [activeMenuIndex, setActiveMenuIndex] = useState(1);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [menuTransitioning, setMenuTransitioning] = useState(false); // Añadir estado para transición
+  const [menuTransitioning, setMenuTransitioning] = useState(false);
+  const [showAIAssistant, setShowAIAssistant] = useState(false); // Estado para controlar la visibilidad del asistente
   const userMenuRef = useRef(null);
   const menuRef = useRef(null);
   
   // Opciones principales del menú
   const menuOptions = ["Patients", "Referrals", "Support", "System Management", "Accounting"];
   
+  // Efecto para cargar el asistente después de que la página esté completamente cargada
+  useEffect(() => {
+    // Retraso para asegurar que la página se cargue primero
+    const timer = setTimeout(() => {
+      setShowAIAssistant(true);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
   // Efecto para la rotación automática del carrusel
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!isLoggingOut && !menuTransitioning) { // Verificar también menuTransitioning
+      if (!isLoggingOut && !menuTransitioning) {
         setActiveMenuIndex((prevIndex) => 
           prevIndex >= menuOptions.length - 1 ? 0 : prevIndex + 1
         );
@@ -61,7 +73,8 @@ const HomePage = () => {
   // Manejar el cierre de sesión con animación
   const handleLogout = () => {
     setIsLoggingOut(true);
-    setShowUserMenu(false); // Cerrar el menú de usuario al hacer logout
+    setShowUserMenu(false);
+    setShowAIAssistant(false); // Ocultar el asistente durante el logout
     
     // Después de que la animación se complete, redirigir al login
     setTimeout(() => {
@@ -73,6 +86,7 @@ const HomePage = () => {
   const handleMenuOptionClick = (index) => {
     setActiveMenuIndex(index);
     setMenuTransitioning(true);
+    setShowAIAssistant(false); // Ocultar el asistente durante la transición
     
     // Navegar a la página correspondiente según la opción del menú
     let targetRoute = '/';
@@ -200,15 +214,18 @@ const HomePage = () => {
       
       {/* Contenido principal */}
       <main className="main-content">
-        {/* Contenedor de bienvenida (desplazado hacia arriba) */}
+        {/* Contenedor de bienvenida */}
         <div className="welcome-container welcome-container-top">
           <h1 className="welcome-title">Welcome to TherapySync</h1>
           <p className="welcome-subtitle">Select an option from the navigation menu to get started</p>
         </div>
         
-        {/* Nuevo componente de información */}
+        {/* Componente de información */}
         <InfoWelcome />
       </main>
+      
+      {/* Componente de Asistente IA (carga condicional) */}
+      {showAIAssistant && <AIAssistant />}
     </div>
   );
 };

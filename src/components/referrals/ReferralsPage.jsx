@@ -92,6 +92,17 @@ const ReferralsPage = () => {
   // Manejar clic en una opción del menú
   const handleMenuOptionClick = (index) => {
     setActiveMenuIndex(index);
+    
+    // Si se selecciona "Create New Referral", navegar a la página correspondiente
+    if (menuOptions[index] === "Create New Referral") {
+      setMenuTransitioning(true);
+      
+      // Simular la transición y luego navegar
+      setTimeout(() => {
+        navigate('/createNewReferral');
+      }, 300);
+      return; // Para evitar actualizar el índice si vamos a navegar a otra página
+    }
   };
   
   // Obtener las opciones visibles del menú para el carrusel (3 elementos)

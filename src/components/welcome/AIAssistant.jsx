@@ -2,29 +2,54 @@ import React, { useState, useEffect, useRef } from 'react';
 import '../../styles/Welcome/AIAssistant.scss';
 
 const AIAssistant = () => {
+  // Estados para controlar el comportamiento del asistente
   const [isExpanded, setIsExpanded] = useState(false);
   const [query, setQuery] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [animationClass, setAnimationClass] = useState('');
   const inputRef = useRef(null);
   
   // Sugerencias rápidas para mostrar al usuario
   const quickSuggestions = [
-    { icon: 'fa-calendar-plus', text: 'Agendar cita' },
-    { icon: 'fa-user-plus', text: 'Nuevo paciente' },
-    { icon: 'fa-file-medical', text: 'Historial médico' },
-    { icon: 'fa-chart-line', text: 'Ver reportes' }
+    { icon: 'fa-calendar-plus', text: 'Agendar cita', color: '#3B82F6' },
+    { icon: 'fa-user-plus', text: 'Nuevo paciente', color: '#10B981' },
+    { icon: 'fa-file-medical', text: 'Historial médico', color: '#F59E0B' },
+    { icon: 'fa-chart-line', text: 'Ver reportes', color: '#8B5CF6' }
   ];
   
-  // Efecto para simular que la IA está escribiendo
+  // Efecto para iniciar animación de entrada
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+      setAnimationClass('fadeIn');
+    }, 800);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  // Efecto para auto-focus en el input cuando se expande
   useEffect(() => {
     if (isExpanded && inputRef.current) {
-      inputRef.current.focus();
+      setTimeout(() => {
+        inputRef.current.focus();
+      }, 300);
     }
   }, [isExpanded]);
   
   // Manejador para expandir/contraer el asistente
   const toggleAssistant = () => {
-    setIsExpanded(!isExpanded);
+    if (isExpanded) {
+      // Animar salida antes de colapsar
+      setAnimationClass('slideDown');
+      setTimeout(() => {
+        setIsExpanded(false);
+        setAnimationClass('');
+      }, 300);
+    } else {
+      setIsExpanded(true);
+      setAnimationClass('slideUp');
+    }
     setIsTyping(false);
   };
   
@@ -42,6 +67,15 @@ const AIAssistant = () => {
     // Aquí se procesaría la consulta con la IA
     console.log('Procesando consulta:', query);
     
+    // Efecto de envío exitoso
+    const button = document.querySelector('.send-button.active');
+    if (button) {
+      button.classList.add('sent');
+      setTimeout(() => {
+        button.classList.remove('sent');
+      }, 1000);
+    }
+    
     // Limpiamos el input después de enviar
     setQuery('');
     setIsTyping(false);
@@ -51,7 +85,22 @@ const AIAssistant = () => {
   const handleSuggestionClick = (suggestion) => {
     // Aquí se procesaría la acción rápida
     console.log('Acción rápida seleccionada:', suggestion);
+    
+    // Efecto visual de selección
+    const suggestionElements = document.querySelectorAll('.suggestion-item');
+    suggestionElements.forEach(el => {
+      el.classList.remove('active');
+      if (el.textContent.includes(suggestion.text)) {
+        el.classList.add('active');
+        setTimeout(() => {
+          el.classList.remove('active');
+        }, 500);
+      }
+    });
   };
+
+  // Si no es visible aún, no renderizar nada
+  if (!isVisible) return null;
 
   return (
     <div className={`ai-assistant-container ${isExpanded ? 'expanded' : ''}`}>
@@ -70,7 +119,7 @@ const AIAssistant = () => {
       
       {/* Panel expandido del asistente */}
       {isExpanded && (
-        <div className="assistant-expanded">
+        <div className={`assistant-expanded ${animationClass}`}>
           {/* Sugerencias rápidas */}
           <div className="quick-suggestions">
             <h4>Acciones rápidas</h4>
@@ -80,8 +129,11 @@ const AIAssistant = () => {
                   key={index} 
                   className="suggestion-item"
                   onClick={() => handleSuggestionClick(suggestion)}
+                  style={{'--suggestion-color': suggestion.color}}
                 >
-                  <i className={`fas ${suggestion.icon}`}></i>
+                  <div className="suggestion-icon">
+                    <i className={`fas ${suggestion.icon}`}></i>
+                  </div>
                   <span>{suggestion.text}</span>
                 </button>
               ))}
@@ -107,6 +159,7 @@ const AIAssistant = () => {
                 disabled={!isTyping}
               >
                 <i className="fas fa-paper-plane"></i>
+                <span className="send-ripple"></span>
               </button>
             </div>
           </form>
