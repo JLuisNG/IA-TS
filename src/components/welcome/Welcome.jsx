@@ -4,7 +4,7 @@ import '../../styles/Welcome/Welcome.scss';
 import logoImg from '../../assets/LogoMHC.jpeg';
 import LogoutAnimation from './LogoutAnimation';
 import InfoWelcome from './infoWelcome';
-import AIAssistant from './AIAssistant'; // Importamos el asistente
+import AIAssistant from './AIAssistant';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -12,19 +12,60 @@ const HomePage = () => {
   const [activeMenuIndex, setActiveMenuIndex] = useState(1);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [menuTransitioning, setMenuTransitioning] = useState(false);
-  const [showAIAssistant, setShowAIAssistant] = useState(false); // Estado para controlar la visibilidad del asistente
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [parallaxPosition, setParallaxPosition] = useState({ x: 0, y: 0 });
+  const [headerGlow, setHeaderGlow] = useState(false);
+  const [particles, setParticles] = useState([]);
+  const [welcomeAnimComplete, setWelcomeAnimComplete] = useState(false);
+  
   const userMenuRef = useRef(null);
   const menuRef = useRef(null);
+  const containerRef = useRef(null);
   
-  // Opciones principales del menú
-  const menuOptions = ["Patients", "Referrals", "Support", "System Management", "Accounting"];
+  // Opciones principales del menú mejoradas con iconos
+  const menuOptions = [
+    { id: 1, name: "Patients", icon: "fa-user-injured", route: '/patients', color: "#36D1DC" },
+    { id: 2, name: "Referrals", icon: "fa-file-medical", route: '/referrals', color: "#FF9966" },
+    { id: 3, name: "Support", icon: "fa-headset", route: '/support', color: "#64B5F6" },
+    { id: 4, name: "System Management", icon: "fa-cogs", route: '/management', color: "#8B5CF6" },
+    { id: 5, name: "Accounting", icon: "fa-chart-pie", route: '/accounting', color: "#4CAF50" }
+  ];
+  
+  // Generar partículas aleatorias para el efecto de fondo
+  const generateParticles = () => {
+    const particlesArray = [];
+    const particleCount = 25;
+    
+    for (let i = 0; i < particleCount; i++) {
+      particlesArray.push({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.random() * 5 + 3,
+        speed: Math.random() * 0.8 + 0.2,
+        opacity: Math.random() * 0.5 + 0.1,
+        color: `rgba(255, 255, 255, ${Math.random() * 0.3 + 0.1})`,
+        delay: Math.random() * 5
+      });
+    }
+    
+    setParticles(particlesArray);
+  };
   
   // Efecto para cargar el asistente después de que la página esté completamente cargada
   useEffect(() => {
+    // Generar partículas
+    generateParticles();
+    
+    // Animación de entrada completa
+    setTimeout(() => {
+      setWelcomeAnimComplete(true);
+    }, 1500);
+    
     // Retraso para asegurar que la página se cargue primero
     const timer = setTimeout(() => {
       setShowAIAssistant(true);
-    }, 1000);
+    }, 2000);
     
     return () => clearTimeout(timer);
   }, []);
@@ -37,10 +78,36 @@ const HomePage = () => {
           prevIndex >= menuOptions.length - 1 ? 0 : prevIndex + 1
         );
       }
-    }, 5000);
+    }, 6000);
     
     return () => clearInterval(interval);
   }, [menuOptions.length, isLoggingOut, menuTransitioning]);
+  
+  // Efecto para activar el efecto de parallax en el fondo
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (containerRef.current) {
+        const { clientX, clientY } = e;
+        const { width, height } = containerRef.current.getBoundingClientRect();
+        
+        // Calcular posición relativa al centro
+        const xPos = (clientX / width - 0.5) * 20; // Limitado a +-10px
+        const yPos = (clientY / height - 0.5) * 15; // Limitado a +-7.5px
+        
+        setParallaxPosition({ x: xPos, y: yPos });
+        
+        // Activar el brillo del header cuando el mouse está en la parte superior
+        if (clientY < 100) {
+          setHeaderGlow(true);
+        } else {
+          setHeaderGlow(false);
+        }
+      }
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
   
   // Cerrar menú de usuario al hacer clic fuera
   useEffect(() => {
@@ -70,113 +137,148 @@ const HomePage = () => {
     );
   };
   
-  // Manejar el cierre de sesión con animación
+  // Manejar el cierre de sesión con animación mejorada
   const handleLogout = () => {
     setIsLoggingOut(true);
     setShowUserMenu(false);
-    setShowAIAssistant(false); // Ocultar el asistente durante el logout
+    setShowAIAssistant(false);
     
     // Después de que la animación se complete, redirigir al login
     setTimeout(() => {
       navigate('/');
-    }, 3500); // Tiempo suficiente para mostrar todos los pasos del proceso
+    }, 5000); // Tiempo ajustado para la animación mejorada
   };
   
   // Manejar clic en opción del menú principal
-  const handleMenuOptionClick = (index) => {
-    setActiveMenuIndex(index);
+  const handleMenuOptionClick = (option) => {
+    setActiveMenuIndex(menuOptions.findIndex(o => o.id === option.id));
     setMenuTransitioning(true);
-    setShowAIAssistant(false); // Ocultar el asistente durante la transición
+    setShowAIAssistant(false);
     
     // Navegar a la página correspondiente según la opción del menú
-    let targetRoute = '/';
-    switch(menuOptions[index]) {
-      case "Patients":
-        targetRoute = '/patients';
-        break;
-      case "Referrals":
-        targetRoute = '/referrals';
-        break;
-      case "Support":
-        targetRoute = '/support';
-        break;
-      case "System Management":
-        targetRoute = '/management';
-        break;
-      case "Accounting":
-        targetRoute = '/accounting';
-        break;
-      default:
-        targetRoute = '/homePage';
-    }
-    
-    // Breve retraso para permitir efectos visuales de transición
     setTimeout(() => {
-      navigate(targetRoute);
-    }, 300);
+      navigate(option.route);
+    }, 500);
   };
   
-  // Obtener las opciones visibles del menú para el carrusel (3 elementos)
+  // Obtener las opciones visibles del menú para el carrusel (5 elementos con diferentes tamaños)
   const getVisibleMenuOptions = () => {
     const result = [];
     const totalOptions = menuOptions.length;
     
-    // Calcular los índices para los 3 elementos visibles (anterior, actual, siguiente)
-    const prevIndex = activeMenuIndex === 0 ? totalOptions - 1 : activeMenuIndex - 1;
-    const nextIndex = activeMenuIndex === totalOptions - 1 ? 0 : activeMenuIndex + 1;
-    
-    result.push({index: prevIndex, text: menuOptions[prevIndex], position: 'left'});
-    result.push({index: activeMenuIndex, text: menuOptions[activeMenuIndex], position: 'center'});
-    result.push({index: nextIndex, text: menuOptions[nextIndex], position: 'right'});
+    // Obtener los índices para 5 elementos visibles con el activo en el centro
+    for (let i = -2; i <= 2; i++) {
+      const actualIndex = (activeMenuIndex + i + totalOptions) % totalOptions;
+      
+      // Determinar la posición basada en la distancia al elemento activo
+      let position;
+      if (i === -2) position = 'far-left';
+      else if (i === -1) position = 'left';
+      else if (i === 0) position = 'center';
+      else if (i === 1) position = 'right';
+      else position = 'far-right';
+      
+      result.push({
+        ...menuOptions[actualIndex],
+        position
+      });
+    }
     
     return result;
   };
 
   return (
-    <div className={`dashboard ${menuTransitioning ? 'transitioning' : ''}`}>
-      {/* Fondo con efecto parallax */}
-      <div className="parallax-background">
+    <div 
+      className={`dashboard ${menuTransitioning ? 'transitioning' : ''} ${welcomeAnimComplete ? 'anim-complete' : ''}`}
+      ref={containerRef}
+    >
+      {/* Fondo con efecto parallax avanzado */}
+      <div 
+        className="parallax-background"
+        style={{ 
+          transform: `scale(1.1) translate(${parallaxPosition.x}px, ${parallaxPosition.y}px)` 
+        }}
+      >
         <div className="gradient-overlay"></div>
+        
+        {/* Partículas flotantes */}
+        <div className="particles-container">
+          {particles.map(particle => (
+            <div 
+              key={particle.id}
+              className="particle"
+              style={{
+                left: `${particle.x}%`,
+                top: `${particle.y}%`,
+                width: `${particle.size}px`,
+                height: `${particle.size}px`,
+                opacity: particle.opacity,
+                backgroundColor: particle.color,
+                animationDuration: `${10 + particle.speed * 20}s`,
+                animationDelay: `${particle.delay}s`
+              }}
+            ></div>
+          ))}
+        </div>
       </div>
       
       {/* Componente de animación de logout */}
       {isLoggingOut && <LogoutAnimation />}
       
-      {/* Header con logo y perfil */}
-      <header className="main-header">
+      {/* Header con logo y perfil con efectos premium */}
+      <header className={`main-header ${headerGlow ? 'glow-effect' : ''}`}>
         <div className="header-container">
-          {/* Logo */}
+          {/* Logo con efectos */}
           <div className="logo-container">
+            <div className="logo-glow"></div>
             <img src={logoImg} alt="TherapySync Logo" className="logo" />
           </div>
           
-          {/* Carrusel en la parte superior */}
+          {/* Carrusel superior mejorado */}
           <div className="top-carousel" ref={menuRef}>
             <button className="carousel-arrow left" onClick={handlePrevious} aria-label="Previous">
-              <i className="fas fa-chevron-left"></i>
+              <div className="arrow-icon">
+                <i className="fas fa-chevron-left"></i>
+              </div>
             </button>
             
             <div className="carousel-options">
               {getVisibleMenuOptions().map((item) => (
                 <div 
-                  key={item.index} 
+                  key={item.id} 
                   className={`carousel-option ${item.position}`}
-                  onClick={() => handleMenuOptionClick(item.index)}
+                  onClick={() => handleMenuOptionClick(item)}
                 >
-                  <span>{item.text}</span>
+                  <div className="option-content">
+                    <div 
+                      className="option-icon" 
+                      style={{ 
+                        background: `linear-gradient(135deg, ${item.color}, ${item.color}88)`,
+                        opacity: item.position === 'center' ? 1 : 0
+                      }}
+                    >
+                      <i className={`fas ${item.icon}`}></i>
+                    </div>
+                    <span>{item.name}</span>
+                    {item.position === 'center' && (
+                      <div className="active-underline"></div>
+                    )}
+                  </div>
                   {item.position === 'center' && (
-                    <div className="active-underline"></div>
+                    <div className="option-glow"></div>
                   )}
                 </div>
               ))}
             </div>
             
             <button className="carousel-arrow right" onClick={handleNext} aria-label="Next">
-              <i className="fas fa-chevron-right"></i>
+              <div className="arrow-icon">
+                <i className="fas fa-chevron-right"></i>
+              </div>
             </button>
           </div>
           
-          {/* Perfil de usuario */}
+          {/* Perfil de usuario avanzado */}
           <div className="user-profile" ref={userMenuRef}>
             <div 
               className={`profile-button ${showUserMenu ? 'active' : ''}`} 
@@ -189,19 +291,45 @@ const HomePage = () => {
               
               <div className="avatar">
                 <div className="avatar-text">LN</div>
+                <div className="avatar-ring"></div>
               </div>
               
               <i className={`fas fa-chevron-${showUserMenu ? 'up' : 'down'}`}></i>
             </div>
             
-            {/* Menú desplegable del usuario */}
+            {/* Menú desplegable del usuario con efectos */}
             {showUserMenu && (
               <div className="user-menu">
-                <div className="menu-item">
-                  <i className="fas fa-user-circle"></i>
-                  <span>My Account</span>
+                <div className="menu-header">
+                  <div className="user-info">
+                    <div className="user-avatar">
+                      <span>LN</span>
+                    </div>
+                    <div className="user-details">
+                      <h4>Luis Nava</h4>
+                      <span className="user-email">luis.nava@example.com</span>
+                    </div>
+                  </div>
                 </div>
+                
+                <div className="menu-items">
+                  <div className="menu-item">
+                    <i className="fas fa-user-circle"></i>
+                    <span>My Account</span>
+                  </div>
+                  <div className="menu-item">
+                    <i className="fas fa-cog"></i>
+                    <span>Settings</span>
+                  </div>
+                  <div className="menu-item">
+                    <i className="fas fa-bell"></i>
+                    <span>Notifications</span>
+                    <div className="notification-badge">3</div>
+                  </div>
+                </div>
+                
                 <div className="menu-divider"></div>
+                
                 <div className="menu-item logout" onClick={handleLogout}>
                   <i className="fas fa-sign-out-alt"></i>
                   <span>Log Out</span>
@@ -212,19 +340,25 @@ const HomePage = () => {
         </div>
       </header>
       
-      {/* Contenido principal */}
+      {/* Contenido principal con animaciones mejoradas */}
       <main className="main-content">
-        {/* Contenedor de bienvenida */}
+        {/* Contenedor de bienvenida con efecto de texto */}
         <div className="welcome-container welcome-container-top">
-          <h1 className="welcome-title">Welcome to TherapySync</h1>
-          <p className="welcome-subtitle">Select an option from the navigation menu to get started</p>
+          <h1 className="welcome-title">
+            <span className="highlight">Welcome</span> to TherapySync
+            <div className="title-decoration"></div>
+          </h1>
+          <p className="welcome-subtitle">
+            Select an option from the navigation menu to get started
+            <span className="cursor-blink">_</span>
+          </p>
         </div>
         
-        {/* Componente de información */}
+        {/* Componente de información mejorado */}
         <InfoWelcome />
       </main>
       
-      {/* Componente de Asistente IA (carga condicional) */}
+      {/* Componente de Asistente IA con carga condicional */}
       {showAIAssistant && <AIAssistant />}
     </div>
   );

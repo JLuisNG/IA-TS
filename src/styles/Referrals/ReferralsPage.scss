@@ -256,7 +256,7 @@
             }
             
             &.active {
-              background: linear-gradient(135deg, rgba(0, 70, 140, 0.5), rgba(0, 40, 80, 0.5));
+              background: linear-gradient(135deg, rgba(0, 140, 98, 0.5), rgba(0, 80, 33, 0.5));
               color: #7cb6ff;
               position: relative;
               
@@ -441,7 +441,7 @@
         .profile-button {
           display: flex;
           align-items: center;
-          background: linear-gradient(135deg, rgba(0, 60, 120, 0.4), rgba(0, 30, 60, 0.4));
+          background: linear-gradient(135deg, rgb(0, 120, 46), rgba(47, 2, 105, 0.4));
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 50px;
           padding: 0.4rem 0.75rem 0.4rem 1rem;
@@ -475,7 +475,7 @@
             width: 35px;
             height: 35px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #0288d1, #26c6da);
+            background: linear-gradient(135deg, #0274d1, #45da26);
             display: flex;
             align-items: center;
             justify-content: center;
