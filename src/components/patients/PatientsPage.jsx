@@ -500,18 +500,18 @@ const PatientsPage = () => {
     }, 300);
   };
   
-  // Manejar cambio de pestaña
-  const handleTabChange = (tab) => {
-    if (tab === 'Staffing') {
-      // Aquí podrías navegar a la página de Staffing
-      // Por ahora, simulamos una animación
-      setMenuTransitioning(true);
-      setTimeout(() => {
-        setMenuTransitioning(false);
-        // navigate('/staffing');
-      }, 300);
-    }
-  };
+// Manejar cambio de pestaña
+const handleTabChange = (tab) => {
+  if (tab === 'Staffing') {
+    // Navegar a la página de Staffing
+    setMenuTransitioning(true);
+    setShowAIAssistant(false);
+    
+    setTimeout(() => {
+      navigate('/staffing');
+    }, 300);
+  }
+};
   
   // Manejar clic en una opción de menú
   const handleMenuOptionClick = (option) => {

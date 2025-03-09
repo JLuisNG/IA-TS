@@ -5,6 +5,7 @@ import HomePage from './components/welcome/Welcome';
 import ReferralsPage from './components/referrals/ReferralsPage';
 import CreateNF from './components/referrals/CreateNF/CreateNF';
 import PatientsPage from './components/patients/PatientsPage';
+import StaffingPage from './components/patients/staffing/StaffingPage';
 // Importar FontAwesome
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
@@ -17,6 +18,7 @@ function App() {
         <Route path="/referrals" element={<ReferralsPage />} />
         <Route path="/createNewReferral" element={<CreateNF />} />
         <Route path="/patients" element={<PatientsPage />} />
+        <Route path="/staffing" element={<StaffingPage />} />
       </Routes>
     </HashRouter>
   );
