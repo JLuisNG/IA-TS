@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import logoImg from '../../../assets/LogoMHC.jpeg';
 import '../../../styles/Patients/Staffing/StaffingPage.scss';
 import PremiumTabs from '../Patients/PremiunTabs.jsx';
+import StaffingManagerContainer from './StaffingManagerContainer';
+import AddStaffForm from './AddStaffForm';
+import StaffListComponent from './StaffListComponent';
+import StaffEditComponent from './StaffEditComponent';
 
 const StaffingPage = () => {
   const navigate = useNavigate();
@@ -10,6 +14,9 @@ const StaffingPage = () => {
   const [menuTransitioning, setMenuTransitioning] = useState(false);
   const [showMenuSwitch, setShowMenuSwitch] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
+  const [showAddStaffForm, setShowAddStaffForm] = useState(false);
+  const [showStaffList, setShowStaffList] = useState(false);
+  const [showStaffEdit, setShowStaffEdit] = useState(false);
   
   // Referencias
   const userMenuRef = useRef(null);
@@ -67,6 +74,47 @@ const StaffingPage = () => {
   // Manejar selección de opción
   const handleOptionSelect = (option) => {
     setSelectedOption(option);
+    setShowAddStaffForm(false);
+    setShowStaffList(false);
+    setShowStaffEdit(false);
+  };
+
+  // Manejar el clic en Add New Staff
+  const handleAddStaffClick = () => {
+    setSelectedOption('therapists');
+    setShowAddStaffForm(true);
+    setShowStaffList(false);
+    setShowStaffEdit(false);
+  };
+
+  // Manejar el clic en View All Staff
+  const handleViewAllStaffClick = () => {
+    setSelectedOption('therapists');
+    setShowStaffList(true);
+    setShowAddStaffForm(false);
+    setShowStaffEdit(false);
+  };
+
+  // Manejar el clic en Edit Existing Staff
+  const handleEditStaffClick = () => {
+    setSelectedOption('therapists');
+    setShowStaffEdit(true);
+    setShowAddStaffForm(false);
+    setShowStaffList(false);
+  };
+
+  // Manejar cancelación del formulario
+  const handleCancelForm = () => {
+    setShowAddStaffForm(false);
+    setShowStaffList(false);
+    setShowStaffEdit(false);
+  };
+
+  // Manejar volver a opciones
+  const handleBackToOptions = () => {
+    setShowStaffList(false);
+    setShowAddStaffForm(false);
+    setShowStaffEdit(false);
   };
 
   return (
@@ -190,7 +238,10 @@ const StaffingPage = () => {
                 <button className="header-action-btn">
                   <i className="fas fa-info-circle"></i> Quick Tour
                 </button>
-                <button className="header-action-btn">
+                <button 
+                  className="header-action-btn"
+                  onClick={handleAddStaffClick}
+                >
                   <i className="fas fa-plus"></i> New Staff Member
                 </button>
               </div>
@@ -218,10 +269,16 @@ const StaffingPage = () => {
                 <h3>Therapists & Office Staff</h3>
                 <p>Add or edit therapist and office staff users</p>
                 <div className="option-actions">
-                  <button className="option-btn">
+                  <button className="option-btn" onClick={(e) => {
+                    e.stopPropagation();
+                    handleViewAllStaffClick();
+                  }}>
                     <i className="fas fa-eye"></i> View All
                   </button>
-                  <button className="option-btn">
+                  <button className="option-btn" onClick={(e) => {
+                    e.stopPropagation();
+                    handleAddStaffClick();
+                  }}>
                     <i className="fas fa-plus"></i> Add New
                   </button>
                 </div>
@@ -305,71 +362,79 @@ const StaffingPage = () => {
           </div>
           
           {/* Área de contenido seleccionado - Aquí se mostrará el contenido específico según la opción elegida */}
-          <div className="selected-content-area">
-            {selectedOption && (
-              <div className="selected-content-card">
-                <div className="content-header">
-                  <h2>
-                    {selectedOption === 'therapists' ? 'Therapists & Office Staff' : 'Scheduling & Assignments'}
-                  </h2>
-                  <p>
-                    {selectedOption === 'therapists' 
-                      ? 'View and manage your therapy and office staff team members.' 
-                      : 'Manage scheduling and patient assignments for your therapy team.'}
-                  </p>
-                </div>
-                
-                <div className="content-body">
-                  <div className="placeholder-content">
-                    <i className={`fas fa-${selectedOption === 'therapists' ? 'users' : 'calendar-alt'}`}></i>
-                    <p>Select an action to continue with {selectedOption === 'therapists' ? 'staff management' : 'scheduling'}</p>
-                    
-                    {selectedOption === 'therapists' && (
-                      <div className="action-buttons">
-                        <button className="action-btn add">
-                          <i className="fas fa-user-plus"></i> Add New Staff
-                        </button>
-                        <button className="action-btn view">
-                          <i className="fas fa-list"></i> View All Staff
-                        </button>
-                        <button className="action-btn edit">
-                          <i className="fas fa-user-edit"></i> Edit Existing Staff
-                        </button>
-                      </div>
-                    )}
-                    
-                    {selectedOption === 'scheduling' && (
-                      <div className="action-buttons">
-                        <button className="action-btn calendar">
-                          <i className="fas fa-calendar-plus"></i> Create New Schedule
-                        </button>
-                        <button className="action-btn view">
-                          <i className="fas fa-calendar-week"></i> View Calendar
-                        </button>
-                        <button className="action-btn assign">
-                          <i className="fas fa-user-check"></i> Assign Patients
-                        </button>
-                      </div>
-                    )}
+          {selectedOption === 'therapists' && showAddStaffForm ? (
+            <AddStaffForm onCancel={handleCancelForm} />
+          ) : selectedOption === 'therapists' && showStaffList ? (
+            <StaffListComponent onBackToOptions={handleBackToOptions} />
+          ) : selectedOption === 'therapists' && showStaffEdit ? (
+            <StaffEditComponent onBackToOptions={handleBackToOptions} />
+          ) : (
+            <div className="selected-content-area">
+              {selectedOption && (
+                <div className="selected-content-card">
+                  <div className="content-header">
+                    <h2>
+                      {selectedOption === 'therapists' ? 'Therapists & Office Staff' : 'Scheduling & Assignments'}
+                    </h2>
+                    <p>
+                      {selectedOption === 'therapists' 
+                        ? 'View and manage your therapy and office staff team members.' 
+                        : 'Manage scheduling and patient assignments for your therapy team.'}
+                    </p>
+                  </div>
+                  
+                  <div className="content-body">
+                    <div className="placeholder-content">
+                      <i className={`fas fa-${selectedOption === 'therapists' ? 'users' : 'calendar-alt'}`}></i>
+                      <p>Select an action to continue with {selectedOption === 'therapists' ? 'staff management' : 'scheduling'}</p>
+                      
+                      {selectedOption === 'therapists' && (
+                        <div className="action-buttons">
+                          <button className="action-btn add" onClick={handleAddStaffClick}>
+                            <i className="fas fa-user-plus"></i> Add New Staff
+                          </button>
+                          <button className="action-btn view" onClick={handleViewAllStaffClick}>
+                            <i className="fas fa-list"></i> View All Staff
+                          </button>
+                          <button className="action-btn edit" onClick={handleEditStaffClick}>
+                            <i className="fas fa-user-edit"></i> Edit Existing Staff
+                          </button>
+                        </div>
+                      )}
+                      
+                      {selectedOption === 'scheduling' && (
+                        <div className="action-buttons">
+                          <button className="action-btn calendar">
+                            <i className="fas fa-calendar-plus"></i> Create New Schedule
+                          </button>
+                          <button className="action-btn view">
+                            <i className="fas fa-calendar-week"></i> View Calendar
+                          </button>
+                          <button className="action-btn assign">
+                            <i className="fas fa-user-check"></i> Assign Patients
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-            
-            {!selectedOption && (
-              <div className="welcome-select-message">
-                <i className="fas fa-hand-point-up"></i>
-                <h3>Please Select an Option Above</h3>
-                <p>Choose "Therapists & Office Staff" or "Scheduling & Assignments" to get started</p>
-              </div>
-            )}
-          </div>
+              )}
+              
+              {!selectedOption && (
+                <div className="welcome-select-message">
+                  <i className="fas fa-hand-point-up"></i>
+                  <h3>Please Select an Option Above</h3>
+                  <p>Choose "Therapists & Office Staff" or "Scheduling & Assignments" to get started</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
       
       {/* Botón de Acción Rápida Flotante */}
       <div className="quick-action-btn">
-        <button className="add-staff-btn">
+        <button className="add-staff-btn" onClick={handleAddStaffClick}>
           <i className="fas fa-plus"></i>
           <span className="btn-tooltip">Add New Staff</span>
         </button>
