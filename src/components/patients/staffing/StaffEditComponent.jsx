@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../../styles/Patients/Staffing/StaffEditComponent.scss';
 
 const StaffEditComponent = ({ onBackToOptions }) => {
@@ -8,13 +8,11 @@ const StaffEditComponent = ({ onBackToOptions }) => {
   const [filteredStaff, setFilteredStaff] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState('all');
-  const [sortOption, setSortOption] = useState('name-asc');
-  const [viewMode, setViewMode] = useState('grid');
   const [selectedStaff, setSelectedStaff] = useState(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [activeTab, setActiveTab] = useState('staff');
-
+  const [activeTab, setActiveTab] = useState('info');
+  
   // Simulación de carga con mensajes dinámicos
   useEffect(() => {
     setIsLoading(true);
@@ -294,26 +292,8 @@ const StaffEditComponent = ({ onBackToOptions }) => {
       filtered = filtered.filter(staff => staff.role === filterRole);
     }
     
-    // Ordenar según la opción seleccionada
-    switch (sortOption) {
-      case 'name-asc':
-        filtered.sort((a, b) => `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`));
-        break;
-      case 'name-desc':
-        filtered.sort((a, b) => `${b.firstName} ${b.lastName}`.localeCompare(`${a.firstName} ${a.lastName}`));
-        break;
-      case 'role':
-        filtered.sort((a, b) => a.roleDisplay.localeCompare(b.roleDisplay));
-        break;
-      case 'patients-desc':
-        filtered.sort((a, b) => b.patients - a.patients);
-        break;
-      default:
-        break;
-    }
-    
     setFilteredStaff(filtered);
-  }, [staffList, searchTerm, filterRole, sortOption]);
+  }, [staffList, searchTerm, filterRole]);
 
   // Roles disponibles
   const roles = [
@@ -338,25 +318,6 @@ const StaffEditComponent = ({ onBackToOptions }) => {
     { id: 'businessLicense', name: 'Copy of Business License or EIN' },
   ];
 
-  // Cálculo de métricas
-  const calculateMetrics = () => {
-    const total = staffList.length;
-    const active = staffList.filter(s => s.status === 'active').length;
-    const documentsComplete = staffList.filter(s => {
-      return Object.values(s.documents).every(doc => doc.status === 'obtained');
-    }).length;
-    
-    return {
-      total,
-      active,
-      documentsComplete,
-      documentsCompletePercentage: Math.round((documentsComplete / total) * 100) || 0
-    };
-  };
-
-  const metrics = calculateMetrics();
-
-  // Manejadores de eventos
   const handleOpenProfile = (staff) => {
     setSelectedStaff(staff);
     setShowProfileModal(true);
@@ -407,7 +368,6 @@ const StaffEditComponent = ({ onBackToOptions }) => {
     
     setStaffList(updatedStaffList);
     
-    // Si el miembro del personal está seleccionado, actualizar también selectedStaff
     if (selectedStaff && selectedStaff.id === staffId) {
       setSelectedStaff(updatedStaffList.find(staff => staff.id === staffId));
     }
@@ -438,7 +398,6 @@ const StaffEditComponent = ({ onBackToOptions }) => {
       
       setStaffList(updatedStaffList);
       
-      // Si el miembro del personal está seleccionado, actualizar también selectedStaff
       if (selectedStaff && selectedStaff.id === staffId) {
         setSelectedStaff(updatedStaffList.find(staff => staff.id === staffId));
       }
@@ -447,12 +406,9 @@ const StaffEditComponent = ({ onBackToOptions }) => {
     }
   };
 
-  // Esta es la función corregida para actualizar los datos de personal
   const handleUpdateStaffData = (staffId, field, value) => {
-    // Crear una copia profunda de la lista de personal
     const updatedStaffList = staffList.map(staff => {
       if (staff.id === staffId) {
-        // Si encontramos el miembro del personal correcto, actualizamos el campo específico
         return {
           ...staff,
           [field]: value
@@ -461,19 +417,14 @@ const StaffEditComponent = ({ onBackToOptions }) => {
       return staff;
     });
     
-    // Actualizar el estado con la nueva lista
     setStaffList(updatedStaffList);
     
-    // Si el miembro del personal está seleccionado, actualizar también selectedStaff
     if (selectedStaff && selectedStaff.id === staffId) {
       setSelectedStaff({
         ...selectedStaff,
         [field]: value
       });
     }
-    
-    // Opcional: Para depuración
-    console.log(`Actualizando: ID ${staffId}, Campo ${field}, Valor ${value}`);
   };
 
   // Renderizado de la pantalla de carga
@@ -506,18 +457,25 @@ const StaffEditComponent = ({ onBackToOptions }) => {
     );
   }
 
+  // Calcular documentos completos por terapeuta
+  const getCompletedDocsPercentage = (documents) => {
+    const total = Object.keys(documents).length;
+    const completed = Object.values(documents).filter(doc => doc.status === 'obtained').length;
+    return Math.round((completed / total) * 100);
+  };
+
   return (
     <div className="staff-edit-container">
-      {/* Cabecera */}
+      {/* Cabecera mejorada */}
       <div className="staff-edit-header">
-        <div className="header-left">
+        <div className="header-content">
           <button className="back-button" onClick={onBackToOptions}>
             <i className="fas fa-arrow-left"></i>
             <span>Volver</span>
           </button>
-          <div className="header-title">
-            <h2>Editar Personal</h2>
-            <p>Actualice información, gestione documentos y configure permisos de usuario</p>
+          <div className="header-title-container">
+            <h2>Edición de Personal</h2>
+            <p>Gestiona y actualiza la información del personal terapéutico</p>
           </div>
         </div>
         
@@ -530,65 +488,24 @@ const StaffEditComponent = ({ onBackToOptions }) => {
               setIsLoading(false);
             }, 2000);
           }}>
-            <i className="fas fa-sync-alt"></i> Actualizar
+            <i className="fas fa-sync-alt"></i> 
+            <span>Actualizar</span>
           </button>
           <button className="export-btn">
-            <i className="fas fa-file-export"></i> Exportar
+            <i className="fas fa-file-export"></i> 
+            <span>Exportar</span>
           </button>
         </div>
       </div>
       
-      {/* Métricas de resumen */}
-      <div className="staff-metrics">
-        <div className="metric-card">
-          <div className="metric-icon">
-            <i className="fas fa-users"></i>
-          </div>
-          <div className="metric-data">
-            <h3>{metrics.total}</h3>
-            <p>Total personal</p>
-          </div>
-        </div>
-        
-        <div className="metric-card">
-          <div className="metric-icon">
-            <i className="fas fa-user-check"></i>
-          </div>
-          <div className="metric-data">
-            <h3>{metrics.active}</h3>
-            <p>Activos</p>
-          </div>
-        </div>
-        
-        <div className="metric-card">
-          <div className="metric-icon">
-            <i className="fas fa-file-medical"></i>
-          </div>
-          <div className="metric-data">
-            <h3>{metrics.documentsCompletePercentage}%</h3>
-            <p>Documentación completa</p>
-          </div>
-        </div>
-        
-        <div className="metric-card">
-          <div className="metric-icon">
-            <i className="fas fa-clipboard-list"></i>
-          </div>
-          <div className="metric-data">
-            <h3>{staffList.reduce((sum, staff) => sum + staff.patients, 0)}</h3>
-            <p>Pacientes asignados</p>
-          </div>
-        </div>
-      </div>
-      
-      {/* Barra de filtros y búsqueda */}
-      <div className="staff-filters">
-        <div className="search-filter">
-          <div className="search-input">
+      {/* Barra de filtros y búsqueda mejorada */}
+      <div className="search-filter-container">
+        <div className="search-bar">
+          <div className="search-input-wrapper">
             <i className="fas fa-search"></i>
             <input 
               type="text" 
-              placeholder="Buscar por nombre, email o teléfono..." 
+              placeholder="Buscar por nombre, email o especialidad..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -599,369 +516,289 @@ const StaffEditComponent = ({ onBackToOptions }) => {
             )}
           </div>
           
-          <div className="filter-by-role">
-            <select 
-              value={filterRole} 
-              onChange={(e) => setFilterRole(e.target.value)}
-            >
-              <option value="all">Todos los roles</option>
+          <div className="role-filter">
+            <span className="filter-label">Filtrar por rol:</span>
+            <div className="role-options">
+              <button 
+                className={`role-option ${filterRole === 'all' ? 'active' : ''}`}
+                onClick={() => setFilterRole('all')}
+              >
+                <span>Todos</span>
+              </button>
+              
               {roles.map(role => (
-                <option key={role.value} value={role.value}>{role.label}</option>
+                <button 
+                  key={role.value}
+                  className={`role-option ${filterRole === role.value ? 'active' : ''}`}
+                  onClick={() => setFilterRole(role.value)}
+                >
+                  <span>{role.value.toUpperCase()}</span>
+                </button>
               ))}
-            </select>
-          </div>
-        </div>
-        
-        <div className="view-options">
-          <div className="sort-by">
-            <select 
-              value={sortOption} 
-              onChange={(e) => setSortOption(e.target.value)}
-            >
-              <option value="name-asc">Nombre (A-Z)</option>
-              <option value="name-desc">Nombre (Z-A)</option>
-              <option value="role">Rol</option>
-              <option value="patients-desc">Pacientes (Mayor a Menor)</option>
-            </select>
-          </div>
-          
-          <div className="view-toggle">
-            <button 
-              className={`toggle-btn ${viewMode === 'grid' ? 'active' : ''}`} 
-              onClick={() => setViewMode('grid')}
-            >
-              <i className="fas fa-th-large"></i>
-            </button>
-            <button 
-              className={`toggle-btn ${viewMode === 'list' ? 'active' : ''}`} 
-              onClick={() => setViewMode('list')}
-            >
-              <i className="fas fa-list"></i>
-            </button>
+            </div>
           </div>
         </div>
       </div>
       
-      {/* Lista de personal */}
-      <div className={`staff-list ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`}>
+      {/* Contenedor de tarjetas de personal rediseñadas */}
+      <div className="staff-cards-container">
         {filteredStaff.length > 0 ? (
-          <>
-            {filteredStaff.map(staff => (
-              <div 
-                key={staff.id} 
-                className={`staff-card ${staff.status}`}
-                onClick={() => handleOpenProfile(staff)}
-              >
-                <div className="card-header">
-                  <div className="avatar">
-                    {staff.avatar ? (
-                      <img src={staff.avatar} alt={`${staff.firstName} ${staff.lastName}`} />
-                    ) : (
-                      <div className="avatar-placeholder">
-                        {staff.firstName.charAt(0)}{staff.lastName.charAt(0)}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="staff-info">
-                    <h3>{staff.firstName} {staff.lastName}</h3>
-                    <span className="role-badge">{staff.roleDisplay}</span>
-                    <span className={`status-badge ${staff.status}`}>
-                      {staff.status === 'active' ? 'Activo' : 'Inactivo'}
-                    </span>
+          filteredStaff.map(staff => (
+            <div 
+              key={staff.id} 
+              className={`staff-card ${staff.status}`}
+              onClick={() => handleOpenProfile(staff)}
+            >
+              <div className="staff-card-header">
+                <div className="avatar-status">
+                  <div className={`avatar-container ${staff.role}`}>
+                    <div className="avatar-inner">
+                      {staff.firstName.charAt(0)}{staff.lastName.charAt(0)}
+                    </div>
+                    <span className={`status-indicator ${staff.status}`}></span>
                   </div>
                 </div>
                 
-                <div className="card-content">
-                  <div className="contact-info">
-                    <div className="info-item">
-                      <i className="fas fa-envelope"></i>
-                      <span>{staff.email}</span>
-                    </div>
-                    <div className="info-item">
-                      <i className="fas fa-phone"></i>
-                      <span>{staff.phone}</span>
-                    </div>
-                    <div className="info-item">
-                      <i className="fas fa-birthday-cake"></i>
-                      <span>{staff.age} años</span>
-                    </div>
-                    <div className="info-item">
-                      <i className="fas fa-map-marker-alt"></i>
-                      <span>{staff.address}</span>
-                    </div>
+                <div className="staff-identity">
+                  <h3>{staff.firstName} {staff.lastName}</h3>
+                  <span className="staff-role">{staff.roleDisplay}</span>
+                </div>
+                
+                <div className="edit-action">
+                  <button className="edit-btn">
+                    <i className="fas fa-pen"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <div className="staff-card-body">
+                <div className="contact-details">
+                  <div className="contact-item">
+                    <i className="fas fa-envelope"></i>
+                    <span>{staff.email}</span>
                   </div>
-                  
-                  <div className="documents-status">
-                    <div className="doc-progress">
-                      <div className="progress-label">
-                        <span>Documentos</span>
-                        <span>
-                          {Object.values(staff.documents).filter(doc => doc.status === 'obtained').length}/
-                          {Object.values(staff.documents).length}
-                        </span>
-                      </div>
-                      <div className="progress-bar">
-                        <div 
-                          className="progress-fill" 
-                          style={{
-                            width: `${(Object.values(staff.documents).filter(doc => doc.status === 'obtained').length / 
-                              Object.values(staff.documents).length) * 100}%`
-                          }}
-                        ></div>
-                      </div>
-                    </div>
+                  <div className="contact-item">
+                    <i className="fas fa-phone-alt"></i>
+                    <span>{staff.phone}</span>
+                  </div>
+                  <div className="contact-item">
+                    <i className="fas fa-map-marker-alt"></i>
+                    <span>{staff.address}</span>
                   </div>
                 </div>
                 
-                <div className="card-footer">
-                  <div className="patients-info">
-                    <i className="fas fa-user-injured"></i>
-                    <span>{staff.patients} pacientes asignados</span>
+                <div className="documents-progress">
+                  <div className="progress-label">
+                    <span>Documentación</span>
+                    <span className="percentage">{getCompletedDocsPercentage(staff.documents)}%</span>
                   </div>
-                  
-                  <div className="card-actions">
-                    <button 
-                      className="edit-staff-btn" 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenProfile(staff);
-                      }}
-                    >
-                      <i className="fas fa-user-edit"></i>
-                      <span>Editar</span>
-                    </button>
+                  <div className="progress-bar">
+                    <div 
+                      className="progress-fill"
+                      style={{ width: `${getCompletedDocsPercentage(staff.documents)}%` }}
+                    ></div>
                   </div>
                 </div>
               </div>
-            ))}
-          </>
+            </div>
+          ))
         ) : (
           <div className="no-results">
-            <i className="fas fa-search"></i>
+            <div className="no-results-icon">
+              <i className="fas fa-search"></i>
+            </div>
             <h3>No se encontraron resultados</h3>
-            <p>Intente con diferentes términos de búsqueda o filtros</p>
-            <button className="reset-filters" onClick={() => {
-              setSearchTerm('');
-              setFilterRole('all');
-            }}>
-              <i className="fas fa-redo"></i> Restablecer filtros
+            <p>Intenta con diferentes criterios de búsqueda o cambia los filtros</p>
+            <button 
+              className="reset-filters-btn"
+              onClick={() => {
+                setSearchTerm('');
+                setFilterRole('all');
+              }}
+            >
+              <i className="fas fa-redo-alt"></i>
+              <span>Restablecer filtros</span>
             </button>
           </div>
         )}
       </div>
       
-      {/* Modal de Edición de Perfil */}
+      {/* Modal de edición de perfil mejorado */}
       {showProfileModal && selectedStaff && (
-        <div className="staff-profile-modal-overlay">
-          <div className="staff-profile-modal">
+        <div className="profile-modal-overlay">
+          <div className="profile-modal">
             <div className="modal-header">
-              <div className="header-left">
-                <div className="avatar-container">
-                  {selectedStaff.avatar ? (
-                    <img src={selectedStaff.avatar} alt={`${selectedStaff.firstName} ${selectedStaff.lastName}`} className="avatar" />
-                  ) : (
-                    <div className="avatar-placeholder">
-                      {selectedStaff.firstName.charAt(0)}{selectedStaff.lastName.charAt(0)}
-                    </div>
-                  )}
-                  <div className={`status-indicator ${selectedStaff.status}`}></div>
+              <div className="staff-profile-header">
+                <div className={`modal-avatar ${selectedStaff.role}`}>
+                  <span className="avatar-text">
+                    {selectedStaff.firstName.charAt(0)}{selectedStaff.lastName.charAt(0)}
+                  </span>
+                  <span className={`modal-status ${selectedStaff.status}`}></span>
                 </div>
                 
-                <div className="profile-title">
-                  <div className="edit-name-container">
-                    <input
-                      type="text"
-                      name="firstName"
-                      value={selectedStaff.firstName}
-                      onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'firstName', e.target.value)}
-                      className="edit-name-input"
-                      placeholder="Nombre"
-                    />
-                    <input
-                      type="text"
-                      name="lastName"
-                      value={selectedStaff.lastName}
-                      onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'lastName', e.target.value)}
-                      className="edit-name-input"
-                      placeholder="Apellido"
-                    />
+                <div className="staff-details">
+                  <div className="name-inputs">
+                    <div className="input-group">
+                      <label>Nombre</label>
+                      <input 
+                        type="text" 
+                        value={selectedStaff.firstName} 
+                        onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'firstName', e.target.value)}
+                      />
+                    </div>
+                    <div className="input-group">
+                      <label>Apellido</label>
+                      <input 
+                        type="text" 
+                        value={selectedStaff.lastName} 
+                        onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'lastName', e.target.value)}
+                      />
+                    </div>
                   </div>
                   
-                  <div className="profile-subtitle">
-                    <select
-                      name="role"
-                      value={selectedStaff.role}
-                      onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'role', e.target.value)}
-                      className="edit-role-select"
-                    >
-                      {roles.map((role) => (
-                        <option key={role.value} value={role.value}>
-                          {role.label}
-                        </option>
-                      ))}
-                    </select>
-                    
-                    <select
-                      name="status"
-                      value={selectedStaff.status}
-                      onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'status', e.target.value)}
-                      className="edit-status-select"
-                    >
-                      <option value="active">Activo</option>
-                      <option value="inactive">Inactivo</option>
-                    </select>
+                  <div className="role-status-selects">
+                    <div className="input-group">
+                      <label>Rol</label>
+                      <select 
+                        value={selectedStaff.role} 
+                        onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'role', e.target.value)}
+                      >
+                        {roles.map(role => (
+                          <option key={role.value} value={role.value}>{role.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="input-group">
+                      <label>Estado</label>
+                      <select 
+                        value={selectedStaff.status} 
+                        onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'status', e.target.value)}
+                        className={`status-select ${selectedStaff.status}`}
+                      >
+                        <option value="active">Activo</option>
+                        <option value="inactive">Inactivo</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
               
-              <div className="header-actions">
-                <button className="cancel-edit-btn" onClick={handleCloseProfile}>
-                  <i className="fas fa-times"></i>
-                  <span>Cancelar</span>
-                </button>
-                <button className="save-profile-btn" onClick={() => handleSaveProfile(selectedStaff)}>
-                  <i className="fas fa-save"></i>
-                  <span>Guardar Cambios</span>
-                </button>
+              <div className="modal-actions">
                 <button className="close-modal-btn" onClick={handleCloseProfile}>
                   <i className="fas fa-times"></i>
                 </button>
               </div>
             </div>
             
-            {/* Tabs para navegación */}
-            <div className="profile-tabs">
+            <div className="modal-tabs">
               <button 
                 className={`tab-btn ${activeTab === 'info' ? 'active' : ''}`}
                 onClick={() => handleChangeTab('info')}
               >
-                <i className="fas fa-user-circle"></i>
+                <i className="fas fa-user"></i>
                 <span>Información Personal</span>
               </button>
               <button 
                 className={`tab-btn ${activeTab === 'documents' ? 'active' : ''}`}
                 onClick={() => handleChangeTab('documents')}
               >
-                <i className="fas fa-file-medical"></i>
+                <i className="fas fa-file-alt"></i>
                 <span>Documentos</span>
               </button>
               <button 
                 className={`tab-btn ${activeTab === 'security' ? 'active' : ''}`}
                 onClick={() => handleChangeTab('security')}
               >
-                <i className="fas fa-lock"></i>
+                <i className="fas fa-shield-alt"></i>
                 <span>Seguridad</span>
-              </button>
-              <button 
-                className={`tab-btn ${activeTab === 'patients' ? 'active' : ''}`}
-                onClick={() => handleChangeTab('patients')}
-              >
-                <i className="fas fa-user-injured"></i>
-                <span>Pacientes Asignados</span>
               </button>
             </div>
             
-            {/* Contenido de pestañas */}
-            <div className="tab-content">
-              {/* Pestaña de información personal */}
+            <div className="modal-content">
               {activeTab === 'info' && (
                 <div className="info-tab-content">
                   <div className="info-section">
-                    <h3 className="section-title">
-                      <i className="fas fa-address-card"></i>
-                      Información de Contacto
-                    </h3>
+                    <h3>Información de Contacto</h3>
                     
-                    <div className="info-grid">
-                      <div className="info-item">
-                        <label>Email</label>
-                        <input 
-                          type="email" 
-                          name="email" 
-                          value={selectedStaff.email} 
-                          onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'email', e.target.value)} 
-                          className="edit-input"
-                        />
+                    <div className="contact-form">
+                      <div className="form-row">
+                        <div className="input-group">
+                          <label>Email</label>
+                          <input 
+                            type="email" 
+                            value={selectedStaff.email}
+                            onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'email', e.target.value)}
+                          />
+                        </div>
+                        
+                        <div className="input-group">
+                          <label>Teléfono</label>
+                          <input 
+                            type="tel" 
+                            value={selectedStaff.phone}
+                            onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'phone', e.target.value)}
+                          />
+                        </div>
                       </div>
                       
-                      <div className="info-item">
-                        <label>Teléfono</label>
-                        <input 
-                          type="tel" 
-                          name="phone" 
-                          value={selectedStaff.phone} 
-                          onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'phone', e.target.value)} 
-                          className="edit-input"
-                        />
+                      <div className="form-row">
+                        <div className="input-group">
+                          <label>Edad</label>
+                          <input 
+                            type="number" 
+                            value={selectedStaff.age}
+                            onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'age', parseInt(e.target.value) || 0)}
+                          />
+                        </div>
+                        
+                        <div className="input-group">
+                          <label>Código Postal</label>
+                          <input 
+                            type="text" 
+                            value={selectedStaff.zipCode}
+                            onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'zipCode', e.target.value)}
+                          />
+                        </div>
                       </div>
                       
-                      <div className="info-item">
-                        <label>Edad</label>
-                        <input 
-                          type="number" 
-                          name="age" 
-                          value={selectedStaff.age} 
-                          onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'age', parseInt(e.target.value) || 0)} 
-                          className="edit-input"
-                          min="0"
-                          max="120"
-                        />
-                      </div>
-                      
-                      <div className="info-item full-width">
-                        <label>Dirección</label>
-                        <input 
-                          type="text" 
-                          name="address" 
-                          value={selectedStaff.address} 
-                          onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'address', e.target.value)} 
-                          className="edit-input"
-                        />
-                      </div>
-                      
-                      <div className="info-item">
-                        <label>Código Postal</label>
-                        <input 
-                          type="text" 
-                          name="zipCode" 
-                          value={selectedStaff.zipCode} 
-                          onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'zipCode', e.target.value)} 
-                          className="edit-input"
-                        />
+                      <div className="form-row">
+                        <div className="input-group full-width">
+                          <label>Dirección</label>
+                          <input 
+                            type="text" 
+                            value={selectedStaff.address}
+                            onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'address', e.target.value)}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
               
-              {/* Pestaña de documentos */}
               {activeTab === 'documents' && (
                 <div className="documents-tab-content">
                   <div className="documents-header">
-                    <h3 className="section-title">
-                      <i className="fas fa-file-medical"></i>
-                      Documentos Requeridos
-                    </h3>
-                    
+                    <h3>Documentos Requeridos</h3>
                     <div className="documents-summary">
-                      <div className="progress-container">
-                        <div className="progress-info">
-                          <span>Estado de documentación</span>
-                          <span>
-                            {Object.values(selectedStaff.documents).filter(doc => doc.status === 'obtained').length}/
-                            {Object.values(selectedStaff.documents).length}
-                          </span>
+                      <div className="completed-percentage">
+                        <div className="circular-progress" data-percentage={getCompletedDocsPercentage(selectedStaff.documents)}>
+                          <svg viewBox="0 0 36 36" className="circular-chart">
+                            <path className="circle-bg"
+                              d="M18 2.0845
+                                a 15.9155 15.9155 0 0 1 0 31.831
+                                a 15.9155 15.9155 0 0 1 0 -31.831"
+                            />
+                            <path className="circle"
+                              strokeDasharray={`${getCompletedDocsPercentage(selectedStaff.documents)}, 100`}
+                              d="M18 2.0845
+                                a 15.9155 15.9155 0 0 1 0 31.831
+                                a 15.9155 15.9155 0 0 1 0 -31.831"
+                            />
+                            <text x="18" y="20.35" className="percentage">{getCompletedDocsPercentage(selectedStaff.documents)}%</text>
+                          </svg>
                         </div>
-                        <div className="progress-bar">
-                          <div 
-                            className="progress-fill" 
-                            style={{
-                              width: `${(Object.values(selectedStaff.documents).filter(doc => doc.status === 'obtained').length / 
-                                Object.values(selectedStaff.documents).length) * 100}%`
-                            }}
-                          ></div>
-                        </div>
+                        <span className="documents-text">Documentos Completados</span>
                       </div>
                     </div>
                   </div>
@@ -970,66 +807,72 @@ const StaffEditComponent = ({ onBackToOptions }) => {
                     {documentsList.map(doc => (
                       <div 
                         key={doc.id} 
-                        className={`document-card ${selectedStaff.documents[doc.id].status} editable`}
-                        onClick={() => handleDocumentStatusToggle(selectedStaff.id, doc.id)}
+                        className={`document-card ${selectedStaff.documents[doc.id].status}`}
                       >
-                        <div className="document-header">
-                          <span className="document-icon">
+                        <div className="document-card-header">
+                          <div className="document-icon">
                             <i className="fas fa-file-alt"></i>
-                          </span>
-                          <span className="document-name">{doc.name}</span>
-                          <span className={`document-status ${selectedStaff.documents[doc.id].status}`}>
-                            {selectedStaff.documents[doc.id].status === 'obtained' ? (
-                              <><i className="fas fa-check-circle"></i> Obtenido</>
-                            ) : (
-                              <><i className="fas fa-clock"></i> Pendiente</>
-                            )}
-                          </span>
+                          </div>
+                          <div className="document-info">
+                            <h4>{doc.name}</h4>
+                            {doc.description && <p>{doc.description}</p>}
+                          </div>
+                          <div 
+                            className={`status-toggle ${selectedStaff.documents[doc.id].status}`}
+                            onClick={() => handleDocumentStatusToggle(selectedStaff.id, doc.id)}
+                          >
+                            <div className="toggle-slider">
+                              <div className="toggle-circle"></div>
+                            </div>
+                            <span className="toggle-text">
+                              {selectedStaff.documents[doc.id].status === 'obtained' ? 'Obtenido' : 'Pendiente'}
+                            </span>
+                          </div>
                         </div>
                         
-                        {doc.description && (
-                          <div className="document-description">{doc.description}</div>
-                        )}
-                        
-                        <div className="document-actions">
+                        <div className="document-card-body">
                           {selectedStaff.documents[doc.id].file ? (
-                            <div className="file-info">
-                              <i className="fas fa-paperclip"></i>
-                              <span className="file-name">{selectedStaff.documents[doc.id].file}</span>
-                              <button 
-                                className="view-file-btn"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDocumentViewClick(doc.name, selectedStaff.documents[doc.id].file);
-                                }}
-                              >
-                                <i className="fas fa-eye"></i> Ver
-                              </button>
-                              <label htmlFor={`file-${selectedStaff.id}-${doc.id}`} className="upload-new-btn">
-                                <i className="fas fa-sync-alt"></i> Actualizar
-                                <input
-                                  type="file"
-                                  id={`file-${selectedStaff.id}-${doc.id}`}
-                                  onChange={(e) => handleDocumentUpload(selectedStaff.id, doc.id, e)}
-                                  className="file-input"
-                                  onClick={(e) => e.stopPropagation()}
-                                />
-                              </label>
+                            <div className="file-preview">
+                              <div className="file-info">
+                                <i className="fas fa-file-pdf"></i>
+                                <span className="file-name">{selectedStaff.documents[doc.id].file}</span>
+                              </div>
+                              <div className="file-actions">
+                                <button 
+                                  className="view-file-btn"
+                                  onClick={() => handleDocumentViewClick(doc.name, selectedStaff.documents[doc.id].file)}
+                                >
+                                  <i className="fas fa-eye"></i>
+                                  <span>Ver</span>
+                                </button>
+                                <div className="upload-new">
+                                  <label htmlFor={`file-${selectedStaff.id}-${doc.id}`}>
+                                    <i className="fas fa-sync-alt"></i>
+                                    <span>Actualizar</span>
+                                  </label>
+                                  <input
+                                    type="file"
+                                    id={`file-${selectedStaff.id}-${doc.id}`}
+                                    onChange={(e) => handleDocumentUpload(selectedStaff.id, doc.id, e)}
+                                    className="file-input"
+                                  />
+                                </div>
+                              </div>
                             </div>
                           ) : (
-                            <div className="no-file-info">
-                              <i className="fas fa-exclamation-circle"></i>
-                              <span>Sin archivo</span>
-                              <div className="file-upload">
+                            <div className="no-file">
+                              <div className="upload-container">
+                                <i className="fas fa-cloud-upload-alt"></i>
+                                <p>No hay archivo. Haga clic para subir documento.</p>
                                 <label htmlFor={`file-${selectedStaff.id}-${doc.id}`} className="upload-btn">
-                                  <i className="fas fa-upload"></i> Subir archivo
+                                  <i className="fas fa-plus"></i>
+                                  <span>Subir Archivo</span>
                                 </label>
                                 <input
                                   type="file"
                                   id={`file-${selectedStaff.id}-${doc.id}`}
                                   onChange={(e) => handleDocumentUpload(selectedStaff.id, doc.id, e)}
                                   className="file-input"
-                                  onClick={(e) => e.stopPropagation()}
                                 />
                               </div>
                             </div>
@@ -1041,300 +884,145 @@ const StaffEditComponent = ({ onBackToOptions }) => {
                 </div>
               )}
               
-              {/* Pestaña de seguridad */}
               {activeTab === 'security' && (
                 <div className="security-tab-content">
                   <div className="security-section">
-                    <h3 className="section-title">
-                      <i className="fas fa-user-lock"></i>
-                      Información de Usuario
-                    </h3>
+                    <h3>Información de Acceso</h3>
                     
                     <div className="security-form">
-                      <div className="form-group">
-                        <label>Nombre de Usuario</label>
-                        <div className="input-with-action">
-                          <input 
-                            type="text" 
-                            name="userName" 
-                            value={selectedStaff.userName} 
-                            onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'userName', e.target.value)} 
-                            className="security-input"
-                          />
-                          <button className="copy-btn" onClick={() => {
-                            navigator.clipboard.writeText(selectedStaff.userName);
-                            alert('Nombre de usuario copiado al portapapeles');
-                          }}>
-                            <i className="fas fa-copy"></i>
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div className="form-group">
-                        <label>Contraseña</label>
-                        <div className="input-with-action">
-                          <input 
-                            type="password" 
-                            name="password" 
-                            value={selectedStaff.password} 
-                            readOnly
-                            className="security-input"
-                          />
-                          <button 
-                            className="reset-password-btn" 
-                            onClick={() => handleResetPassword(selectedStaff.id)}
-                          >
-                            <i className="fas fa-key"></i> Restablecer
-                          </button>
-                        </div>
-                        <p className="help-text">
-                          Al restablecer la contraseña, se enviará un correo electrónico al usuario con instrucciones para crear una nueva.
-                        </p>
-                      </div>
-                      
-                      <div className="form-group">
-                        <label>Último inicio de sesión</label>
-                        <p className="login-info">10/02/2025 09:45:21 AM</p>
-                      </div>
-                      
-                      <div className="form-group">
-                        <label>Dispositivos activos</label>
-                        <div className="devices-list">
-                          <div className="device-item">
-                            <div className="device-info">
-                              <i className="fas fa-laptop"></i>
-                              <div className="device-details">
-                                <p className="device-name">Windows PC - Chrome</p>
-                                <p className="device-location">Los Angeles, CA - 192.168.1.45</p>
-                              </div>
-                            </div>
-                            <button className="logout-device-btn">
-                              <i className="fas fa-sign-out-alt"></i> Cerrar sesión
-                            </button>
-                          </div>
-                          <div className="device-item">
-                            <div className="device-info">
-                              <i className="fas fa-mobile-alt"></i>
-                              <div className="device-details">
-                                <p className="device-name">iPhone 15 - Safari</p>
-                                <p className="device-location">Long Beach, CA - 10.0.0.123</p>
-                              </div>
-                            </div>
-                            <button className="logout-device-btn">
-                              <i className="fas fa-sign-out-alt"></i> Cerrar sesión
+                      <div className="form-row">
+                        <div className="input-group">
+                          <label>Nombre de Usuario</label>
+                          <div className="input-with-icon">
+                            <input 
+                              type="text" 
+                              value={selectedStaff.userName}
+                              onChange={(e) => handleUpdateStaffData(selectedStaff.id, 'userName', e.target.value)}
+                            />
+                            <button className="icon-button">
+                              <i className="fas fa-copy"></i>
                             </button>
                           </div>
                         </div>
                       </div>
+                      
+                      <div className="form-row">
+                        <div className="input-group">
+                          <label>Contraseña</label>
+                          <div className="input-with-action">
+                            <input 
+                              type="password" 
+                              value={selectedStaff.password}
+                              readOnly
+                            />
+                            <button 
+                              className="reset-password-btn"
+                              onClick={() => handleResetPassword(selectedStaff.id)}
+                            >
+                              <i className="fas fa-key"></i>
+                              <span>Resetear Contraseña</span>
+                            </button>
+                          </div>
+                          <p className="help-text">
+                            Al restablecer la contraseña, se enviará un correo electrónico con instrucciones de recuperación.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="permissions-section">
+                        <h4>Permisos de Usuario</h4>
+                        
+                        <div className="permissions-grid">
+                          <div className="permission-category">
+                            <h5>Acceso a Pacientes</h5>
+                            <div className="permission-option">
+                              <label className="toggle-switch">
+                                <input type="checkbox" defaultChecked />
+                                <span className="toggle-slider"></span>
+                              </label>
+                              <span>Ver información de pacientes</span>
+                            </div>
+                            <div className="permission-option">
+                              <label className="toggle-switch">
+                                <input type="checkbox" defaultChecked />
+                                <span className="toggle-slider"></span>
+                              </label>
+                              <span>Editar información de pacientes</span>
+                            </div>
+                            <div className="permission-option">
+                              <label className="toggle-switch">
+                                <input type="checkbox" />
+                                <span className="toggle-slider"></span>
+                              </label>
+                              <span>Crear nuevos pacientes</span>
+                            </div>
+                          </div>
+                          
+                          <div className="permission-category">
+                            <h5>Acceso a Documentos</h5>
+                            <div className="permission-option">
+                              <label className="toggle-switch">
+                                <input type="checkbox" defaultChecked />
+                                <span className="toggle-slider"></span>
+                              </label>
+                              <span>Ver documentos</span>
+                            </div>
+                            <div className="permission-option">
+                              <label className="toggle-switch">
+                                <input type="checkbox" defaultChecked />
+                                <span className="toggle-slider"></span>
+                              </label>
+                              <span>Subir documentos</span>
+                            </div>
+                            <div className="permission-option">
+                              <label className="toggle-switch">
+                                <input type="checkbox" />
+                                <span className="toggle-slider"></span>
+                              </label>
+                              <span>Eliminar documentos</span>
+                            </div>
+                          </div>
+                          
+                          <div className="permission-category">
+                            <h5>Acceso Administrativo</h5>
+                            <div className="permission-option">
+                              <label className="toggle-switch">
+                                <input type="checkbox" />
+                                <span className="toggle-slider"></span>
+                              </label>
+                              <span>Acceso al panel administrativo</span>
+                            </div>
+                            <div className="permission-option">
+                              <label className="toggle-switch">
+                                <input type="checkbox" />
+                                <span className="toggle-slider"></span>
+                              </label>
+                              <span>Administrar personal</span>
+                            </div>
+                            <div className="permission-option">
+                              <label className="toggle-switch">
+                                <input type="checkbox" />
+                                <span className="toggle-slider"></span>
+                              </label>
+                              <span>Ver reportes financieros</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="permissions-section">
-                    <h3 className="section-title">
-                      <i className="fas fa-shield-alt"></i>
-                      Permisos y Acceso
-                    </h3>
-                    
-                    <div className="permissions-grid">
-                      <div className="permission-group">
-                        <h4>Acceso a Pacientes</h4>
-                        <div className="permission-toggle">
-                          <input type="checkbox" id="view-patients" className="toggle-input" defaultChecked />
-                          <label htmlFor="view-patients" className="toggle-label">Ver pacientes</label>
-                        </div>
-                        <div className="permission-toggle">
-                          <input type="checkbox" id="edit-patients" className="toggle-input" defaultChecked />
-                          <label htmlFor="edit-patients" className="toggle-label">Editar pacientes</label>
-                        </div>
-                        <div className="permission-toggle">
-                          <input type="checkbox" id="delete-patients" className="toggle-input" />
-                          <label htmlFor="delete-patients" className="toggle-label">Eliminar pacientes</label>
-                        </div>
-                      </div>
-                      
-                      <div className="permission-group">
-                        <h4>Acceso a Terapeutas</h4>
-                        <div className="permission-toggle">
-                          <input type="checkbox" id="view-staff" className="toggle-input" defaultChecked />
-                          <label htmlFor="view-staff" className="toggle-label">Ver terapeutas</label>
-                        </div>
-                        <div className="permission-toggle">
-                          <input type="checkbox" id="edit-staff" className="toggle-input" />
-                          <label htmlFor="edit-staff" className="toggle-label">Editar terapeutas</label>
-                        </div>
-                        <div className="permission-toggle">
-                          <input type="checkbox" id="delete-staff" className="toggle-input" />
-                          <label htmlFor="delete-staff" className="toggle-label">Eliminar terapeutas</label>
-                        </div>
-                      </div>
-                      
-                      <div className="permission-group">
-                        <h4>Acceso a Facturación</h4>
-                        <div className="permission-toggle">
-                          <input type="checkbox" id="view-billing" className="toggle-input" defaultChecked />
-                          <label htmlFor="view-billing" className="toggle-label">Ver facturación</label>
-                        </div>
-                        <div className="permission-toggle">
-                          <input type="checkbox" id="create-invoices" className="toggle-input" />
-                          <label htmlFor="create-invoices" className="toggle-label">Crear facturas</label>
-                        </div>
-                        <div className="permission-toggle">
-                          <input type="checkbox" id="process-payments" className="toggle-input" />
-                          <label htmlFor="process-payments" className="toggle-label">Procesar pagos</label>
-                        </div>
-                      </div>
-                      
-                      <div className="permission-group">
-                        <h4>Acceso a Informes</h4>
-                        <div className="permission-toggle">
-                          <input type="checkbox" id="view-reports" className="toggle-input" defaultChecked />
-                          <label htmlFor="view-reports" className="toggle-label">Ver informes</label>
-                        </div>
-                        <div className="permission-toggle">
-                          <input type="checkbox" id="export-reports" className="toggle-input" defaultChecked />
-                          <label htmlFor="export-reports" className="toggle-label">Exportar informes</label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {/* Pestaña de pacientes asignados */}
-              {activeTab === 'patients' && (
-                <div className="patients-tab-content">
-                  <div className="patients-header">
-                    <h3 className="section-title">
-                      <i className="fas fa-user-injured"></i>
-                      Pacientes Asignados
-                    </h3>
-                    <span className="patients-count">{selectedStaff.patients} pacientes</span>
-                  </div>
-                  
-                  {selectedStaff.patients > 0 ? (
-                    <div className="patients-list">
-                      <div className="patient-item">
-                        <div className="patient-info">
-                          <div className="patient-name">
-                            <span className="patient-id">#1024</span>
-                            <span>Maria Rodriguez</span>
-                          </div>
-                          <span className="patient-status active">Activo</span>
-                        </div>
-                        <div className="patient-details">
-                          <div className="patient-detail">
-                            <i className="fas fa-calendar-alt"></i>
-                            <span>Próxima visita: 12/03/2025</span>
-                          </div>
-                          <div className="patient-detail">
-                            <i className="fas fa-clock"></i>
-                            <span>2:30 PM - 3:30 PM</span>
-                          </div>
-                          <div className="patient-detail">
-                            <i className="fas fa-map-marker-alt"></i>
-                            <span>Domicilio</span>
-                          </div>
-                        </div>
-                        <div className="patient-actions">
-                          <button className="patient-action-btn view">
-                            <i className="fas fa-eye"></i> Ver
-                          </button>
-                          <button className="patient-action-btn reassign">
-                            <i className="fas fa-exchange-alt"></i> Reasignar
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div className="patient-item">
-                        <div className="patient-info">
-                          <div className="patient-name">
-                            <span className="patient-id">#1052</span>
-                            <span>John Smith</span>
-                          </div>
-                          <span className="patient-status active">Activo</span>
-                        </div>
-                        <div className="patient-details">
-                          <div className="patient-detail">
-                            <i className="fas fa-calendar-alt"></i>
-                            <span>Próxima visita: 15/03/2025</span>
-                          </div>
-                          <div className="patient-detail">
-                            <i className="fas fa-clock"></i>
-                            <span>10:00 AM - 11:00 AM</span>
-                          </div>
-                          <div className="patient-detail">
-                            <i className="fas fa-map-marker-alt"></i>
-                            <span>Clínica</span>
-                          </div>
-                        </div>
-                        <div className="patient-actions">
-                          <button className="patient-action-btn view">
-                            <i className="fas fa-eye"></i> Ver
-                          </button>
-                          <button className="patient-action-btn reassign">
-                            <i className="fas fa-exchange-alt"></i> Reasignar
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div className="patient-item">
-                        <div className="patient-info">
-                          <div className="patient-name">
-                            <span className="patient-id">#1073</span>
-                            <span>Carlos Gomez</span>
-                          </div>
-                          <span className="patient-status pending">Pendiente</span>
-                        </div>
-                        <div className="patient-details">
-                          <div className="patient-detail">
-                            <i className="fas fa-calendar-alt"></i>
-                            <span>Próxima visita: 18/03/2025</span>
-                          </div>
-                          <div className="patient-detail">
-                            <i className="fas fa-clock"></i>
-                            <span>1:00 PM - 2:00 PM</span>
-                          </div>
-                          <div className="patient-detail">
-                            <i className="fas fa-map-marker-alt"></i>
-                            <span>Domicilio</span>
-                          </div>
-                        </div>
-                        <div className="patient-actions">
-                          <button className="patient-action-btn view">
-                            <i className="fas fa-eye"></i> Ver
-                          </button>
-                          <button className="patient-action-btn reassign">
-                            <i className="fas fa-exchange-alt"></i> Reasignar
-                          </button>
-                        </div>
-                      </div>
-                      
-                      <div className="show-more-container">
-                        <button className="show-more-btn">
-                          <i className="fas fa-plus-circle"></i> Mostrar más pacientes
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="no-patients">
-                      <i className="fas fa-user-slash"></i>
-                      <h4>Sin pacientes asignados</h4>
-                      <p>Este terapeuta no tiene pacientes asignados actualmente</p>
-                      {selectedStaff.status === 'active' && (
-                        <button className="assign-btn">
-                          <i className="fas fa-user-plus"></i> Asignar Pacientes
-                        </button>
-                      )}
-                    </div>
-                  )}
                 </div>
               )}
             </div>
             
             <div className="modal-footer">
-              <button className="cancel-btn" onClick={handleCloseProfile}>Cancelar</button>
+              <button className="cancel-btn" onClick={handleCloseProfile}>
+                <i className="fas fa-times"></i>
+                <span>Cancelar</span>
+              </button>
               <button className="save-btn" onClick={() => handleSaveProfile(selectedStaff)}>
-                <i className="fas fa-save"></i> Guardar Cambios
+                <i className="fas fa-save"></i>
+                <span>Guardar Cambios</span>
               </button>
             </div>
           </div>

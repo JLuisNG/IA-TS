@@ -590,10 +590,31 @@ const handleTabChange = (tab) => {
   };
   
   // Manejar clic en botón de acción
-  const handleActionClick = (action, patient) => {
-    // Aquí podrías implementar la lógica real para cada acción
-    console.log(`${action} clicked for patient:`, patient);
-  };
+// Manejar clic en botón de acción
+const handleActionClick = (action, patient) => {
+  console.log(`${action} clicked for patient:`, patient);
+  
+  switch(action) {
+    case 'view':
+      // Navegar a la página de información del paciente
+      setMenuTransitioning(true);
+      
+      setTimeout(() => {
+        navigate(`/paciente/${patient.id}`);
+      }, 300);
+      break;
+    case 'edit':
+      // Aquí iría la lógica para editar el paciente
+      console.log('Editar paciente:', patient);
+      break;
+    case 'notes':
+      // Aquí iría la lógica para ver/editar notas del paciente
+      console.log('Notas del paciente:', patient);
+      break;
+    default:
+      break;
+  }
+};
   
   // Manejar cambio de página
   const handlePageChange = (pageNumber) => {
