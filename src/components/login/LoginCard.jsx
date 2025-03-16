@@ -5,7 +5,7 @@ import PasswordRecovery from './PasswordRecovery';
 import '../../styles/Login/Login.scss';
 import '../../styles/Login/AuthLoadingModal.scss';
 import '../../styles/Login/PremiumLoadingModal.scss'; 
-import backgroundImg from '../../assets/LosAngelesCity.jpg';
+import backgroundImg from '../../assets/mountain-7704584_1920.jpg';
 
 const LoginCard = () => {
   const [isFlipped, setIsFlipped] = useState(false);
