@@ -1,0 +1,342 @@
+// Variables y mixins
+@import '../../styles/_variables.scss';
+@import '../../styles/_mixins.scss';
+
+// Animaciones
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes loaderRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes gradientPulse {
+  0% {
+    background-position: 0% 50%;
+    opacity: 0.8;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 1;
+  }
+  100% {
+    background-position: 0% 50%;
+    opacity: 0.8;
+  }
+}
+
+@keyframes particleFloat {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(10px, 10px);
+  }
+  50% {
+    transform: translate(0, 20px);
+  }
+  75% {
+    transform: translate(-10px, 10px);
+  }
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(0, 229, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(0, 229, 255, 0.5);
+  }
+}
+
+// Estilos base para la página de soporte
+.support-page {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  
+  // Fondo con efecto parallax
+  .support-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(135deg, rgba(15, 32, 70, 0.9), rgba(8, 15, 40, 0.95));
+    z-index: -2;
+    transition: transform 8s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+    
+    // Partículas flotantes
+    .support-particles-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      
+      .support-particle {
+        position: absolute;
+        border-radius: 50%;
+        pointer-events: none;
+        animation: particleFloat infinite linear;
+        filter: blur(1px);
+        background-color: rgba(255, 255, 255, 0.15);
+      }
+    }
+    
+    // Gradiente con animación
+    .support-gradient-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        135deg,
+        rgba(41, 121, 255, 0.1) 0%,
+        rgba(0, 83, 162, 0.1) 50%,
+        rgba(0, 229, 255, 0.1) 100%
+      );
+      background-size: 200% 200%;
+      z-index: -1;
+      animation: gradientPulse 15s infinite alternate;
+    }
+  }
+  
+  // Animación de carga
+  .support-loader {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(8, 15, 40, 0.95);
+    z-index: 1000;
+    
+    .loader-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-top-color: #00e5ff;
+      animation: loaderRotate 1.2s infinite linear;
+      margin-bottom: 20px;
+    }
+    
+    .loader-text {
+      font-size: 1.2rem;
+      color: white;
+      font-weight: 500;
+      letter-spacing: 1px;
+    }
+  }
+  
+  // Contenido principal
+  .support-content {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+    
+    &.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    // Contenido principal
+    .support-main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      
+      // Estilos para el dashboard
+      .support-dashboard {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        animation: fadeIn 0.8s ease forwards;
+        
+        .dashboard-sections {
+          display: flex;
+          gap: 2rem;
+          
+          @media (max-width: 1200px) {
+            flex-direction: column;
+          }
+          
+          .dashboard-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+          }
+        }
+      }
+    }
+  }
+  
+  // Estado de carga
+  &.is-loading {
+    .support-background {
+      filter: blur(8px);
+    }
+  }
+  
+  // Estado después de cargar
+  &.is-loaded {
+    .support-background {
+      filter: blur(0);
+      transition: filter 1s ease;
+    }
+  }
+}
+
+// Componentes comunes para las secciones de soporte
+.no-data-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 auto 1.5rem;
+  
+  i {
+    opacity: 0.7;
+  }
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #00e5ff;
+  animation: loaderRotate 1s infinite linear;
+  margin: 0 auto 1rem;
+}
+
+.view-all-link {
+  margin-top: 1rem;
+  text-align: center;
+  
+  a {
+    display: inline-flex;
+    align-items: center;
+    color: #00e5ff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    
+    span {
+      margin-right: 0.5rem;
+    }
+    
+    i {
+      font-size: 0.8rem;
+    }
+    
+    &:hover {
+      color: lighten(#00e5ff, 10%);
+      transform: translateX(3px);
+    }
+  }
+}
+
+// Componentes con modo de vista previa
+.preview-mode {
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  height: 400px;
+  
+  .preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    
+    h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: white;
+    }
+    
+    .preview-action {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+  }
+  
+  &.expanded {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    height: 90%;
+    z-index: 100;
+  }
+}
+
+// Media queries
+@media (max-width: 768px) {
+  .support-page {
+    .support-content {
+      .support-main {
+        padding: 1rem;
+      }
+    }
+  }
+}

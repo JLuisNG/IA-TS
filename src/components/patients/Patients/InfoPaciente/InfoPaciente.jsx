@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import logoImg from '../../../../assets/LogoMHC.jpeg';
 import PremiumTabs from '../../PremiunTabs';
+import InfoGeneral from './InfoGeneral';
+import InfoMedical from './InfoMedical'; 
+import DisciplinesSection from './DisciplinesSection';
+import ScheduleSection from './ScheduleSection';
+import CommentsSection from './CommentsSection';
 import '../../../../styles/Patients/InfoPaciente/InfoPaciente.scss';
 
 const InfoPaciente = () => {
@@ -12,6 +17,7 @@ const InfoPaciente = () => {
   const [showMenuSwitch, setShowMenuSwitch] = useState(false);
   const [patientData, setPatientData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState('general'); // Para controlar la sección activa
 
   // Simular carga de datos del paciente
   useEffect(() => {
@@ -38,7 +44,99 @@ const InfoPaciente = () => {
         policyNumber: "BCB-123456789",
         emergencyContact: "Mohammed Adhami",
         emergencyPhone: "(310) 555-7890",
-        notes: "Patient recovering well. Following exercise regimen as prescribed."
+        notes: "Patient recovering well. Following exercise regimen as prescribed.",
+        // Datos médicos simulados
+        medicalData: {
+          nursingDiagnosis: "Essential Hypertension, Type 2 Diabetes Mellitus",
+          pmh: "Hypertension (5 years), Type 2 Diabetes (3 years), Dyslipidemia",
+          clinicalGrouping: "Clinical Group 1 - MMTA - Cardiac",
+          wbs: "Weakness, Balance deficit, Safety concerns at home",
+          homebound: "Patient is homebound due to mobility limitations and risk of falls",
+          height: "5'6\"",
+          weight: "165 lbs",
+          bmi: "26.6"
+        },
+        // Datos de disciplinas simulados
+        disciplinesData: {
+          physical: {
+            isPrimary: true,
+            primaryTherapist: {
+              id: 1,
+              name: "Araquel, Regina",
+              role: "PT",
+              phone: "(917) 617-6012",
+              email: "raraquel@therapy.com",
+              isActive: true 
+            },
+            assistantTherapist: {
+              id: 2,
+              name: "Staffey, Jacob",
+              role: "PTA",
+              phone: "(310) 902-0768",
+              email: "jstaffey@therapy.com",
+              isActive: true
+            },
+            frequency: "2W2 1W1",
+            lastUpdated: "03/10/2025",
+            sessionsCompleted: 12,
+            goals: [
+              { id: 1, text: "Patient will improve balance while standing to reduce fall risk.", progress: 65, target: "By 04/15/2025" },
+              { id: 2, text: "Patient will increase strength in lower extremities to improve mobility.", progress: 40, target: "By 04/30/2025" }
+            ]
+          },
+          occupational: {
+            isPrimary: false,
+            primaryTherapist: {
+              id: 3,
+              name: "Shimane, Justin",
+              role: "OT",
+              phone: "(310) 529-8395",
+              email: "jshimane@therapy.com",
+              isActive: true
+            },
+            assistantTherapist: {
+              id: 4,
+              name: "Kim, April",
+              role: "COTA",
+              phone: "(562) 242-8175",
+              email: "akim@therapy.com",
+              isActive: true
+            },
+            frequency: "NO FREQUENCY SET",
+            lastUpdated: "03/05/2025",
+            sessionsCompleted: 8,
+            goals: [
+              { id: 5, text: "Patient will independently perform dressing activities with minimal assistance.", progress: 55, target: "By 04/20/2025" },
+              { id: 6, text: "Patient will demonstrate proper body mechanics during ADLs to reduce fall risk.", progress: 70, target: "By 03/30/2025" }
+            ]
+          },
+          speech: {
+            isPrimary: false,
+            primaryTherapist: {
+              id: 5,
+              name: "Martinez, Elena",
+              role: "ST",
+              phone: "(213) 456-7890",
+              email: "emartinez@therapy.com",
+              isActive: true
+            },
+            assistantTherapist: {
+              id: 6,
+              name: "Johnson, Mark",
+              role: "STA",
+              phone: "(310) 765-4321",
+              email: "mjohnson@therapy.com",
+              isActive: false
+            },
+            frequency: "1W2",
+            lastUpdated: "03/08/2025",
+            sessionsCompleted: 5,
+            goals: [
+              { id: 8, text: "Patient will improve swallowing function to safely consume regular consistency foods.", progress: 60, target: "By 04/10/2025" },
+              { id: 9, text: "Patient will increase speech clarity to be understood by unfamiliar listeners.", progress: 50, target: "By 04/05/2025" }
+            ]
+          }
+        }
       };
 
       setTimeout(() => {
@@ -99,6 +197,64 @@ const InfoPaciente = () => {
     setTimeout(() => {
       navigate('/patients');
     }, 300);
+  };
+
+  // Función para cambiar entre secciones
+  const handleSectionChange = (section) => {
+    setActiveSection(section);
+  };
+
+  // Función para actualizar datos médicos
+  const handleMedicalUpdate = (updatedMedicalData) => {
+    setPatientData(prevData => ({
+      ...prevData,
+      medicalData: {
+        ...prevData.medicalData,
+        ...updatedMedicalData
+      }
+    }));
+  };
+
+  // Función para actualizar datos de disciplinas
+  const handleDisciplinesUpdate = (updatedDisciplinesData) => {
+    setPatientData(prevData => ({
+      ...prevData,
+      disciplinesData: {
+        ...prevData.disciplinesData,
+        ...updatedDisciplinesData
+      }
+    }));
+  };
+
+  // Renderizar la sección activa
+  const renderActiveSection = () => {
+    if (loading) return null;
+
+    switch (activeSection) {
+      case 'general':
+        return <InfoGeneral patientData={patientData} />;
+      case 'medical':
+        return (
+          <InfoMedical 
+            patientData={patientData}
+            onMedicalUpdate={handleMedicalUpdate}
+          />
+        );
+      case 'disciplines':
+        return (
+          <DisciplinesSection 
+            patientId={patientData.id} 
+            disciplinesData={patientData.disciplinesData}
+            onDisciplinesUpdate={handleDisciplinesUpdate}
+          />
+        ); 
+      case 'schedule':
+        return <ScheduleSection patientId={patientData.id} />;
+      case 'comments':
+        return <CommentsSection patientId={patientData.id} />;
+      default:
+        return <InfoGeneral patientData={patientData} />;
+    }
   };
 
   return (
@@ -248,124 +404,45 @@ const InfoPaciente = () => {
                     Patient ID: #{patientData.id} | <i className="fas fa-phone"></i> {patientData.phone}
                   </p>
                 </div>
-                
-                <div className="patient-actions">
-                  <button className="action-button edit">
-                    <i className="fas fa-edit"></i> Edit Patient
-                  </button>
-                  <button className="action-button notes">
-                    <i className="fas fa-clipboard"></i> Clinical Notes
-                  </button>
-                  <button className="action-button schedule">
-                    <i className="fas fa-calendar-alt"></i> Schedule
-                  </button>
-                </div>
               </div>
 
-              {/* Contenido de información del paciente */}
-              <div className="patient-content">
-                {/* Tarjeta de información personal */}
-                <div className="info-card personal-info">
-                  <div className="card-header">
-                    <h3><i className="fas fa-user"></i> Personal Information</h3>
-                  </div>
-                  <div className="card-content">
-                    <div className="info-grid">
-                      <div className="info-item">
-                        <label>Full Name</label>
-                        <p>{patientData.name}</p>
-                      </div>
-                      <div className="info-item">
-                        <label>Date of Birth</label>
-                        <p>{patientData.dob}</p>
-                      </div>
-                      <div className="info-item">
-                        <label>Phone</label>
-                        <p>{patientData.phone}</p>
-                      </div>
-                      <div className="info-item">
-                        <label>Email</label>
-                        <p>{patientData.email}</p>
-                      </div>
-                      <div className="info-item">
-                        <label>Address</label>
-                        <p>{patientData.street}, {patientData.city}, {patientData.state} {patientData.zip}</p>
-                      </div>
-                      <div className="info-item">
-                        <label>Emergency Contact</label>
-                        <p>{patientData.emergencyContact} | {patientData.emergencyPhone}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              {/* Pestañas de navegación para secciones del paciente */}
+              <div className="section-tabs">
+                <button 
+                  className={`section-tab ${activeSection === 'general' ? 'active' : ''}`}
+                  onClick={() => handleSectionChange('general')}
+                >
+                  <i className="fas fa-user"></i> General
+                </button>
+                <button 
+                  className={`section-tab ${activeSection === 'medical' ? 'active' : ''}`}
+                  onClick={() => handleSectionChange('medical')}
+                >
+                  <i className="fas fa-notes-medical"></i> Medical
+                </button>
+                <button 
+                  className={`section-tab ${activeSection === 'disciplines' ? 'active' : ''}`}
+                  onClick={() => handleSectionChange('disciplines')}
+                >
+                  <i className="fas fa-user-md"></i> Disciplines
+                </button>
+                <button 
+                  className={`section-tab ${activeSection === 'schedule' ? 'active' : ''}`}
+                  onClick={() => handleSectionChange('schedule')}
+                >
+                  <i className="fas fa-calendar-alt"></i> Schedule
+                </button>
+                <button 
+                  className={`section-tab ${activeSection === 'comments' ? 'active' : ''}`}
+                  onClick={() => handleSectionChange('comments')}
+                >
+                  <i className="fas fa-comments"></i> Comments
+                </button>
+              </div>
 
-                {/* Tarjeta de información de terapia */}
-                <div className="info-card therapy-info">
-                  <div className="card-header">
-                    <h3><i className="fas fa-user-md"></i> Therapy Information</h3>
-                  </div>
-                  <div className="card-content">
-                    <div className="info-grid">
-                      <div className="info-item">
-                        <label>Therapist</label>
-                        <p>
-                          <span className="therapist-badge">{patientData.therapistType}</span>
-                          {patientData.therapist}
-                        </p>
-                      </div>
-                      <div className="info-item">
-                        <label>Agency</label>
-                        <p>{patientData.agency}</p>
-                      </div>
-                      <div className="info-item">
-                        <label>Certification Period</label>
-                        <p>{patientData.certPeriod}</p>
-                      </div>
-                      <div className="info-item">
-                        <label>Insurance</label>
-                        <p>{patientData.insurance}</p>
-                      </div>
-                      <div className="info-item">
-                        <label>Policy Number</label>
-                        <p>{patientData.policyNumber}</p>
-                      </div>
-                      <div className="info-item">
-                        <label>Status</label>
-                        <p>
-                          <span className={`status-badge ${patientData.status.toLowerCase()}`}>
-                            {patientData.status}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tarjeta de notas clínicas */}
-                <div className="info-card clinical-notes">
-                  <div className="card-header">
-                    <h3><i className="fas fa-clipboard"></i> Clinical Notes</h3>
-                    <button className="add-note-btn">
-                      <i className="fas fa-plus"></i> Add Note
-                    </button>
-                  </div>
-                  <div className="card-content">
-                    <div className="note-entry">
-                      <div className="note-header">
-                        <span className="date">March 12, 2025</span>
-                        <span className="author">Dr. John Smith</span>
-                      </div>
-                      <p className="note-text">{patientData.notes}</p>
-                    </div>
-                    <div className="note-entry">
-                      <div className="note-header">
-                        <span className="date">February 28, 2025</span>
-                        <span className="author">Dr. John Smith</span>
-                      </div>
-                      <p className="note-text">Initial assessment completed. Patient showing good range of motion. Prescribed exercise program for home therapy.</p>
-                    </div>
-                  </div>
-                </div>
+              {/* Contenido dinámico basado en la sección activa */}
+              <div className="section-content">
+                {renderActiveSection()}
               </div>
             </>
           )}

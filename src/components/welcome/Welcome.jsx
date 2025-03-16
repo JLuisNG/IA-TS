@@ -9,7 +9,7 @@ import AIAssistant from './AIAssistant';
 const HomePage = () => {
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [activeMenuIndex, setActiveMenuIndex] = useState(1);
+  const [activeMenuIndex, setActiveMenuIndex] = useState(4); // Establecer Accounting como activo de forma predeterminada
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [menuTransitioning, setMenuTransitioning] = useState(false);
   const [showAIAssistant, setShowAIAssistant] = useState(false);

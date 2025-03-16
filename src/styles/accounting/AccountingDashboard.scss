@@ -1,0 +1,674 @@
+@import '../../styles/_variables.scss';
+@import '../../styles/_mixins.scss';
+
+// Variables específicas para el dashboard
+$primary-gradient: linear-gradient(135deg, #00e5ff, #2979ff);
+$secondary-gradient: linear-gradient(135deg, #ff9966, #ff5e62);
+$success-gradient: linear-gradient(135deg, #4caf50, #8bc34a);
+$warning-gradient: linear-gradient(135deg, #ff9800, #ff5722);
+
+$box-shadow-light: 0 8px 20px rgba(0, 0, 0, 0.1);
+$box-shadow-medium: 0 12px 25px rgba(0, 0, 0, 0.2);
+$box-shadow-dark: 0 15px 30px rgba(0, 0, 0, 0.3);
+
+// Animaciones
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+@keyframes growFromLeft {
+  from {
+    width: 0;
+  }
+  to {
+    width: var(--width);
+  }
+}
+
+@keyframes glowPulse {
+  0% {
+    box-shadow: 0 0 5px rgba(0, 229, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(0, 229, 255, 0.3);
+  }
+}
+
+@keyframes circleDraw {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: calc(100 - var(--progress));
+  }
+}
+
+// Mixin para tarjetas de métricas
+@mixin metric-card {
+  padding: 1.5rem;
+  border-radius: 16px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  box-shadow: $box-shadow-medium;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  // Decoración de fondo
+  &:before {
+    content: '';
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+    top: -100px;
+    right: -100px;
+    border-radius: 50%;
+    z-index: 0;
+  }
+  
+  // Efecto hover
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: $box-shadow-dark;
+    border-color: rgba(0, 229, 255, 0.2);
+  }
+}
+
+// Dashboard principal
+.accounting-dashboard {
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  
+  // Animación de entrada
+  &.animate-in {
+    animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    
+    .metrics-section {
+      .metric-card {
+        animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        animation-delay: calc(var(--delay, 0) * 0.1s);
+      }
+    }
+  }
+  
+  // Header del dashboard
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+    
+    h2 {
+      font-size: 1.6rem;
+      font-weight: 600;
+    }
+    
+    // Tabs de navegación
+    .dashboard-tabs {
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(15, 23, 42, 0.5);
+      padding: 0.35rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      
+      .tab-button {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        
+        i {
+          margin-right: 0.5rem;
+          font-size: 0.9rem;
+        }
+        
+        &:hover {
+          color: rgba(255, 255, 255, 0.9);
+          background: rgba(255, 255, 255, 0.05);
+        }
+        
+        &.active {
+          background: $primary-gradient;
+          color: white;
+          box-shadow: 0 4px 15px rgba(0, 229, 255, 0.2);
+        }
+      }
+    }
+    
+    // Distintivo del período
+    .period-badge {
+      display: flex;
+      align-items: center;
+      background: rgba(0, 229, 255, 0.1);
+      border: 1px solid rgba(0, 229, 255, 0.2);
+      border-radius: 50px;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      color: #00e5ff;
+      
+      i {
+        margin-right: 0.5rem;
+      }
+    }
+  }
+  
+  // Contenido del dashboard
+  .dashboard-content {
+    // Sección de métricas principales
+    .metrics-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      
+      // Tarjeta de métricas
+      .metric-card {
+        @include metric-card;
+        display: flex;
+        opacity: 0;
+        --delay: 0;
+        
+        // Icono
+        .metric-icon {
+          flex: 0 0 50px;
+          height: 50px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 1rem;
+          font-size: 1.3rem;
+          position: relative;
+          
+          &:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            background: $primary-gradient;
+            opacity: 0.2;
+            z-index: 0;
+          }
+          
+          i {
+            position: relative;
+            z-index: 1;
+            color: #00e5ff;
+          }
+        }
+        
+        // Contenido de la métrica
+        .metric-content {
+          flex: 1;
+          position: relative;
+          z-index: 1;
+          
+          .metric-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 0.5rem;
+          }
+          
+          .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          
+          .metric-footer {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+          }
+        }
+        
+        // Variantes de color
+        &.total-billed {
+          --delay: 0;
+          
+          .metric-icon {
+            &:before {
+              background: $primary-gradient;
+            }
+            
+            i {
+              color: #00e5ff;
+            }
+          }
+        }
+        
+        &.pending-payments {
+          --delay: 1;
+          
+          .metric-icon {
+            &:before {
+              background: $warning-gradient;
+            }
+            
+            i {
+              color: #ff9800;
+            }
+          }
+          
+          .badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 152, 0, 0.15);
+            color: #ff9800;
+            padding: 0.25rem 0.65rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            
+            i {
+              margin-right: 0.35rem;
+            }
+          }
+        }
+        
+        &.completed-payments {
+          --delay: 2;
+          
+          .metric-icon {
+            &:before {
+              background: $success-gradient;
+            }
+            
+            i {
+              color: #4caf50;
+            }
+          }
+          
+          .completion-progress {
+            margin-top: 0.5rem;
+            
+            .progress-bar {
+              height: 6px;
+              background-color: rgba(255, 255, 255, 0.1);
+              border-radius: 3px;
+              overflow: hidden;
+              margin-bottom: 0.35rem;
+              
+              .progress-fill {
+                height: 100%;
+                background: $success-gradient;
+                border-radius: 3px;
+                animation: growFromLeft 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+              }
+            }
+            
+            .progress-text {
+              font-size: 0.8rem;
+              color: rgba(255, 255, 255, 0.7);
+            }
+          }
+        }
+        
+        &.average-visit {
+          --delay: 3;
+          
+          .metric-icon {
+            &:before {
+              background: $secondary-gradient;
+            }
+            
+            i {
+              color: #ff9966;
+            }
+          }
+        }
+      }
+    }
+    
+    // Sección del gráfico
+    .chart-section {
+      @include metric-card;
+      margin-bottom: 2rem;
+      padding: 0;
+      
+      .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        
+        h3 {
+          font-size: 1.1rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          
+          i {
+            margin-right: 0.75rem;
+            color: #00e5ff;
+          }
+        }
+        
+        .chart-actions {
+          display: flex;
+          gap: 0.75rem;
+          
+          .chart-action {
+            display: flex;
+            align-items: center;
+            padding: 0.4rem 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 6px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            
+            i {
+              margin-right: 0.4rem;
+            }
+            
+            &:hover {
+              background: rgba(255, 255, 255, 0.15);
+              transform: translateY(-2px);
+            }
+            
+            &:active {
+              transform: translateY(0);
+            }
+          }
+        }
+      }
+      
+      .chart-container {
+        padding: 1.5rem;
+        height: 300px;
+        position: relative;
+        
+        canvas {
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+    
+    // Desglose por disciplina
+    .discipline-breakdown {
+      margin-bottom: 2rem;
+      
+      h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.25rem;
+      }
+      
+      .discipline-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.25rem;
+        
+        .discipline-card {
+          @include metric-card;
+          display: flex;
+          align-items: center;
+          padding: 1.25rem;
+          
+          .discipline-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            position: relative;
+            flex-shrink: 0;
+            
+            &:before {
+              content: '';
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+              border-radius: 12px;
+              opacity: 0.2;
+            }
+            
+            i {
+              position: relative;
+              z-index: 1;
+            }
+          }
+          
+          .discipline-content {
+            flex-grow: 1;
+            
+            h4 {
+              font-size: 1rem;
+              font-weight: 600;
+              margin-bottom: 0.5rem;
+            }
+            
+            .discipline-count {
+              font-size: 1.4rem;
+              font-weight: 700;
+              
+              span {
+                font-size: 0.85rem;
+                font-weight: 400;
+                color: rgba(255, 255, 255, 0.7);
+              }
+            }
+          }
+          
+          .discipline-percentage {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-left: 1rem;
+            padding: 0.5rem 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+          }
+          
+          // Variantes de disciplina
+          &.pt {
+            .discipline-icon {
+              &:before {
+                background: linear-gradient(135deg, #36D1DC, #5B86E5);
+              }
+              
+              i {
+                color: #36D1DC;
+              }
+            }
+          }
+          
+          &.ot {
+            .discipline-icon {
+              &:before {
+                background: linear-gradient(135deg, #FF9966, #FF5E62);
+              }
+              
+              i {
+                color: #FF9966;
+              }
+            }
+          }
+          
+          &.st {
+            .discipline-icon {
+              &:before {
+                background: linear-gradient(135deg, #56CCF2, #2F80ED);
+              }
+              
+              i {
+                color: #56CCF2;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Estilos responsivos
+@media (max-width: 1024px) {
+    .accounting-dashboard {
+      .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        
+        .dashboard-tabs {
+          order: 2;
+          width: 100%;
+          justify-content: center;
+          margin-top: 0.5rem;
+        }
+        
+        .period-badge {
+          order: 1;
+          align-self: flex-end;
+          margin-top: -2rem;
+        }
+      }
+      
+      .dashboard-content {
+        .metrics-section {
+          grid-template-columns: repeat(2, 1fr);
+          
+          .metric-card {
+            .metric-content {
+              .metric-value {
+                font-size: 1.5rem;
+              }
+            }
+          }
+        }
+        
+        .discipline-breakdown {
+          .discipline-cards {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            
+            .discipline-card {
+              flex-direction: column;
+              text-align: center;
+              
+              .discipline-icon {
+                margin-right: 0;
+                margin-bottom: 0.75rem;
+              }
+              
+              .discipline-percentage {
+                margin-left: 0;
+                margin-top: 0.75rem;
+                padding: 0.35rem 0.65rem;
+                font-size: 1.2rem;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .accounting-dashboard {
+      .dashboard-header {
+        h2 {
+          font-size: 1.4rem;
+        }
+        
+        .dashboard-tabs {
+          overflow-x: auto;
+          padding: 0.25rem;
+          
+          .tab-button {
+            padding: 0.4rem 0.75rem;
+            white-space: nowrap;
+            
+            span {
+              font-size: 0.85rem;
+            }
+          }
+        }
+      }
+      
+      .dashboard-content {
+        .metrics-section {
+          grid-template-columns: 1fr;
+          
+          .metric-card {
+            &.total-billed {
+              --delay: 0;
+            }
+            
+            &.pending-payments {
+              --delay: 1;
+            }
+            
+            &.completed-payments {
+              --delay: 2;
+            }
+            
+            &.average-visit {
+              --delay: 3;
+            }
+          }
+        }
+        
+        .chart-section {
+          .chart-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+          }
+          
+          .chart-container {
+            height: 250px;
+            padding: 1rem;
+          }
+        }
+      }
+    }
+  }

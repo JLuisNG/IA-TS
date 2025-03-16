@@ -1,0 +1,420 @@
+// Variables
+$color-primary: #2c7be5;
+$color-primary-light: #4facfe;
+$color-primary-dark: #1a68d1;
+$color-success: #10b981;
+$color-success-light: #34d399;
+$color-warning: #f59e0b;
+$color-danger: #ef4444;
+$color-danger-light: #f87171;
+$color-dark: #0f172a;
+$color-dark-blue: #071330;
+$color-blue-card: rgba(19, 44, 80, 0.65);
+$color-teal-card: rgba(13, 58, 66, 0.65);
+$color-indigo-card: rgba(19, 38, 90, 0.65);
+$color-purple-card: rgba(58, 41, 95, 0.65);
+
+// Color variables para disciplinas
+$color-physical: #10b981;
+$color-physical-light: #34d399;
+$color-physical-dark: #059669;
+$color-physical-bg: rgba(16, 185, 129, 0.15);
+
+$color-occupational: #f59e0b;
+$color-occupational-light: #fbbf24;
+$color-occupational-dark: #d97706;
+$color-occupational-bg: rgba(245, 158, 11, 0.15);
+
+$color-speech: #8b5cf6;
+$color-speech-light: #a78bfa;
+$color-speech-dark: #7c3aed;
+$color-speech-bg: rgba(139, 92, 246, 0.15);
+
+// Mixins
+@mixin glassmorphism($bg-color: rgba(19, 44, 80, 0.65), $blur: 10px, $border-color: rgba(255, 255, 255, 0.1)) {
+  background: $bg-color;
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+  border: 1px solid $border-color;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+@mixin card-hover-effect {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  }
+}
+
+// Animaciones
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shine {
+  0% {
+    background-position: -100px;
+  }
+  40%, 100% {
+    background-position: 320px;
+  }
+}
+
+.disciplines-section {
+  animation: fadeInUp 0.6s ease-out forwards;
+  padding: 1rem;
+  
+  .section-header {
+    margin-bottom: 2rem;
+    
+    .section-title {
+      color: white;
+      font-size: 1.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin: 0;
+      position: relative;
+      padding-bottom: 0.5rem;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, $color-primary, $color-primary-light);
+        border-radius: 3px;
+      }
+      
+      i {
+        color: $color-primary-light;
+        font-size: 1.6rem;
+      }
+    }
+  }
+  
+  .disciplines-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    
+    .disciplines-tabs {
+      display: flex;
+      background: rgba(7, 19, 48, 0.5);
+      border-radius: 12px;
+      padding: 0.5rem;
+      position: relative;
+      z-index: 1;
+      
+      @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      
+      .discipline-tab {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem 1.2rem;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+          transform: translateX(-100%);
+          transition: transform 0.5s ease;
+        }
+        
+        i {
+          font-size: 1.1rem;
+          transition: all 0.3s ease;
+        }
+        
+        .therapist-count {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 24px;
+          height: 24px;
+          padding: 0 8px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 12px;
+          font-size: 0.8rem;
+          font-weight: 600;
+        }
+        
+        &:hover {
+          color: white;
+          
+          &::before {
+            transform: translateX(100%);
+          }
+          
+          i {
+            transform: scale(1.1);
+          }
+        }
+        
+        &.active {
+          background: rgba(255, 255, 255, 0.08);
+          color: white;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+          
+          &.discipline-green {
+            background: rgba($color-physical, 0.15);
+            
+            i, .therapist-count {
+              color: $color-physical-light;
+            }
+            
+            .therapist-count {
+              background: rgba($color-physical, 0.25);
+            }
+          }
+          
+          &.discipline-orange {
+            background: rgba($color-occupational, 0.15);
+            
+            i, .therapist-count {
+              color: $color-occupational-light;
+            }
+            
+            .therapist-count {
+              background: rgba($color-occupational, 0.25);
+            }
+          }
+          
+          &.discipline-purple {
+            background: rgba($color-speech, 0.15);
+            
+            i, .therapist-count {
+              color: $color-speech-light;
+            }
+            
+            .therapist-count {
+              background: rgba($color-speech, 0.25);
+            }
+          }
+        }
+      }
+    }
+    
+    .discipline-content-wrapper {
+      position: relative;
+      min-height: 300px;
+      @include glassmorphism(rgba(12, 25, 55, 0.6), 10px);
+      border-radius: 16px;
+      overflow: hidden;
+      padding: 0.3rem;
+      @include card-hover-effect();
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, $color-primary, $color-primary-light);
+        z-index: 1;
+      }
+      
+      .discipline-content {
+        position: relative;
+        min-height: 300px;
+        border-radius: 14px;
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.4s ease-out forwards;
+      }
+      
+      .discipline-green::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, $color-physical, $color-physical-light);
+        z-index: 1;
+      }
+      
+      .discipline-orange::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, $color-occupational, $color-occupational-light);
+        z-index: 1;
+      }
+      
+      .discipline-purple::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, $color-speech, $color-speech-light);
+        z-index: 1;
+      }
+    }
+  }
+  
+  .discipline-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    text-align: center;
+    
+    .loading-pulse {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba($color-primary, 0.2);
+      box-shadow: 0 0 0 rgba($color-primary, 0.2);
+      animation: pulse 1.5s infinite;
+      margin-bottom: 1.5rem;
+      position: relative;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        border-top-color: $color-primary-light;
+        border-bottom-color: $color-primary-light;
+        transform: translate(-50%, -50%);
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+      }
+    }
+    
+    .loading-text {
+      font-size: 1.1rem;
+      color: rgba(255, 255, 255, 0.8);
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+      background-size: 200px 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 2s infinite linear;
+    }
+  }
+  
+  .floating-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    background: rgba(12, 25, 55, 0.9);
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    
+    &.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    &.success {
+      border-left: 4px solid $color-success;
+      
+      i {
+        color: $color-success;
+        font-size: 1.3rem;
+      }
+    }
+    
+    &.error {
+      border-left: 4px solid $color-danger;
+      
+      i {
+        color: $color-danger;
+        font-size: 1.3rem;
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    padding: 0.5rem;
+    
+    .section-header {
+      margin-bottom: 1.5rem;
+      
+      .section-title {
+        font-size: 1.5rem;
+      }
+    }
+    
+    .disciplines-content {
+      .disciplines-tabs {
+        .discipline-tab {
+          padding: 0.8rem 1rem;
+          font-size: 0.9rem;
+          
+          .therapist-count {
+            min-width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+          }
+        }
+      }
+    }
+  }
+}

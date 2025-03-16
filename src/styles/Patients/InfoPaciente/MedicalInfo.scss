@@ -1,0 +1,485 @@
+// Variables para este componente
+$color-primary: #2c7be5;
+$color-primary-light: #4facfe;
+$color-primary-dark: #1a68d1;
+$color-success: #10b981;
+$color-success-light: #34d399;
+$color-warning: #f59e0b;
+$color-danger: #ef4444;
+$color-danger-light: #f87171;
+$color-dark: #0f172a;
+$color-dark-blue: #071330;
+$color-blue-card: rgba(19, 44, 80, 0.65);
+$color-indigo-card: rgba(19, 38, 90, 0.65);
+
+// Mixins
+@mixin glassmorphism($bg-color: rgba(19, 44, 80, 0.65), $blur: 10px, $border-color: rgba(255, 255, 255, 0.1)) {
+  background: $bg-color;
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+  border: 1px solid $border-color;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+@mixin card-hover-effect {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@mixin button-style($bg-color, $text-color, $hover-bg-color) {
+  background: $bg-color;
+  color: $text-color;
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  
+  &:hover {
+    background: $hover-bg-color;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.medical-info-card {
+  @include glassmorphism($color-indigo-card);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, $color-warning, lighten($color-warning, 10%));
+    z-index: 1;
+  }
+  
+  &.expanded {
+    @include card-hover-effect();
+  }
+  
+  &.collapsed {
+    .card-content {
+      display: none;
+    }
+  }
+  
+  .card-header {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    
+    .header-icon {
+      margin-right: 1rem;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      
+      &.medical {
+        background: rgba($color-warning, 0.15);
+        
+        i {
+          color: $color-warning;
+        }
+      }
+      
+      i {
+        font-size: 1.2rem;
+      }
+    }
+    
+    h3 {
+      color: white;
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 0;
+      flex-grow: 1;
+    }
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      
+      .edit-btn {
+        background: transparent;
+        color: $color-warning;
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: 1px solid rgba($color-warning, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        
+        i {
+          font-size: 1rem;
+        }
+        
+        &:hover {
+          background: rgba($color-warning, 0.15);
+          transform: translateY(-2px);
+          box-shadow: 0 5px 15px rgba($color-warning, 0.2);
+        }
+      }
+      
+      .expand-btn {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.2);
+          transform: translateY(-2px);
+        }
+      }
+    }
+  }
+  
+  .card-content {
+    padding: 2rem;
+    
+    .info-display {
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
+      
+      .info-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+        
+        &.medical-status {
+          grid-template-columns: 1fr;
+        }
+        
+        .info-item {
+          label {
+            display: block;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+          }
+          
+          p {
+            color: white;
+            font-size: 1.05rem;
+            margin: 0;
+            line-height: 1.5;
+            
+            .clinical-badge {
+              display: inline-block;
+              padding: 0.4rem 0.8rem;
+              background: rgba($color-warning, 0.15);
+              color: $color-warning;
+              border-radius: 6px;
+              font-weight: 500;
+              font-size: 0.95rem;
+            }
+          }
+        }
+        
+        &.medical-metrics {
+          margin-top: 1rem;
+          
+          .metrics-container {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 2rem;
+            
+            @media (max-width: 768px) {
+              flex-direction: column;
+              gap: 1.5rem;
+            }
+            
+            .metric-item {
+              flex: 1;
+              display: flex;
+              align-items: center;
+              gap: 1rem;
+              padding: 1.2rem;
+              border-radius: 12px;
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid rgba(255, 255, 255, 0.1);
+              transition: all 0.3s ease;
+              
+              &:hover {
+                background: rgba(255, 255, 255, 0.08);
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+              }
+              
+              .metric-icon {
+                width: 40px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 10px;
+                background: rgba($color-warning, 0.15);
+                
+                i {
+                  font-size: 1.2rem;
+                  color: $color-warning;
+                }
+              }
+              
+              .metric-content {
+                display: flex;
+                flex-direction: column;
+                
+                .metric-label {
+                  font-size: 0.85rem;
+                  color: rgba(255, 255, 255, 0.6);
+                  margin-bottom: 0.3rem;
+                }
+                
+                .metric-value {
+                  color: white;
+                  font-size: 1.2rem;
+                  font-weight: 600;
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                  
+                  .bmi-indicator {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 50%;
+                    display: inline-block;
+                    
+                    &[data-status="underweight"] {
+                      background-color: #3b82f6;
+                    }
+                    
+                    &[data-status="normal"] {
+                      background-color: #10b981;
+                    }
+                    
+                    &[data-status="overweight"] {
+                      background-color: #f59e0b;
+                    }
+                    
+                    &[data-status="obese"] {
+                      background-color: #ef4444;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    .edit-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+          gap: 1.2rem;
+        }
+        
+        &.metrics-row {
+          grid-template-columns: repeat(3, 1fr);
+          
+          @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+          }
+        }
+      }
+      
+      .form-group {
+        position: relative;
+        
+        label {
+          display: block;
+          font-size: 0.9rem;
+          color: rgba(255, 255, 255, 0.7);
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+        }
+        
+        input, textarea, select {
+          width: 100%;
+          padding: 0.8rem 1rem;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+          color: white;
+          font-size: 0.95rem;
+          transition: all 0.3s ease;
+          
+          &:focus {
+            outline: none;
+            border-color: rgba($color-warning, 0.5);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba($color-warning, 0.2);
+          }
+          
+          &.error {
+            border-color: $color-danger;
+            box-shadow: 0 0 0 3px rgba($color-danger, 0.1);
+          }
+          
+          &::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+          }
+        }
+        
+        textarea {
+          resize: vertical;
+          min-height: 100px;
+        }
+        
+        select {
+          appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 10px center;
+          background-size: 16px;
+          padding-right: 40px;
+        }
+        
+        .input-with-icon {
+          position: relative;
+          
+          i {
+            position: absolute;
+            top: 50%;
+            left: 1rem;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1rem;
+          }
+          
+          input {
+            padding-left: 2.8rem;
+          }
+          
+          &.bmi-display {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            padding-left: 2.8rem;
+            min-height: 47px; // Match input height
+            display: flex;
+            align-items: center;
+            
+            .bmi-value {
+              color: white;
+              font-size: 0.95rem;
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+              
+              .bmi-indicator {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                display: inline-block;
+                
+                &[data-status="underweight"] {
+                  background-color: #3b82f6;
+                }
+                
+                &[data-status="normal"] {
+                  background-color: #10b981;
+                }
+                
+                &[data-status="overweight"] {
+                  background-color: #f59e0b;
+                }
+                
+                &[data-status="obese"] {
+                  background-color: #ef4444;
+                }
+              }
+            }
+          }
+        }
+        
+        .error-message {
+          color: $color-danger-light;
+          font-size: 0.85rem;
+          margin-top: 0.5rem;
+          display: flex;
+          align-items: center;
+          
+          &::before {
+            content: '⚠️';
+            margin-right: 0.5rem;
+          }
+        }
+      }
+      
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1rem;
+        
+        .cancel-btn {
+          @include button-style(rgba(255, 255, 255, 0.08), white, rgba(255, 255, 255, 0.12));
+        }
+        
+        .save-btn {
+          @include button-style(rgba($color-warning, 0.8), white, $color-warning);
+          
+          &:hover {
+            box-shadow: 0 5px 15px rgba($color-warning, 0.3);
+          }
+        }
+      }
+    }
+  }
+}
