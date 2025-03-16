@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.css": "/IA-TS/static/css/main.8612d182.css",
-    "main.js": "/IA-TS/static/js/main.81852310.js",
-    "static/media/golden-gate-bridge-4271360.jpg": "/IA-TS/static/media/golden-gate-bridge-4271360.ca2d402f11dadede9e6f.jpg",
-    "static/media/bridge-1334099.jpg": "/IA-TS/static/media/bridge-1334099.394dc45c036ff39fa869.jpg",
-    "static/media/LosAngelesCity.jpg": "/IA-TS/static/media/LosAngelesCity.f47a3fee6871446c9cde.jpg",
+    "main.css": "/IA-TS/static/css/main.7c6d1155.css",
+    "main.js": "/IA-TS/static/js/main.76559684.js",
+    "static/media/StockSnap_XXWZEPCKFG.jpg": "/IA-TS/static/media/StockSnap_XXWZEPCKFG.a81c2939d6f39384b265.jpg",
+    "static/media/mountain-7704584_1920.jpg": "/IA-TS/static/media/mountain-7704584_1920.792c2169d1a6a0393058.jpg",
+    "static/media/golden-gate-bridge-4271360_1920.jpg": "/IA-TS/static/media/golden-gate-bridge-4271360_1920.efab5101567e15aeac26.jpg",
     "static/media/fa-solid-900.ttf": "/IA-TS/static/media/fa-solid-900.2582b0e4bcf85eceead0.ttf",
     "static/media/LogoMHC.jpeg": "/IA-TS/static/media/LogoMHC.421258215070fc96d2b4.jpeg",
     "static/media/fa-brands-400.ttf": "/IA-TS/static/media/fa-brands-400.1815e00441357e01619e.ttf",
@@ -15,11 +15,11 @@
     "static/media/fa-v4compatibility.ttf": "/IA-TS/static/media/fa-v4compatibility.da94ef451f4969af06e6.ttf",
     "static/media/fa-v4compatibility.woff2": "/IA-TS/static/media/fa-v4compatibility.ea8f94e1d22e0d35ccd4.woff2",
     "index.html": "/IA-TS/index.html",
-    "main.8612d182.css.map": "/IA-TS/static/css/main.8612d182.css.map",
-    "main.81852310.js.map": "/IA-TS/static/js/main.81852310.js.map"
+    "main.7c6d1155.css.map": "/IA-TS/static/css/main.7c6d1155.css.map",
+    "main.76559684.js.map": "/IA-TS/static/js/main.76559684.js.map"
   },
   "entrypoints": [
-    "static/css/main.8612d182.css",
-    "static/js/main.81852310.js"
+    "static/css/main.7c6d1155.css",
+    "static/js/main.76559684.js"
   ]
 }
