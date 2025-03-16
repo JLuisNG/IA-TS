@@ -6,15 +6,15 @@ const LoadingScreen = ({ isLoading, onComplete }) => {
   const [currentStep, setCurrentStep] = useState(0);
   
   const steps = [
-    { message: "Iniciando procesamiento de datos...", duration: 1500 },
-    { message: "Verificando información del paciente...", duration: 2000 },
-    { message: "Validando cobertura de seguro...", duration: 1800 },
-    { message: "Procesando historial médico...", duration: 2500 },
-    { message: "Asignando terapeutas...", duration: 1700 },
-    { message: "Generando número de referencia...", duration: 1500 },
-    { message: "Guardando referral en la base de datos...", duration: 2000 },
-    { message: "Enviando notificaciones...", duration: 1700 },
-    { message: "Finalizando proceso...", duration: 1200 }
+    { message: "Iniciando procesamiento de datos...", duration: 500 },
+    { message: "Verificando información del paciente...", duration: 200 },
+    { message: "Validando cobertura de seguro...", duration: 100 },
+    { message: "Procesando historial médico...", duration: 500 },
+    { message: "Asignando terapeutas...", duration: 300 },
+    { message: "Generando número de referencia...", duration: 100 },
+    { message: "Guardando referral en la base de datos...", duration: 200 },
+    { message: "Enviando notificaciones...", duration: 100 },
+    { message: "Finalizando proceso...", duration: 900 }
   ];
   
   // Efecto para controlar la progresión y pasos
@@ -111,7 +111,7 @@ const LoadingScreen = ({ isLoading, onComplete }) => {
           </div>
           
           <p className="info-message">
-            <i className="fas fa-info-circle"></i> Esta operación puede tardar unos momentos
+            <i className="fas fa-info-circle"></i> Esta operación puede tardar unos segundos
           </p>
         </div>
       </div>

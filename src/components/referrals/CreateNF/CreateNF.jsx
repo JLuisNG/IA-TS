@@ -7,6 +7,7 @@ import CustomDatePicker from './DatePicker';
 import '../../../styles/Referrals/CreateNF/DatePicker.scss';
 import LoadingScreen from './LoadingDates';
 import '../../../styles/Referrals/CreateNF/LoadingDates.scss';
+import DOBDatePicker from './DOBDatePicker';
 
 const CreateNF = () => {
   const navigate = useNavigate();
@@ -123,12 +124,11 @@ const CreateNF = () => {
     };
   }, []);
   
-  // Efecto para calcular la fecha de fin del período de certificación (SOC + 58 días)
   useEffect(() => {
     if (formData.certPeriodStart) {
       const startDate = new Date(formData.certPeriodStart);
       const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + 58);
+      endDate.setDate(startDate.getDate() + 60);
       
       // Formatear la fecha como YYYY-MM-DD para el input date
       const formattedEndDate = endDate.toISOString().split('T')[0];
@@ -624,15 +624,15 @@ const CreateNF = () => {
                     </div>
                     
                     <div className="form-group">
-                      <label htmlFor="dob">Date of Birth</label>
-                      <input
-                        type="date"
-                        id="dob"
-                        name="dob"
-                        value={formData.dob}
-                        onChange={handleInputChange}
-                        required
-                      />
+                        <label htmlFor="dob">Date of Birth</label>
+                        <input
+                          type="date"
+                          id="dob"
+                          name="dob"
+                          value={formData.dob}
+                          onChange={handleInputChange}
+                          required
+                        />
                     </div>
                     
                     <div className="form-group">
@@ -782,7 +782,7 @@ const CreateNF = () => {
                           </div>
                         </div>
                         <small className="form-text text-muted">
-                          End date is automatically calculated as SOC + 58 days
+                          End date is automatically calculated as SOC + 60 days
                         </small>
                       </div>
                     </div>
