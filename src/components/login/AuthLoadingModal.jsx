@@ -9,16 +9,16 @@ const AuthLoadingModal = ({ isOpen, status, message, onClose, modalType = 'auth'
   
   // Pasos del proceso según el tipo de modal
   const steps = modalType === 'auth' ? [
-    'Verificando credenciales...',
-    'Autenticando usuario...',
-    'Validando permisos...',
-    'Obteniendo datos del perfil...',
-    'Preparando sesión...'
+    'Verifying credentials...',
+    'Authenticating session...',
+    'Validating permissions...',
+    'Fetching user profile...',
+    'Preparing secure connection...'
   ] : [
-    'Preparando solicitud...',
-    'Verificando email...',
-    'Enviando enlace...',
-    'Finalizando proceso...'
+    'Preparing request...',
+    'Verifying email address...',
+    'Generating secure link...',
+    'Finalizing process...'
   ];
   
   // Efecto para animar el fondo
@@ -44,20 +44,20 @@ const AuthLoadingModal = ({ isOpen, status, message, onClose, modalType = 'auth'
       setShowStatusIcon(false);
       setCurrentStep(0);
       
-      // Animar el progreso - más rápido y fluido
+      // Animar el progreso - más fluido
       interval = setInterval(() => {
         setProgress(prev => {
-          // Incrementar progreso con velocidad variable pero más rápido
-          const increment = Math.random() * 10 + (prev < 40 ? 8 : prev < 70 ? 4 : 2);
+          // Incrementar progreso con velocidad variable
+          const increment = Math.random() * 8 + (prev < 40 ? 7 : prev < 70 ? 5 : 3);
           const newProgress = prev + increment;
           return newProgress > 95 ? 95 : newProgress; // Mantener en 95% hasta completar
         });
-      }, 200);
+      }, 250);
       
-      // Cambiar el paso actual periódicamente - más lento para mejor visualización
+      // Cambiar el paso actual periódicamente
       stepInterval = setInterval(() => {
         setCurrentStep(prev => (prev < steps.length - 1 ? prev + 1 : prev));
-      }, 1600);
+      }, 1800);
       
     } else if (status === 'success' || status === 'error') {
       // Completar el progreso
@@ -68,13 +68,13 @@ const AuthLoadingModal = ({ isOpen, status, message, onClose, modalType = 'auth'
         setShowSpinner(false);
         setShowStatusIcon(true);
         
-        // Si es error, cerrar automáticamente después de un tiempo más corto
+        // Si es error, cerrar automáticamente después de un tiempo
         if (status === 'error') {
           setTimeout(() => {
             if (onClose) onClose();
-          }, 1500);
+          }, 2000);
         }
-      }, 300);
+      }, 400);
       
       return () => clearTimeout(timeout);
     }
@@ -95,28 +95,22 @@ const AuthLoadingModal = ({ isOpen, status, message, onClose, modalType = 'auth'
   
   return (
     <div className={`auth-loading-overlay ${isOpen ? 'show' : ''} ${animateBg ? 'animate-bg' : ''} ${status === 'error' ? 'error-bg' : status === 'success' ? 'success-bg' : ''}`}>
+      {/* Elementos decorativos */}
+      <div className="auth-decoration deco-1"></div>
+      <div className="auth-decoration deco-2"></div>
+      <div className="auth-decoration deco-3"></div>
+      
       <div className="auth-loading-content">
         <div className="glow-effect"></div>
         
         <div className="auth-loading-spinner">
           {showSpinner && (
             <>
-              <div className="spinner-circle outer"></div>
-              <div className="spinner-circle middle"></div>
-              <div className="spinner-circle inner"></div>
-              
-              {/* Destellos decorativos mejorados */}
-              <div className="spinner-sparkles">
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="sparkle" style={{
-                    animationDelay: `${i * 0.3}s`,
-                    left: `${Math.random() * 100}%`,
-                    top: `${Math.random() * 100}%`,
-                    width: `${6 + Math.random() * 8}px`,
-                    height: `${6 + Math.random() * 8}px`
-                  }}></div>
-                ))}
-              </div>
+              {/* Spinner SVG moderno */}
+              <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle className="circle-bg" cx="50" cy="50" r="45" />
+                <circle className="circle-progress" cx="50" cy="50" r="45" />
+              </svg>
               
               {/* Anillos de pulso */}
               <div className="pulse-rings">
@@ -129,19 +123,25 @@ const AuthLoadingModal = ({ isOpen, status, message, onClose, modalType = 'auth'
           
           {showStatusIcon && status === 'success' && (
             <div className="check-icon show">
-              <i className="fas fa-check-circle"></i>
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path className="icon-path" d="M5 13l4 4L19 7" />
+                <circle className="icon-fill" cx="12" cy="12" r="10" />
+              </svg>
             </div>
           )}
           
           {showStatusIcon && status === 'error' && (
             <div className="error-icon show">
-              <i className="fas fa-times-circle"></i>
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path className="icon-path" d="M18 6L6 18M6 6l12 12" />
+                <circle className="icon-fill" cx="12" cy="12" r="10" />
+              </svg>
             </div>
           )}
         </div>
         
         <h3 className={status !== 'loading' ? status : ''}>
-          {status === 'loading' ? 'Procesando' : status === 'success' ? '¡Éxito!' : 'Error'}
+          {status === 'loading' ? 'Authentication' : status === 'success' ? 'Success!' : 'Error'}
         </h3>
         
         <div className="progress-container">
@@ -162,22 +162,50 @@ const AuthLoadingModal = ({ isOpen, status, message, onClose, modalType = 'auth'
         </div>
         
         {status === 'loading' && (
-          <div className="auth-loading-steps">
-            {steps.map((step, index) => (
-              <div 
-                key={index} 
-                className={`step-indicator ${index === currentStep ? 'current' : index < currentStep ? 'completed' : ''}`}
-              >
-                <div className="step-dot">
-                  {index < currentStep && <i className="fas fa-check"></i>}
+          <>
+            <div className="auth-loading-steps">
+              {steps.map((step, index) => (
+                <div 
+                  key={index} 
+                  className={`step-indicator ${index === currentStep ? 'current' : index < currentStep ? 'completed' : ''}`}
+                >
+                  <div className="step-dot">
+                    {index < currentStep && <i className="fas fa-check"></i>}
+                  </div>
+                  <div className="step-name">{step}</div>
                 </div>
-                <div className="step-name">{step}</div>
+              ))}
+            </div>
+            
+            <div className="security-panel">
+              <div className="security-panel-title">
+                <i className="fas fa-shield-alt"></i>
+                <span>Security Information</span>
               </div>
-            ))}
-          </div>
+              <div className="security-item">
+                <i className="fas fa-lock"></i>
+                <span>Protocol: <span className="security-code">TLS 1.3</span></span>
+              </div>
+              <div className="security-item">
+                <i className="fas fa-fingerprint"></i>
+                <span>Auth Method: <span className="security-code">JWT</span></span>
+              </div>
+              <div className="security-item">
+                <i className="fas fa-server"></i>
+                <span>Server: <span className="security-code">SEC-{Math.random().toString(36).substring(2, 8).toUpperCase()}</span></span>
+              </div>
+            </div>
+          </>
         )}
         
-        {/* No botón de cierre, todo es automático */}
+        {status === 'success' && (
+          <div className="auth-user-welcome">
+            <div className="welcome-message">
+              <i className="fas fa-user-check"></i>
+              <span>Welcome back, <strong>User</strong>. Redirecting...</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

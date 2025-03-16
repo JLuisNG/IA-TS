@@ -7,6 +7,7 @@ const PremiumAuthAnimation = ({ isOpen, status, message, onClose, username }) =>
   const [dataMatrixEffect, setDataMatrixEffect] = useState(false);
   const [showCompletionEffects, setShowCompletionEffects] = useState(false);
   const matrixRef = useRef(null);
+  const containerRef = useRef(null);
   
   // Fases del proceso de autenticación
   const phases = [
@@ -19,8 +20,8 @@ const PremiumAuthAnimation = ({ isOpen, status, message, onClose, username }) =>
   
   // Efecto para la matriz de datos (efecto "Matrix")
   useEffect(() => {
-    if (isOpen && status === 'loading' && phase >= 1 && dataMatrixEffect) {
-      const ctx = matrixRef.current?.getContext('2d');
+    if (isOpen && status === 'loading' && phase >= 1 && dataMatrixEffect && matrixRef.current) {
+      const ctx = matrixRef.current.getContext('2d');
       if (!ctx) return;
       
       // Configurar canvas
@@ -29,7 +30,8 @@ const PremiumAuthAnimation = ({ isOpen, status, message, onClose, username }) =>
       
       // Caracteres para la lluvia de datos
       const characters = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
-      const columns = Math.floor(width / 14); // Espaciado de columnas
+      const fontSize = 14;
+      const columns = Math.floor(width / fontSize);
       const drops = Array(columns).fill(1);
       
       // Color de fondo
@@ -43,16 +45,16 @@ const PremiumAuthAnimation = ({ isOpen, status, message, onClose, username }) =>
         
         // Caracteres verdes
         ctx.fillStyle = "#0f0";
-        ctx.font = "14px monospace";
+        ctx.font = `${fontSize}px monospace`;
         
         // Ciclo por cada columna
         for (let i = 0; i < drops.length; i++) {
           // Carácter aleatorio
           const text = characters[Math.floor(Math.random() * characters.length)];
-          ctx.fillText(text, i * 14, drops[i] * 14);
+          ctx.fillText(text, i * fontSize, drops[i] * fontSize);
           
           // Reiniciar o mover hacia abajo
-          if (drops[i] * 14 > height && Math.random() > 0.975) {
+          if (drops[i] * fontSize > height && Math.random() > 0.975) {
             drops[i] = 0;
           }
           drops[i]++;
@@ -136,11 +138,33 @@ const PremiumAuthAnimation = ({ isOpen, status, message, onClose, username }) =>
     };
   }, [isOpen, status, phases.length]);
   
+  // Función para generar ID de sesión
+  const generateSessionId = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < 8; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
+  
+  // Función para generar visualización de encriptación
+  const generateEncryptionVisual = (progress) => {
+    // Generar código que cambia con el progreso
+    const length = Math.floor((progress / 100) * 24) + 8;
+    const chars = '0123456789ABCDEFabcdef*#@!+';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
+  
   // No renderizar si no está abierto
   if (!isOpen) return null;
   
   return (
-    <div className={`premium-auth-overlay ${status === 'success' ? 'success-mode' : ''}`}>
+    <div className={`premium-auth-overlay ${status === 'success' ? 'success-mode' : ''}`} ref={containerRef}>
       <div className="premium-auth-modal">
         {/* Efectos de fondo */}
         <div className="background-effects">
@@ -312,26 +336,6 @@ const getSegmentColor = (index) => {
     '#c02954'
   ];
   return colors[index] || colors[0];
-};
-
-const generateSessionId = () => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < 8; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-};
-
-const generateEncryptionVisual = (progress) => {
-  // Generar código que cambia con el progreso
-  const length = Math.floor((progress / 100) * 24) + 8;
-  const chars = '0123456789ABCDEFabcdef*#@!+';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
 };
 
 export default PremiumAuthAnimation;

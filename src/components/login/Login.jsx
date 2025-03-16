@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLoadingModal from './AuthLoadingModal';
-import PremiumAuthAnimation from './PremiumAuthAnimation';
 import logoImg from '../../assets/LogoMHC.jpeg';
-const Login = ({ onForgotPassword, onContactUs }) => {
+
+const Login = ({ onForgotPassword }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
@@ -14,11 +14,12 @@ const Login = ({ onForgotPassword, onContactUs }) => {
     password: false,
     message: ''
   });
+  const [rememberMe, setRememberMe] = useState(false);
   
   // Estado para el modal de carga
   const [authModal, setAuthModal] = useState({
     isOpen: false,
-    status: 'loading', // 'loading', 'success', 'error'
+    status: 'loading',
     message: ''
   });
 
@@ -27,6 +28,18 @@ const Login = ({ onForgotPassword, onContactUs }) => {
     { username: "JLuis09", password: "Kariokito12" },
     { username: "Javi1", password: "JavierVargas12" }
   ];
+
+  // Comprobar el localStorage al cargar
+  useEffect(() => {
+    const savedUsername = localStorage.getItem('rememberedUsername');
+    if (savedUsername) {
+      setFormData(prev => ({
+        ...prev,
+        username: savedUsername
+      }));
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -42,6 +55,10 @@ const Login = ({ onForgotPassword, onContactUs }) => {
         [name]: false
       });
     }
+  };
+
+  const handleRememberMeChange = (e) => {
+    setRememberMe(e.target.checked);
   };
 
   const showError = (field, message) => {
@@ -108,38 +125,41 @@ const Login = ({ onForgotPassword, onContactUs }) => {
     
     // Si las credenciales no son válidas, mostrar error inmediatamente sin abrir el modal
     if (!isValid) {
-      showError('username', "Usuario o contraseña inválidos");
-      showError('password', "Usuario o contraseña inválidos");
+      showError('username', "Invalid username or password");
+      showError('password', "Invalid username or password");
       
       // Efecto visual para errores
       document.querySelectorAll(".login__input").forEach(input => {
-        input.style.transition = "transform 0.1s ease";
-        input.style.transform = "translateX(5px)";
+        input.classList.add("shake-error");
         setTimeout(() => {
-          input.style.transform = "translateX(-5px)";
-          setTimeout(() => {
-            input.style.transform = "translateX(0)";
-          }, 100);
-        }, 100);
+          input.classList.remove("shake-error");
+        }, 500);
       });
       
       return;
+    }
+    
+    // Manejar "Remember Me"
+    if (rememberMe) {
+      localStorage.setItem('rememberedUsername', formData.username);
+    } else {
+      localStorage.removeItem('rememberedUsername');
     }
     
     // Si las credenciales son válidas, mostrar el modal de carga
     setAuthModal({
       isOpen: true,
       status: 'loading',
-      message: 'Verificando datos...'
+      message: 'Verifying credentials...'
     });
     
-    // Simulación del proceso de autenticación exitoso (más lento para mejor visualización)
+    // Simulación del proceso de autenticación exitoso
     setTimeout(() => {
       // Actualizar modal a éxito
       setAuthModal({
         isOpen: true,
         status: 'success',
-        message: '¡Autenticación exitosa! Redirigiendo...'
+        message: 'Authentication successful! Redirecting...'
       });
       
       // Mostrar efecto de éxito en los campos
@@ -150,65 +170,8 @@ const Login = ({ onForgotPassword, onContactUs }) => {
       setTimeout(() => {
         navigate('/homePage');
       }, 2000);
-    }, 4500); // Aumentamos a 4.5 segundos para una visualización más completa
+    }, 4500);
   };
-
-  // Efecto del botón cuando se pasa el cursor
-  useEffect(() => {
-    const loginButtons = document.querySelectorAll(".login__button");
-    
-    const handleMouseMove = function(e) {
-      const rect = this.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
-      this.style.background = `radial-gradient(circle at ${x}px ${y}px, 
-                              #1484c5 0%, 
-                              #18618b 50%, 
-                              #6b1b99 100%)`;
-    };
-    
-    const handleMouseLeave = function() {
-      this.style.background = "linear-gradient(135deg, #1484c5, #18618b)";
-    };
-    
-    loginButtons.forEach(button => {
-      button.addEventListener("mousemove", handleMouseMove);
-      button.addEventListener("mouseleave", handleMouseLeave);
-    });
-    
-    return () => {
-      loginButtons.forEach(button => {
-        button.removeEventListener("mousemove", handleMouseMove);
-        button.removeEventListener("mouseleave", handleMouseLeave);
-      });
-    };
-  }, []);
-
-  // Efecto de enfoque para los inputs
-  useEffect(() => {
-    const inputs = document.querySelectorAll(".login__input");
-    
-    const handleFocus = function() {
-      this.parentElement.parentElement?.classList.add("form-focus");
-    };
-    
-    const handleBlur = function() {
-      this.parentElement.parentElement?.classList.remove("form-focus");
-    };
-    
-    inputs.forEach(input => {
-      input.addEventListener("focus", handleFocus);
-      input.addEventListener("blur", handleBlur);
-    });
-    
-    return () => {
-      inputs.forEach(input => {
-        input.removeEventListener("focus", handleFocus);
-        input.removeEventListener("blur", handleBlur);
-      });
-    };
-  }, []);
 
   return (
     <>
@@ -263,11 +226,31 @@ const Login = ({ onForgotPassword, onContactUs }) => {
           </div>
         </div>
         
+        {/* Checkbox clickeable mejorado */}
+        <div className="login__checkbox-group">
+          <label className="custom-checkbox">
+            <input 
+              type="checkbox" 
+              id="rememberMe"
+              checked={rememberMe}
+              onChange={handleRememberMeChange}
+            />
+            <span className="checkmark"></span>
+            <span>Remember me</span>
+          </label>
+        </div>
+        
         <button type="submit" className="login__button">LOG IN</button>
       </form>
       
+      {/* Enlace de forgot password mejorado */}
       <div className="login__extra-links">
-        <button className="login__link" onClick={onForgotPassword}>Forgot your password?</button>
+        <a href="#" className="forgot-password-link" onClick={(e) => {
+          e.preventDefault();
+          onForgotPassword(e);
+        }}>
+          Forgot your password?
+        </a>
       </div>
       
       {/* Modal de carga para autenticación */}
