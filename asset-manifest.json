@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/IA-TS/static/css/main.235f5118.css",
-    "main.js": "/IA-TS/static/js/main.d4f030d6.js",
+    "main.css": "/IA-TS/static/css/main.6c76545e.css",
+    "main.js": "/IA-TS/static/js/main.4ab46ba8.js",
     "static/media/StockSnap_XXWZEPCKFG.jpg": "/IA-TS/static/media/StockSnap_XXWZEPCKFG.a81c2939d6f39384b265.jpg",
     "static/media/mountain-7704584_1920.jpg": "/IA-TS/static/media/mountain-7704584_1920.792c2169d1a6a0393058.jpg",
     "static/media/golden-gate-bridge-4271360_1920.jpg": "/IA-TS/static/media/golden-gate-bridge-4271360_1920.efab5101567e15aeac26.jpg",
@@ -15,11 +15,11 @@
     "static/media/fa-v4compatibility.ttf": "/IA-TS/static/media/fa-v4compatibility.da94ef451f4969af06e6.ttf",
     "static/media/fa-v4compatibility.woff2": "/IA-TS/static/media/fa-v4compatibility.ea8f94e1d22e0d35ccd4.woff2",
     "index.html": "/IA-TS/index.html",
-    "main.235f5118.css.map": "/IA-TS/static/css/main.235f5118.css.map",
-    "main.d4f030d6.js.map": "/IA-TS/static/js/main.d4f030d6.js.map"
+    "main.6c76545e.css.map": "/IA-TS/static/css/main.6c76545e.css.map",
+    "main.4ab46ba8.js.map": "/IA-TS/static/js/main.4ab46ba8.js.map"
   },
   "entrypoints": [
-    "static/css/main.235f5118.css",
-    "static/js/main.d4f030d6.js"
+    "static/css/main.6c76545e.css",
+    "static/js/main.4ab46ba8.js"
   ]
 }
