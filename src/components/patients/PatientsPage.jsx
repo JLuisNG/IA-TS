@@ -4,6 +4,8 @@ import logoImg from '../../assets/LogoMHC.jpeg';
 import '../../styles/Patients/PatientsPage.scss';
 import AIAssistant from '../welcome/AIAssistant';
 
+
+
 // Componente de Tabs Premium con animaciones mejoradas
 const PremiumTabs = ({ activeTab, onChangeTab }) => {
   return (
@@ -117,6 +119,7 @@ const StatCard = ({ title, value, icon, color }) => {
 const PatientsPage = () => {
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [activeMenuOption, setActiveMenuOption] = useState('Patients');
   const [menuTransitioning, setMenuTransitioning] = useState(false);
   const [showMenuSwitch, setShowMenuSwitch] = useState(false);
@@ -489,6 +492,7 @@ const PatientsPage = () => {
     };
   }, []);
   
+  
   // Manejar navegación al menú principal
   const handleMainMenuTransition = () => {
     setMenuTransitioning(true);
@@ -567,6 +571,18 @@ const handleTabChange = (tab) => {
     setActivePage(1);
   };
   
+  const handleLogout = () => {
+    setIsLoggingOut(true);
+    setShowUserMenu(false);
+    setShowAIAssistant(false);
+    
+    // Después de que la animación se complete, redirigir al login
+    setTimeout(() => {
+      navigate('/');
+    }, 5000); // Tiempo ajustado para la animación mejorada
+  };
+
+
   // Cambiar vista entre lista y cuadrícula
   const toggleView = (view) => {
     setCurrentView(view);
@@ -731,28 +747,40 @@ const handleActionClick = (action, patient) => {
               <i className={`fas fa-chevron-${showUserMenu ? 'up' : 'down'}`}></i>
             </div>
             
-            {/* Menú desplegable de usuario */}
+            {/* Menú desplegable del usuario con efectos */}
             {showUserMenu && (
               <div className="user-menu">
-                <div className="menu-item">
-                  <i className="fas fa-user-circle"></i>
-                  <span>My Account</span>
+                <div className="menu-header">
+                  <div className="user-info">
+                    <div className="user-avatar">
+                      <span>LN</span>
+                    </div>
+                    <div className="user-details">
+                      <h4>Luis Nava</h4>
+                      <span className="user-email">luis.nava@example.com</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="menu-item">
-                  <i className="fas fa-cog"></i>
-                  <span>Settings</span>
+                
+                <div className="menu-items">
+                  <div className="menu-item">
+                    <i className="fas fa-user-circle"></i>
+                    <span>My Account</span>
+                  </div>
+                  <div className="menu-item">
+                    <i className="fas fa-cog"></i>
+                    <span>Settings</span>
+                  </div>
+                  <div className="menu-item">
+                    <i className="fas fa-bell"></i>
+                    <span>Notifications</span>
+                    <div className="notification-badge">3</div>
+                  </div>
                 </div>
-                <div className="menu-item">
-                  <i className="fas fa-bell"></i>
-                  <span>Notifications</span>
-                  <span className="badge">3</span>
-                </div>
+                
                 <div className="menu-divider"></div>
-                <div className="menu-item">
-                  <i className="fas fa-question-circle"></i>
-                  <span>Help & Support</span>
-                </div>
-                <div className="menu-item logout">
+                
+                <div className="menu-item logout" onClick={handleLogout}>
                   <i className="fas fa-sign-out-alt"></i>
                   <span>Log Out</span>
                 </div>

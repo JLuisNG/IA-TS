@@ -17,6 +17,7 @@ const StaffingPage = () => {
   const [showAddStaffForm, setShowAddStaffForm] = useState(false);
   const [showStaffList, setShowStaffList] = useState(false);
   const [showStaffEdit, setShowStaffEdit] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   
   // Referencias
   const userMenuRef = useRef(null);
@@ -86,6 +87,17 @@ const StaffingPage = () => {
     setShowStaffList(false);
     setShowStaffEdit(false);
   };
+
+  const handleLogout = () => {
+    setIsLoggingOut(true);
+    setShowUserMenu(false);
+    
+    // Después de que la animación se complete, redirigir al login
+    setTimeout(() => {
+      navigate('/');
+    }, 5000); // Tiempo ajustado para la animación mejorada
+  };
+  
 
   // Manejar el clic en View All Staff
   const handleViewAllStaffClick = () => {
@@ -193,28 +205,40 @@ const StaffingPage = () => {
               <i className={`fas fa-chevron-${showUserMenu ? 'up' : 'down'}`}></i>
             </div>
             
-            {/* Menú desplegable de usuario */}
+            {/* Menú desplegable del usuario con efectos */}
             {showUserMenu && (
               <div className="user-menu">
-                <div className="menu-item">
-                  <i className="fas fa-user-circle"></i>
-                  <span>My Account</span>
+                <div className="menu-header">
+                  <div className="user-info">
+                    <div className="user-avatar">
+                      <span>LN</span>
+                    </div>
+                    <div className="user-details">
+                      <h4>Luis Nava</h4>
+                      <span className="user-email">luis.nava@example.com</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="menu-item">
-                  <i className="fas fa-cog"></i>
-                  <span>Settings</span>
+                
+                <div className="menu-items">
+                  <div className="menu-item">
+                    <i className="fas fa-user-circle"></i>
+                    <span>My Account</span>
+                  </div>
+                  <div className="menu-item">
+                    <i className="fas fa-cog"></i>
+                    <span>Settings</span>
+                  </div>
+                  <div className="menu-item">
+                    <i className="fas fa-bell"></i>
+                    <span>Notifications</span>
+                    <div className="notification-badge">3</div>
+                  </div>
                 </div>
-                <div className="menu-item">
-                  <i className="fas fa-bell"></i>
-                  <span>Notifications</span>
-                  <span className="badge">3</span>
-                </div>
+                
                 <div className="menu-divider"></div>
-                <div className="menu-item">
-                  <i className="fas fa-question-circle"></i>
-                  <span>Help & Support</span>
-                </div>
-                <div className="menu-item logout">
+                
+                <div className="menu-item logout" onClick={handleLogout}>
                   <i className="fas fa-sign-out-alt"></i>
                   <span>Log Out</span>
                 </div>

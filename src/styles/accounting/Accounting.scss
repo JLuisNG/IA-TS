@@ -397,21 +397,24 @@ $sta-color: #2F80ED;
       
       // Perfil de usuario
       .user-profile {
+        flex: 0 0 auto;
         position: relative;
         
         .profile-button {
           display: flex;
           align-items: center;
-          background: linear-gradient(135deg, rgba(41, 121, 255, 0.2), rgba(0, 229, 255, 0.2));
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          background: linear-gradient(135deg, rgba(0, 70, 140, 0.5), rgba(0, 40, 80, 0.5));
+          border: 1px solid rgba(255, 255, 255, 0.15);
           border-radius: 50px;
           padding: 0.4rem 0.75rem 0.4rem 1rem;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          box-shadow: 0 5px 18px rgba(0, 0, 0, 0.2);
           
           &:hover, &.active {
-            background: linear-gradient(135deg, rgba(41, 121, 255, 0.3), rgba(0, 229, 255, 0.3));
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(0, 80, 160, 0.6), rgba(0, 50, 100, 0.6));
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
           }
           
           .profile-info {
@@ -422,12 +425,13 @@ $sta-color: #2F80ED;
             .user-name {
               font-weight: 500;
               font-size: 0.95rem;
-              color: $text-primary;
+              text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
             }
             
             .user-role {
               font-size: 0.75rem;
-              color: $text-secondary;
+              opacity: 0.7;
+              letter-spacing: 0.5px;
             }
           }
           
@@ -435,34 +439,41 @@ $sta-color: #2F80ED;
             width: 38px;
             height: 38px;
             border-radius: 50%;
-            background: $primary-gradient;
+            background: linear-gradient(135deg, #0288d1, #26c6da);
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0 0.5rem;
+            box-shadow: 0 0 15px rgba(38, 198, 218, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.25);
             position: relative;
             
             .avatar-text {
               font-weight: 600;
               font-size: 0.95rem;
-              color: $text-primary;
+              color: white;
+              text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+              z-index: 1;
             }
             
+            // Anillo animado alrededor del avatar
             .avatar-ring {
               position: absolute;
               top: -4px;
               left: -4px;
               width: calc(100% + 8px);
               height: calc(100% + 8px);
-              border: 2px solid rgba(0, 229, 255, 0.5);
+              border: 2px solid rgba(38, 198, 218, 0.5);
               border-radius: 50%;
-              animation: pulse 3s infinite;
+              animation: avatarRing 3s infinite;
             }
           }
           
           i {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             margin-left: 5px;
-            color: $text-secondary;
-            transition: transform 0.3s ease;
           }
           
           &.active i {
@@ -470,76 +481,136 @@ $sta-color: #2F80ED;
           }
         }
         
-        // Menú desplegable del usuario
+        // Menú desplegable mejorado
         .user-menu {
           position: absolute;
-          top: calc(100% + 0.75rem);
+          top: calc(100% + 0.85rem);
           right: 0;
-          min-width: 200px;
-          background: rgba(30, 41, 59, 0.95);
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
-          border-radius: 12px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-          z-index: 1000;
-          animation: scaleIn 0.2s ease-out;
-          transform-origin: top right;
+          min-width: 250px;
+          background: rgba(15, 23, 42, 0.95);
+          backdrop-filter: blur(15px);
+          -webkit-backdrop-filter: blur(15px);
+          border-radius: 16px;
           overflow: hidden;
+          z-index: 1000;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+          animation: dropdownFadeIn 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+          transform-origin: top right;
           
-          .menu-item {
-            padding: 0.8rem 1rem;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
+          // Encabezado del menú con información del usuario
+          .menu-header {
+            padding: 1.2rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             
-            &:hover {
-              background-color: rgba(255, 255, 255, 0.1);
-            }
-
-            i {
-                margin-right: 10px;
-                width: 20px;
-                text-align: center;
-                color: $text-secondary;
-              }
+            .user-info {
+              display: flex;
+              align-items: center;
               
-              span {
-                color: $text-primary;
-                font-weight: 500;
-                font-size: 0.95rem;
-              }
-              
-              .badge {
-                background-color: $status-error;
-                color: white;
+              .user-avatar {
+                width: 45px;
+                height: 45px;
                 border-radius: 50%;
-                width: 20px;
-                height: 20px;
-                font-size: 0.75rem;
+                background: linear-gradient(135deg, #0288d1, #26c6da);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                margin-left: auto;
+                margin-right: 1rem;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+                border: 2px solid rgba(255, 255, 255, 0.15);
+                
+                span {
+                  color: white;
+                  font-weight: 600;
+                  font-size: 1rem;
+                  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+                }
               }
               
-              &.logout {
-                color: $status-error;
+              .user-details {
+                h4 {
+                  margin: 0 0 5px 0;
+                  font-size: 1rem;
+                  color: white;
+                }
                 
-                i, span {
-                  color: $status-error;
+                .user-email {
+                  color: rgba(255, 255, 255, 0.7);
+                  font-size: 0.85rem;
                 }
               }
             }
+          }
+          
+          // Contenedor de items del menú
+          .menu-items {
+            padding: 0.6rem 0;
+          }
+          
+          .menu-item {
+            padding: 0.9rem 1.2rem;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
             
-            .menu-divider {
-              height: 1px;
-              background-color: $border-color;
-              margin: 0.5rem 0;
+            &:hover {
+              background: rgba(255, 255, 255, 0.1);
+            }
+            
+            i {
+              margin-right: 1rem;
+              font-size: 1rem;
+              width: 20px;
+              text-align: center;
+              color: rgba(255, 255, 255, 0.8);
+            }
+            
+            span {
+              color: rgba(255, 255, 255, 0.9);
+              font-weight: 500;
+              font-size: 0.95rem;
+            }
+            
+            // Badge de notificación
+            .notification-badge {
+              position: absolute;
+              right: 1.2rem;
+              background: #f44336;
+              color: white;
+              width: 20px;
+              height: 20px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 0.75rem;
+              font-weight: 600;
+              box-shadow: 0 3px 8px rgba(244, 67, 54, 0.4);
+            }
+            
+            &.logout {
+              color: #f44336;
+              
+              i, span {
+                color: #f44336;
+              }
+              
+              &:hover {
+                background: rgba(244, 67, 54, 0.15);
+              }
             }
           }
+          
+          .menu-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 0.5rem 0;
+          }
         }
+      }
       }
     }
     
