@@ -1373,7 +1373,7 @@ $color-dark: #071330;
 /* Mejoras para el contenido de la sección */
 .section-content {
   animation: fadeIn 0.5s ease-out;
-  min-height: 400px;
+  min-height: 100px;
   position: relative;
   
   &::before {
