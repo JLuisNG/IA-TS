@@ -4,12 +4,12 @@ import '../../styles/Welcome/Welcome.scss';
 import logoImg from '../../assets/LogoMHC.jpeg';
 import LogoutAnimation from './LogoutAnimation';
 import InfoWelcome from './infoWelcome';
-import AIAssistant from './AIAssistant';
+// import AIAssistant from './AIAssistant';
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [activeMenuIndex, setActiveMenuIndex] = useState(4); // Establecer Accounting como activo de forma predeterminada
+  const [activeMenuIndex, setActiveMenuIndex] = useState(0);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [menuTransitioning, setMenuTransitioning] = useState(false);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
@@ -17,12 +17,29 @@ const HomePage = () => {
   const [headerGlow, setHeaderGlow] = useState(false);
   const [particles, setParticles] = useState([]);
   const [welcomeAnimComplete, setWelcomeAnimComplete] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+  const notificationCount = 5;
+  
+  const userData = {
+    name: 'Luis Nava',
+    avatar: 'LN',
+    email: 'luis.nava@therapysync.com',
+    role: 'Developer',
+    status: 'online', // online, away, busy, offline
+    stats: {
+      // Stats data if needed
+    },
+    quickActions: [
+      // Quick actions if needed
+    ]
+  };
   
   const userMenuRef = useRef(null);
   const menuRef = useRef(null);
   const containerRef = useRef(null);
   
-  // Opciones principales del menú mejoradas con iconos
+  // Main menu options with icons
   const menuOptions = [
     { id: 1, name: "Patients", icon: "fa-user-injured", route: '/patients', color: "#36D1DC" },
     { id: 2, name: "Referrals", icon: "fa-file-medical", route: '/referrals', color: "#FF9966" },
@@ -31,17 +48,31 @@ const HomePage = () => {
     { id: 5, name: "Accounting", icon: "fa-chart-pie", route: '/accounting', color: "#4CAF50" }
   ];
   
-  // Generar partículas aleatorias para el efecto de fondo
+  // Check device size on mount and resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024);
+    };
+    
+    handleResize(); // Initial check
+    window.addEventListener('resize', handleResize);
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  // Generate random particles for background effect with responsive count
   const generateParticles = () => {
     const particlesArray = [];
-    const particleCount = 25;
+    // Adjust particle count based on device performance capabilities
+    const particleCount = isMobile ? 15 : isTablet ? 20 : 25;
     
     for (let i = 0; i < particleCount; i++) {
       particlesArray.push({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
-        size: Math.random() * 5 + 3,
+        size: Math.random() * (isMobile ? 3 : 5) + (isMobile ? 2 : 3),
         speed: Math.random() * 0.8 + 0.2,
         opacity: Math.random() * 0.5 + 0.1,
         color: `rgba(255, 255, 255, ${Math.random() * 0.3 + 0.1})`,
@@ -52,51 +83,53 @@ const HomePage = () => {
     setParticles(particlesArray);
   };
   
-  // Efecto para cargar el asistente después de que la página esté completamente cargada
+  // Load assistant after page is fully loaded with performance optimizations
   useEffect(() => {
-    // Generar partículas
+    // Generate particles
     generateParticles();
     
-    // Animación de entrada completa
+    // Complete entrance animation
     setTimeout(() => {
       setWelcomeAnimComplete(true);
-    }, 1500);
+    }, isMobile ? 1000 : 1500);
     
-    // Retraso para asegurar que la página se cargue primero
+    // Delay to ensure page loads first - shorter delay on mobile for better UX
     const timer = setTimeout(() => {
       setShowAIAssistant(true);
-    }, 2000);
+    }, isMobile ? 1500 : 2000);
     
     return () => clearTimeout(timer);
-  }, []);
+  }, [isMobile]);
   
-  // Efecto para la rotación automática del carrusel
+  // Auto-rotation carousel effect with responsive timing
   useEffect(() => {
+    // Slower rotation on mobile for better readability
     const interval = setInterval(() => {
       if (!isLoggingOut && !menuTransitioning) {
         setActiveMenuIndex((prevIndex) => 
           prevIndex >= menuOptions.length - 1 ? 0 : prevIndex + 1
         );
       }
-    }, 6000);
+    }, isMobile ? 8000 : 6000);
     
     return () => clearInterval(interval);
-  }, [menuOptions.length, isLoggingOut, menuTransitioning]);
+  }, [menuOptions.length, isLoggingOut, menuTransitioning, isMobile]);
   
-  // Efecto para activar el efecto de parallax en el fondo
+  // Parallax effect with performance optimizations for mobile
   useEffect(() => {
     const handleMouseMove = (e) => {
-      if (containerRef.current) {
+      if (containerRef.current && !isMobile) { // Disable parallax on mobile for performance
         const { clientX, clientY } = e;
         const { width, height } = containerRef.current.getBoundingClientRect();
         
-        // Calcular posición relativa al centro
-        const xPos = (clientX / width - 0.5) * 20; // Limitado a +-10px
-        const yPos = (clientY / height - 0.5) * 15; // Limitado a +-7.5px
+        // Calculate position relative to center with reduced movement on lower-power devices
+        const multiplier = isTablet ? 15 : 20;
+        const xPos = (clientX / width - 0.5) * multiplier;
+        const yPos = (clientY / height - 0.5) * (isTablet ? 10 : 15);
         
         setParallaxPosition({ x: xPos, y: yPos });
         
-        // Activar el brillo del header cuando el mouse está en la parte superior
+        // Activate header glow when mouse is near the top
         if (clientY < 100) {
           setHeaderGlow(true);
         } else {
@@ -105,11 +138,15 @@ const HomePage = () => {
       }
     };
     
-    window.addEventListener('mousemove', handleMouseMove);
+    // Only add event listener if not on mobile
+    if (!isMobile) {
+      window.addEventListener('mousemove', handleMouseMove);
+    }
+    
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  }, [isMobile, isTablet]);
   
-  // Cerrar menú de usuario al hacer clic fuera
+  // Close user menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
@@ -123,54 +160,61 @@ const HomePage = () => {
     };
   }, []);
   
-  // Manejar la navegación a izquierda en el carrusel
+  // Handle left carousel navigation
   const handlePrevious = () => {
     setActiveMenuIndex((prevIndex) => 
       prevIndex <= 0 ? menuOptions.length - 1 : prevIndex - 1
     );
   };
   
-  // Manejar la navegación a derecha en el carrusel
+  // Handle right carousel navigation
   const handleNext = () => {
     setActiveMenuIndex((prevIndex) => 
       prevIndex >= menuOptions.length - 1 ? 0 : prevIndex + 1
     );
   };
   
-  // Manejar el cierre de sesión con animación mejorada
+  // Handle logout with enhanced animation
   const handleLogout = () => {
     setIsLoggingOut(true);
     setShowUserMenu(false);
     setShowAIAssistant(false);
     
-    // Después de que la animación se complete, redirigir al login
+    // Adjusted timing for different devices
     setTimeout(() => {
       navigate('/');
-    }, 5000); // Tiempo ajustado para la animación mejorada
+    }, isMobile ? 3000 : 5000);
   };
   
-  // Manejar clic en opción del menú principal
+  // Handle menu option click with responsive transitions
   const handleMenuOptionClick = (option) => {
     setActiveMenuIndex(menuOptions.findIndex(o => o.id === option.id));
     setMenuTransitioning(true);
     setShowAIAssistant(false);
     
-    // Navegar a la página correspondiente según la opción del menú
+    // Faster transition on mobile for better UX
     setTimeout(() => {
       navigate(option.route);
-    }, 500);
+    }, isMobile ? 300 : 500);
   };
   
-  // Obtener las opciones visibles del menú para el carrusel (5 elementos con diferentes tamaños)
+  // Get visible menu options for carousel with responsive considerations
   const getVisibleMenuOptions = () => {
     const result = [];
     const totalOptions = menuOptions.length;
     
-    // Obtener los índices para 5 elementos visibles con el activo en el centro
-    for (let i = -2; i <= 2; i++) {
+    // For mobile, show only 3 elements; for tablets and up, show 5
+    const visibleItems = isMobile ? 3 : 5;
+    const offset = Math.floor(visibleItems / 2);
+    
+    // Get indices with the active in the center
+    for (let i = -offset; i <= offset; i++) {
+      // Skip far elements on mobile
+      if (isMobile && (i === -2 || i === 2)) continue;
+      
       const actualIndex = (activeMenuIndex + i + totalOptions) % totalOptions;
       
-      // Determinar la posición basada en la distancia al elemento activo
+      // Determine position based on distance to active element
       let position;
       if (i === -2) position = 'far-left';
       else if (i === -1) position = 'left';
@@ -189,19 +233,19 @@ const HomePage = () => {
 
   return (
     <div 
-      className={`dashboard ${menuTransitioning ? 'transitioning' : ''} ${welcomeAnimComplete ? 'anim-complete' : ''}`}
+      className={`dashboard ${menuTransitioning ? 'transitioning' : ''} ${welcomeAnimComplete ? 'anim-complete' : ''} ${isMobile ? 'mobile' : ''} ${isTablet ? 'tablet' : ''}`}
       ref={containerRef}
     >
-      {/* Fondo con efecto parallax avanzado */}
+      {/* Parallax background with responsive behavior */}
       <div 
         className="parallax-background"
         style={{ 
-          transform: `scale(1.1) translate(${parallaxPosition.x}px, ${parallaxPosition.y}px)` 
+          transform: isMobile ? 'scale(1.05)' : `scale(1.1) translate(${parallaxPosition.x}px, ${parallaxPosition.y}px)` 
         }}
       >
         <div className="gradient-overlay"></div>
         
-        {/* Partículas flotantes */}
+        {/* Floating particles with responsive count */}
         <div className="particles-container">
           {particles.map(particle => (
             <div 
@@ -222,19 +266,19 @@ const HomePage = () => {
         </div>
       </div>
       
-      {/* Componente de animación de logout */}
-      {isLoggingOut && <LogoutAnimation />}
+      {/* Logout animation component */}
+      {isLoggingOut && <LogoutAnimation isMobile={isMobile} />}
       
-      {/* Header con logo y perfil con efectos premium */}
+      {/* Premium header with responsive layout */}
       <header className={`main-header ${headerGlow ? 'glow-effect' : ''}`}>
         <div className="header-container">
-          {/* Logo con efectos */}
+          {/* Logo with effects */}
           <div className="logo-container">
             <div className="logo-glow"></div>
             <img src={logoImg} alt="TherapySync Logo" className="logo" />
           </div>
           
-          {/* Carrusel superior mejorado */}
+          {/* Enhanced carousel with responsive layout */}
           <div className="top-carousel" ref={menuRef}>
             <button className="carousel-arrow left" onClick={handlePrevious} aria-label="Previous">
               <div className="arrow-icon">
@@ -278,61 +322,116 @@ const HomePage = () => {
             </button>
           </div>
           
-          {/* Perfil de usuario avanzado */}
-          <div className="user-profile" ref={userMenuRef}>
+          {/* Enhanced user profile with responsive layout */}
+          <div className="support-user-profile" ref={userMenuRef}>
             <div 
-              className={`profile-button ${showUserMenu ? 'active' : ''}`} 
+              className={`support-profile-button ${showUserMenu ? 'active' : ''}`} 
               onClick={() => setShowUserMenu(!showUserMenu)}
+              data-tooltip="Your profile and settings"
             >
-              <div className="profile-info">
-                <span className="user-name">Luis Nava</span>
-                <span className="user-role">Admin</span>
+              <div className="support-avatar">
+                <div className="support-avatar-text">{userData.avatar}</div>
+                <div className={`support-avatar-status ${userData.status}`}></div>
               </div>
               
-              <div className="avatar">
-                <div className="avatar-text">LN</div>
-                <div className="avatar-ring"></div>
+              <div className="support-profile-info">
+                <span className="support-user-name">{userData.name}</span>
+                <span className="support-user-role">{userData.role}</span>
               </div>
               
               <i className={`fas fa-chevron-${showUserMenu ? 'up' : 'down'}`}></i>
             </div>
             
-            {/* Menú desplegable del usuario con efectos */}
+            {/* Enhanced dropdown menu with responsive layout */}
             {showUserMenu && (
-              <div className="user-menu">
-                <div className="menu-header">
-                  <div className="user-info">
-                    <div className="user-avatar">
-                      <span>LN</span>
+              <div className="support-user-menu">
+                <div className="support-menu-header">
+                  <div className="support-user-info">
+                    <div className="support-user-avatar">
+                      <span>{userData.avatar}</span>
+                      <div className={`avatar-status ${userData.status}`}></div>
                     </div>
-                    <div className="user-details">
-                      <h4>Luis Nava</h4>
-                      <span className="user-email">luis.nava@example.com</span>
+                    <div className="support-user-details">
+                      <h4>{userData.name}</h4>
+                      <span className="support-user-email">{userData.email}</span>
+                      <span className={`support-user-status ${userData.status}`}>
+                        <i className="fas fa-circle"></i> 
+                        {userData.status.charAt(0).toUpperCase() + userData.status.slice(1)}
+                      </span>
                     </div>
                   </div>
                 </div>
                 
-                <div className="menu-items">
-                  <div className="menu-item">
-                    <i className="fas fa-user-circle"></i>
-                    <span>My Account</span>
-                  </div>
-                  <div className="menu-item">
-                    <i className="fas fa-cog"></i>
-                    <span>Settings</span>
-                  </div>
-                  <div className="menu-item">
-                    <i className="fas fa-bell"></i>
-                    <span>Notifications</span>
-                    <div className="notification-badge">3</div>
+                <div className="support-menu-section">
+                  <div className="section-title">Account</div>
+                  <div className="support-menu-items">
+                    <div className="support-menu-item">
+                      <i className="fas fa-user-circle"></i>
+                      <span>My Profile</span>
+                    </div>
+                    <div className="support-menu-item">
+                      <i className="fas fa-cog"></i>
+                      <span>Settings</span>
+                    </div>
+                    <div className="support-menu-item">
+                      <i className="fas fa-calendar-alt"></i>
+                      <span>My Schedule</span>
+                    </div>
                   </div>
                 </div>
                 
-                <div className="menu-divider"></div>
+                <div className="support-menu-section">
+                  <div className="section-title">Preferences</div>
+                  <div className="support-menu-items">
+                    <div className="support-menu-item">
+                      <i className="fas fa-bell"></i>
+                      <span>Notifications</span>
+                      <div className="support-notification-badge">{notificationCount}</div>
+                    </div>
+                    <div className="support-menu-item toggle-item">
+                      <div className="toggle-item-content">
+                        <i className="fas fa-moon"></i>
+                        <span>Dark Mode</span>
+                      </div>
+                      <div className="toggle-switch">
+                        <div className="toggle-handle active"></div>
+                      </div>
+                    </div>
+                    <div className="support-menu-item toggle-item">
+                      <div className="toggle-item-content">
+                        <i className="fas fa-volume-up"></i>
+                        <span>Sound Alerts</span>
+                      </div>
+                      <div className="toggle-switch">
+                        <div className="toggle-handle"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 
-                <div className="menu-item logout" onClick={handleLogout}>
-                  <i className="fas fa-sign-out-alt"></i>
-                  <span>Log Out</span>
+                <div className="support-menu-section">
+                  <div className="section-title">Support</div>
+                  <div className="support-menu-items">
+                    <div className="support-menu-item">
+                      <i className="fas fa-headset"></i>
+                      <span>Contact Support</span>
+                    </div>
+                    <div className="support-menu-item">
+                      <i className="fas fa-bug"></i>
+                      <span>Report Issue</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="support-menu-footer">
+                  <div className="support-menu-item logout" onClick={handleLogout}>
+                    <i className="fas fa-sign-out-alt"></i>
+                    <span>Log Out</span>
+                  </div>
+                  <div className="version-info">
+                    <span>TherapySync™ Support</span>
+                    <span>v2.7.0</span>
+                  </div>
                 </div>
               </div>
             )}
@@ -340,9 +439,9 @@ const HomePage = () => {
         </div>
       </header>
       
-      {/* Contenido principal con animaciones mejoradas */}
+      {/* Enhanced main content with responsive layout */}
       <main className="main-content">
-        {/* Contenedor de bienvenida con efecto de texto */}
+        {/* Welcome container with responsive typography */}
         <div className="welcome-container welcome-container-top">
           <h1 className="welcome-title">
             <span className="highlight">Welcome</span> to TherapySync
@@ -354,12 +453,12 @@ const HomePage = () => {
           </p>
         </div>
         
-        {/* Componente de información mejorado */}
-        <InfoWelcome />
+        {/* Info welcome component with responsive props */}
+        <InfoWelcome isMobile={isMobile} isTablet={isTablet} />
       </main>
       
-      {/* Componente de Asistente IA con carga condicional */}
-      {showAIAssistant && <AIAssistant />}
+      {/* AI Assistant with conditional loading */}
+      {/* {showAIAssistant && <AIAssistant isMobile={isMobile} />} */}
     </div>
   );
 };

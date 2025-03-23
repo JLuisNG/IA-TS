@@ -65,7 +65,7 @@ const InfoMedical = ({ patientData }) => {
       id: 5, 
       name: "Patient Consent Form.pdf", 
       type: "consent", 
-      uploadedBy: "Luis Nava, Admin", 
+      uploadedBy: "Luis Nava, Developer", 
       uploadDate: "04-19-2023", 
       size: "0.9 MB",
       status: "verified",
@@ -96,7 +96,7 @@ const InfoMedical = ({ patientData }) => {
         id: newId,
         name: newDocument.name,
         type: newDocument.type || "other",
-        uploadedBy: "Luis Nava, Admin", // Usuario actual simulado
+        uploadedBy: "Luis Nava, Developer", // Usuario actual simulado
         uploadDate: formattedDate,
         size: newDocument.size || "0 KB",
         status: "pending",

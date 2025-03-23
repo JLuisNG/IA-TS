@@ -332,7 +332,7 @@ const InfoPaciente = () => {
             >
               <div className="profile-info">
                 <span className="user-name">Luis Nava</span>
-                <span className="user-role">Admin</span>
+                <span className="user-role">Developer</span>
               </div>
               
               <div className="avatar">

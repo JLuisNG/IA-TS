@@ -10,6 +10,7 @@ import '../../../styles/Referrals/CreateNF/LoadingDates.scss';
 import DOBDatePicker from './DOBDatePicker';
 
 const CreateNF = () => {
+  const notificationCount = 0; // Define the notificationCount variable
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -64,6 +65,20 @@ const CreateNF = () => {
     },
     disciplines: []
   });
+
+  const userData = {
+    name: 'Luis Nava',
+    avatar: 'LN',
+    email: 'luis.nava@therapysync.com',
+    role: 'Developer',
+    status: 'online', // online, away, busy, offline
+    stats: {
+      
+    },
+    quickActions: [
+      
+    ]
+  };
   
   // Datos simulados para selects
   const physicians = [
@@ -143,6 +158,13 @@ const CreateNF = () => {
   // Manejar transición al menú principal
   const handleMainMenuTransition = () => {
     navigate('/homePage');
+  };
+
+  // Manejar cierre de sesión
+  const handleLogout = () => {
+    // Aquí iría la lógica para cerrar sesión
+    console.log('Logout');
+    navigate('/login');
   };
   
   // Manejar transición al menú de referrals
@@ -486,34 +508,121 @@ const CreateNF = () => {
           </div>
           
           {/* Perfil de usuario */}
-          <div className="user-profile" ref={userMenuRef}>
+          <div className="support-user-profile" ref={userMenuRef}>
             <div 
-              className={`profile-button ${showUserMenu ? 'active' : ''}`} 
+              className={`support-profile-button ${showUserMenu ? 'active' : ''}`} 
               onClick={() => setShowUserMenu(!showUserMenu)}
+              data-tooltip="Your profile and settings"
             >
-              <div className="profile-info">
-                <span className="user-name">Luis Nava</span>
-                <span className="user-role">Admin</span>
+              <div className="support-avatar">
+                <div className="support-avatar-text">{userData.avatar}</div>
+                <div className={`support-avatar-status ${userData.status}`}></div>
               </div>
               
-              <div className="avatar">
-                <div className="avatar-text">LN</div>
+              <div className="support-profile-info">
+                <span className="support-user-name">{userData.name}</span>
+                <span className="support-user-role">{userData.role}</span>
               </div>
               
               <i className={`fas fa-chevron-${showUserMenu ? 'up' : 'down'}`}></i>
             </div>
             
-            {/* Menú desplegable del usuario */}
+            {/* Menú desplegable del usuario mejorado con estadísticas */}
             {showUserMenu && (
-              <div className="user-menu">
-                <div className="menu-item">
-                  <i className="fas fa-user-circle"></i>
-                  <span>My Account</span>
+              <div className="support-user-menu">
+                <div className="support-menu-header">
+                  <div className="support-user-info">
+                    <div className="support-user-avatar">
+                      <span>{userData.avatar}</span>
+                      <div className={`avatar-status ${userData.status}`}></div>
+                    </div>
+                    <div className="support-user-details">
+                      <h4>{userData.name}</h4>
+                      <span className="support-user-email">{userData.email}</span>
+                      <span className={`support-user-status ${userData.status}`}>
+                        <i className="fas fa-circle"></i> 
+                        {userData.status.charAt(0).toUpperCase() + userData.status.slice(1)}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Stats cards */}
+                  
+                  {/* Quick action buttons */}
+       
                 </div>
-                <div className="menu-divider"></div>
-                <div className="menu-item logout" onClick={handleMainMenuTransition}>
-                  <i className="fas fa-sign-out-alt"></i>
-                  <span>Log Out</span>
+                
+                <div className="support-menu-section">
+                  <div className="section-title">Account</div>
+                  <div className="support-menu-items">
+                    <div className="support-menu-item">
+                      <i className="fas fa-user-circle"></i>
+                      <span>My Profile</span>
+                    </div>
+                    <div className="support-menu-item">
+                      <i className="fas fa-cog"></i>
+                      <span>Settings</span>
+                    </div>
+                    <div className="support-menu-item">
+                      <i className="fas fa-calendar-alt"></i>
+                      <span>My Schedule</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="support-menu-section">
+                  <div className="section-title">Preferences</div>
+                  <div className="support-menu-items">
+                    <div className="support-menu-item">
+                      <i className="fas fa-bell"></i>
+                      <span>Notifications</span>
+                      <div className="support-notification-badge">{notificationCount}</div>
+                    </div>
+                    <div className="support-menu-item toggle-item">
+                      <div className="toggle-item-content">
+                        <i className="fas fa-moon"></i>
+                        <span>Dark Mode</span>
+                      </div>
+                      <div className="toggle-switch">
+                        <div className="toggle-handle active"></div>
+                      </div>
+                    </div>
+                    <div className="support-menu-item toggle-item">
+                      <div className="toggle-item-content">
+                        <i className="fas fa-volume-up"></i>
+                        <span>Sound Alerts</span>
+                      </div>
+                      <div className="toggle-switch">
+                        <div className="toggle-handle"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="support-menu-section">
+                  <div className="section-title">Support</div>
+                  <div className="support-menu-items">
+      
+                    <div className="support-menu-item">
+                      <i className="fas fa-headset"></i>
+                      <span>Contact Support</span>
+                    </div>
+                    <div className="support-menu-item">
+                      <i className="fas fa-bug"></i>
+                      <span>Report Issue</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="support-menu-footer">
+                  <div className="support-menu-item logout" onClick={handleLogout}>
+                    <i className="fas fa-sign-out-alt"></i>
+                    <span>Log Out</span>
+                  </div>
+                  <div className="version-info">
+                    <span>TherapySync™ Support</span>
+                    <span>v2.7.0</span>
+                  </div>
                 </div>
               </div>
             )}

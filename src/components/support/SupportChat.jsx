@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import '../../styles/support/SupportChat.scss';
+import { motion, AnimatePresence } from 'framer-motion'; // Añadimos framer-motion para animaciones premium
 
 const SupportChat = () => {
   const [conversations, setConversations] = useState([]);
@@ -9,10 +10,25 @@ const SupportChat = () => {
   const [agentStatus, setAgentStatus] = useState('online');
   const [selectedTab, setSelectedTab] = useState('active');
   const [newMessageAlert, setNewMessageAlert] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [filteredConversations, setFilteredConversations] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [quickReplies, setQuickReplies] = useState([
+    'Hello! How can I help you today?',
+    'I\'m looking into this for you.',
+    'Could you provide more details?',
+    'Thank you for your patience.',
+    'Let me check your account status.',
+    'Is there anything else I can help you with?',
+    'I\'ll generate a temporary password for you.',
+    'Please try logging in again now.'
+  ]);
   
   const chatContainerRef = useRef(null);
+  const messageInputRef = useRef(null);
   
-  // Datos simulados de conversaciones
+  // Mock conversations data (usando el mismo que proporcionaste)
   const mockConversations = [
     {
       id: 'chat-001',
@@ -40,7 +56,7 @@ const SupportChat = () => {
         {
           id: 2,
           sender: 'customer',
-          content: 'Hello, I´m having trouble logging into my account after the recent update. It keeps saying "invalid credentials" even though Im sure my password is correct.',
+          content: 'Hello, I\'m having trouble logging into my account after the recent update. It keeps saying "invalid credentials" even though I\'m sure my password is correct.',
           time: '10:15 AM',
           isRead: true
         },
@@ -179,55 +195,47 @@ const SupportChat = () => {
     }
   ];
   
-  // Simular carga de datos
+  // Efecto al cargar los datos
   useEffect(() => {
-    setTimeout(() => {
+    // Simular carga con efecto de aparición gradual
+    const timer = setTimeout(() => {
       setConversations(mockConversations);
       setSelectedConversation(mockConversations[0]);
       setLoading(false);
-    }, 1000);
+      setFilteredConversations(mockConversations.filter(c => c.status === 'active'));
+    }, 800);
     
-    // Simular un nuevo mensaje después de cierto tiempo
-    const messageTimer = setTimeout(() => {
-      if (!selectedConversation) return;
-      
-      const updatedConversations = [...conversations];
-      const conversationIndex = updatedConversations.findIndex(c => c.id === 'chat-001');
-      
-      if (conversationIndex >= 0) {
-        const newMessage = {
-          id: Date.now(),
-          sender: 'customer',
-          content: 'Are you still there? I really need help with this login issue.',
-          time: '10:42 AM',
-          isRead: false
-        };
-        
-        updatedConversations[conversationIndex].messages.push(newMessage);
-        updatedConversations[conversationIndex].unreadCount += 1;
-        
-        setConversations(updatedConversations);
-        setNewMessageAlert(true);
-        
-        // Actualizar la conversación seleccionada si es la misma
-        if (selectedConversation && selectedConversation.id === 'chat-001') {
-          setSelectedConversation(updatedConversations[conversationIndex]);
-        }
-      }
-    }, 15000);
-    
-    return () => clearTimeout(messageTimer);
-  }, [conversations, selectedConversation]);
+    return () => clearTimeout(timer);
+  }, []);
   
-  // Desplazarse al final del chat cuando cambia la conversación o llegan nuevos mensajes
+  // Actualizar conversaciones filtradas cuando cambia la pestaña
+  useEffect(() => {
+    if (searchTerm) {
+      const filtered = conversations.filter(c => 
+        (selectedTab === 'all' || c.status === selectedTab) &&
+        (c.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         c.customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         c.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())))
+      );
+      setFilteredConversations(filtered);
+    } else {
+      if (selectedTab === 'all') {
+        setFilteredConversations(conversations);
+      } else {
+        setFilteredConversations(conversations.filter(c => c.status === selectedTab));
+      }
+    }
+  }, [selectedTab, conversations, searchTerm]);
+  
+  // Scroll al final del chat cuando cambia la conversación o llegan nuevos mensajes
   useEffect(() => {
     if (chatContainerRef.current && selectedConversation) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [selectedConversation]);
   
-  // Manejar la selección de una conversación
-  const handleSelectConversation = (conversation) => {
+  // Seleccionar una conversación
+  const handleSelectConversation = useCallback((conversation) => {
     // Marcar mensajes como leídos
     const updatedConversation = {
       ...conversation,
@@ -247,18 +255,30 @@ const SupportChat = () => {
     );
     
     setConversations(updatedConversations);
-  };
+    
+    // Efecto: mostrar que estamos leyendo los mensajes
+    if (conversation.unreadCount > 0) {
+      setIsTyping(true);
+      setTimeout(() => {
+        setIsTyping(false);
+      }, 1500);
+    }
+  }, [conversations]);
   
   // Enviar un nuevo mensaje
-  const handleSendMessage = (e) => {
-    e.preventDefault();
+  const handleSendMessage = useCallback((e) => {
+    e && e.preventDefault();
     
     if (!message.trim() || !selectedConversation) return;
     
+    // Guardar mensaje para referencia
+    const sentMessage = message.trim();
+    
+    // Crear nuevo mensaje
     const newMessage = {
       id: Date.now(),
       sender: 'agent',
-      content: message.trim(),
+      content: sentMessage,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       isRead: true
     };
@@ -278,19 +298,209 @@ const SupportChat = () => {
     
     setConversations(updatedConversations);
     setMessage('');
+    
+    // Desplazarse al final del chat con animación suave
+    setTimeout(() => {
+      if (chatContainerRef.current) {
+        chatContainerRef.current.scrollTo({
+          top: chatContainerRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }, 100);
+    
+    // Simular respuesta del cliente después de un tiempo aleatorio (para demo)
+    simulateCustomerResponse(updatedConversation.id);
+  }, [message, selectedConversation, conversations]);
+  
+  // Simulación de respuesta del cliente (solo para demostración)
+  const simulateCustomerResponse = (conversationId) => {
+    // Solo para la primera conversación para hacer una demo
+    if (conversationId !== 'chat-001') return;
+    
+    // Probabilidad de respuesta
+    if (Math.random() > 0.7) {
+      const possibleResponses = [
+        'Thanks for the help!',
+        'I still see the same error message.',
+        'That worked! Thank you so much.',
+        'Let me try that and get back to you.',
+        'Could you explain a bit more?'
+      ];
+      
+      // Tiempo de espera aleatorio entre 3 y 8 segundos
+      const waitTime = Math.random() * 5000 + 3000;
+      
+      setTimeout(() => {
+        // Mensaje de "escribiendo..."
+        setIsTyping(true);
+        
+        // Después de otro tiempo aleatorio, enviar la respuesta
+        setTimeout(() => {
+          const customerResponse = {
+            id: Date.now(),
+            sender: 'customer',
+            content: possibleResponses[Math.floor(Math.random() * possibleResponses.length)],
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            isRead: false
+          };
+          
+          // Actualizar la conversación con la respuesta
+          const updatedConversation = {
+            ...selectedConversation,
+            messages: [...selectedConversation.messages, customerResponse],
+            unreadCount: 1
+          };
+          
+          setSelectedConversation(updatedConversation);
+          
+          // Actualizar conversaciones
+          const updatedConversations = conversations.map(c => 
+            c.id === conversationId ? updatedConversation : c
+          );
+          
+          setConversations(updatedConversations);
+          setIsTyping(false);
+          setNewMessageAlert(true);
+          
+          // Notificación de sonido (descomentar para activar)
+          // playMessageSound();
+          
+        }, Math.random() * 2000 + 1000);
+      }, waitTime);
+    }
   };
   
-  // Filtrar conversaciones según la pestaña seleccionada
-  const getFilteredConversations = () => {
-    switch (selectedTab) {
-      case 'active':
-        return conversations.filter(c => c.status === 'active');
-      case 'pending':
-        return conversations.filter(c => c.status === 'pending');
-      case 'closed':
-        return conversations.filter(c => c.status === 'closed');
-      default:
-        return conversations;
+  // Usar una respuesta rápida
+  const handleQuickReply = (reply) => {
+    setMessage(reply);
+    messageInputRef.current?.focus();
+  };
+  
+  // Agregar una respuesta rápida personalizada
+  const addCustomQuickReply = () => {
+    if (message.trim() && !quickReplies.includes(message.trim())) {
+      setQuickReplies([...quickReplies, message.trim()]);
+      
+      // Muestra notificación de éxito (implementar UI para esto)
+      alert('¡Respuesta rápida añadida!');
+    } else {
+      // Muestra error (implementar UI para esto)
+      alert('Por favor, ingresa un texto nuevo para guardar como respuesta rápida');
+    }
+  };
+  
+  // Crear un nuevo ticket a partir de la conversación
+  const createTicket = () => {
+    if (!selectedConversation) return;
+    
+    // Aquí implementarías la lógica real para crear un ticket
+    alert(`Ticket creado para ${selectedConversation.customer.name} sobre "${selectedConversation.tags.join(', ')}"`);
+    
+    // Actualizar el estado, por ejemplo agregar etiqueta "ticket-created"
+    const updatedConversation = {
+      ...selectedConversation,
+      tags: [...selectedConversation.tags, 'ticket-created']
+    };
+    
+    setSelectedConversation(updatedConversation);
+    
+    // Actualizar conversaciones
+    const updatedConversations = conversations.map(c => 
+      c.id === selectedConversation.id ? updatedConversation : c
+    );
+    
+    setConversations(updatedConversations);
+  };
+  
+  // Llamar al cliente
+  const callCustomer = () => {
+    if (!selectedConversation) return;
+    
+    // Simulación de llamada (implementarías integración real)
+    alert(`Iniciando llamada con ${selectedConversation.customer.name}...`);
+    
+    // Agregar mensaje de sistema indicando la llamada
+    const callMessage = {
+      id: Date.now(),
+      sender: 'system',
+      content: `Llamada iniciada con ${selectedConversation.customer.name} a las ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      isRead: true
+    };
+    
+    const updatedConversation = {
+      ...selectedConversation,
+      messages: [...selectedConversation.messages, callMessage]
+    };
+    
+    setSelectedConversation(updatedConversation);
+    
+    const updatedConversations = conversations.map(c => 
+      c.id === selectedConversation.id ? updatedConversation : c
+    );
+    
+    setConversations(updatedConversations);
+  };
+  
+  // Ver perfil completo del cliente
+  const viewCustomerProfile = () => {
+    if (!selectedConversation) return;
+    
+    // Aquí implementarías navegación al perfil completo
+    alert(`Ver perfil completo de ${selectedConversation.customer.name}`);
+  };
+  
+  // Ver historial de conversaciones
+  const viewChatHistory = () => {
+    if (!selectedConversation) return;
+    
+    // Aquí implementarías navegación al historial
+    alert(`Ver historial de conversaciones con ${selectedConversation.customer.name}`);
+  };
+  
+  // Ver tickets del cliente
+  const viewCustomerTickets = () => {
+    if (!selectedConversation) return;
+    
+    // Aquí implementarías navegación a tickets
+    alert(`Ver tickets de ${selectedConversation.customer.name}`);
+  };
+  
+  // Ver registros del paciente
+  const viewPatientRecords = () => {
+    if (!selectedConversation) return;
+    
+    // Aquí implementarías navegación a registros
+    alert(`Ver registros médicos de ${selectedConversation.customer.name}`);
+  };
+  
+  // Ver información de facturación
+  const viewBillingInfo = () => {
+    if (!selectedConversation) return;
+    
+    // Aquí implementarías navegación a facturación
+    alert(`Ver información de facturación de ${selectedConversation.customer.name}`);
+  };
+  
+  // Añadir una etiqueta nueva
+  const addTag = () => {
+    if (!selectedConversation) return;
+    
+    const newTag = prompt('Ingresa una nueva etiqueta:');
+    if (newTag && !selectedConversation.tags.includes(newTag)) {
+      const updatedConversation = {
+        ...selectedConversation,
+        tags: [...selectedConversation.tags, newTag]
+      };
+      
+      setSelectedConversation(updatedConversation);
+      
+      const updatedConversations = conversations.map(c => 
+        c.id === selectedConversation.id ? updatedConversation : c
+      );
+      
+      setConversations(updatedConversations);
     }
   };
   
@@ -299,7 +509,7 @@ const SupportChat = () => {
     setAgentStatus(status);
   };
   
-  // Obtener color para la prioridad
+  // Función para asignar color a la prioridad
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'high': return '#F44336';
@@ -309,7 +519,7 @@ const SupportChat = () => {
     }
   };
   
-  // Obtener color para el estado del cliente
+  // Función para asignar color al estado del cliente
   const getStatusColor = (status) => {
     switch (status) {
       case 'online': return '#4CAF50';
@@ -319,8 +529,24 @@ const SupportChat = () => {
     }
   };
   
+  // Generar un background gradient para el avatar basado en el nombre
+  const getAvatarGradient = (name) => {
+    const colors = [
+      ['#FF9800', '#F44336'],
+      ['#2196F3', '#3F51B5'],
+      ['#4CAF50', '#8BC34A'],
+      ['#9C27B0', '#E91E63'],
+      ['#00BCD4', '#03A9F4']
+    ];
+    
+    // Usar las iniciales para elegir un color de forma determinística
+    const colorIndex = name.charCodeAt(0) % colors.length;
+    return `linear-gradient(135deg, ${colors[colorIndex][0]}, ${colors[colorIndex][1]})`;
+  };
+  
+  // Renderizar la interfaz
   return (
-    <div className="support-chat">
+    <div className="support-chat support-chat-premium">
       <div className="chat-header">
         <h2>Live Chat Support</h2>
         <div className="agent-status">
@@ -348,6 +574,16 @@ const SupportChat = () => {
       <div className="chat-container">
         {/* Lista de conversaciones */}
         <div className="chat-conversations">
+          <div className="conversations-search">
+            <input
+              type="text"
+              placeholder="Buscar conversaciones..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <i className="fas fa-search"></i>
+          </div>
+          
           <div className="conversations-tabs">
             <div 
               className={`tab ${selectedTab === 'active' ? 'active' : ''}`}
@@ -376,6 +612,15 @@ const SupportChat = () => {
                 {conversations.filter(c => c.status === 'closed').length}
               </div>
             </div>
+            <div 
+              className={`tab ${selectedTab === 'all' ? 'active' : ''}`}
+              onClick={() => setSelectedTab('all')}
+            >
+              <span>All</span>
+              <div className="tab-count">
+                {conversations.length}
+              </div>
+            </div>
           </div>
           
           <div className="conversations-list">
@@ -384,57 +629,67 @@ const SupportChat = () => {
                 <div className="loading-spinner"></div>
                 <span>Loading conversations...</span>
               </div>
-            ) : getFilteredConversations().length > 0 ? (
-              getFilteredConversations().map((conversation) => (
-                <div 
-                  key={conversation.id}
-                  className={`conversation-item ${selectedConversation && selectedConversation.id === conversation.id ? 'selected' : ''} ${conversation.unreadCount > 0 ? 'unread' : ''}`}
-                  onClick={() => handleSelectConversation(conversation)}
-                >
-                  <div 
-                    className="conversation-priority" 
-                    style={{ backgroundColor: getPriorityColor(conversation.priority) }}
-                  ></div>
-                  <div className="conversation-avatar">
-                    <div className="avatar-text">{conversation.customer.avatar}</div>
+            ) : filteredConversations.length > 0 ? (
+              <AnimatePresence>
+                {filteredConversations.map((conversation) => (
+                  <motion.div 
+                    key={conversation.id}
+                    className={`conversation-item ${selectedConversation && selectedConversation.id === conversation.id ? 'selected' : ''} ${conversation.unreadCount > 0 ? 'unread' : ''}`}
+                    onClick={() => handleSelectConversation(conversation)}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.2 }}
+                    layout
+                  >
                     <div 
-                      className="avatar-status" 
-                      style={{ backgroundColor: getStatusColor(conversation.customer.status) }}
+                      className="conversation-priority" 
+                      style={{ backgroundColor: getPriorityColor(conversation.priority) }}
                     ></div>
-                  </div>
-                  <div className="conversation-info">
-                    <div className="conversation-name">
-                      {conversation.customer.name}
-                      {conversation.unreadCount > 0 && (
-                        <div className="unread-badge">{conversation.unreadCount}</div>
-                      )}
+                    <div 
+                      className="conversation-avatar"
+                      style={{ background: getAvatarGradient(conversation.customer.name) }}
+                    >
+                      <div className="avatar-text">{conversation.customer.avatar}</div>
+                      <div 
+                        className="avatar-status" 
+                        style={{ backgroundColor: getStatusColor(conversation.customer.status) }}
+                      ></div>
                     </div>
-                    <div className="conversation-preview">
-                      {conversation.messages.length > 0
-                        ? conversation.messages[conversation.messages.length - 1].content.substring(0, 35) + (conversation.messages[conversation.messages.length - 1].content.length > 35 ? '...' : '')
-                        : 'No messages yet'
-                      }
-                    </div>
-                    <div className="conversation-meta">
-                      <div className="conversation-time">
-                        <i className="fas fa-clock"></i>
-                        <span>{conversation.duration}</span>
+                    <div className="conversation-info">
+                      <div className="conversation-name">
+                        {conversation.customer.name}
+                        {conversation.unreadCount > 0 && (
+                          <div className="unread-badge">{conversation.unreadCount}</div>
+                        )}
                       </div>
-                      <div className="conversation-department">
-                        <i className="fas fa-tag"></i>
-                        <span>{conversation.department}</span>
+                      <div className="conversation-preview">
+                        {conversation.messages.length > 0
+                          ? conversation.messages[conversation.messages.length - 1].content.substring(0, 35) + (conversation.messages[conversation.messages.length - 1].content.length > 35 ? '...' : '')
+                          : 'No messages yet'
+                        }
+                      </div>
+                      <div className="conversation-meta">
+                        <div className="conversation-time">
+                          <i className="fas fa-clock"></i>
+                          <span>{conversation.duration}</span>
+                        </div>
+                        <div className="conversation-department">
+                          <i className="fas fa-tag"></i>
+                          <span>{conversation.department}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ))
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             ) : (
               <div className="no-conversations">
                 <div className="no-data-icon">
                   <i className="fas fa-comments"></i>
                 </div>
                 <h3>No conversations</h3>
-                <p>There are no {selectedTab} conversations at the moment</p>
+                <p>There are no {selectedTab !== 'all' ? selectedTab : ''} conversations{searchTerm ? ' matching your search' : ' at the moment'}</p>
               </div>
             )}
           </div>
@@ -446,7 +701,10 @@ const SupportChat = () => {
             <>
               <div className="chat-main-header">
                 <div className="chat-customer">
-                  <div className="customer-avatar">
+                  <div 
+                    className="customer-avatar"
+                    style={{ background: getAvatarGradient(selectedConversation.customer.name) }}
+                  >
                     <div className="avatar-text">{selectedConversation.customer.avatar}</div>
                     <div 
                       className="avatar-status" 
@@ -459,15 +717,15 @@ const SupportChat = () => {
                   </div>
                 </div>
                 <div className="chat-actions">
-                  <button className="chat-action-button">
+                  <button className="chat-action-button" onClick={viewCustomerProfile}>
                     <i className="fas fa-user"></i>
                     <span>Profile</span>
                   </button>
-                  <button className="chat-action-button">
+                  <button className="chat-action-button" onClick={createTicket}>
                     <i className="fas fa-ticket-alt"></i>
                     <span>Create Ticket</span>
                   </button>
-                  <button className="chat-action-button">
+                  <button className="chat-action-button" onClick={callCustomer}>
                     <i className="fas fa-phone"></i>
                     <span>Call</span>
                   </button>
@@ -478,327 +736,393 @@ const SupportChat = () => {
               </div>
               
               <div className="chat-messages" ref={chatContainerRef}>
-                {selectedConversation.messages.map((message) => (
-                  <div 
-                    key={message.id}
-                    className={`chat-message ${message.sender} ${!message.isRead && message.sender !== 'agent' ? 'unread' : ''}`}
-                  >
-                    {message.sender === 'system' ? (
-                      <div className="system-message">
-                        <div className="system-content">{message.content}</div>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="message-avatar">
-                          {message.sender === 'customer' ? (
-                            selectedConversation.customer.avatar
-                          ) : (
-                            'LN'
-                          )}
+                <AnimatePresence>
+                  {selectedConversation.messages.map((message) => (
+                    <motion.div 
+                      key={message.id}
+                      className={`chat-message ${message.sender} ${!message.isRead && message.sender !== 'agent' ? 'unread' : ''}`}
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {message.sender === 'system' ? (
+                        <div className="system-message">
+                          <div className="system-content">{message.content}</div>
                         </div>
-                        <div className="message-content">
-                          <div className="message-header">
-                            <span className="message-sender">
-                              {message.sender === 'customer' 
-                                ? selectedConversation.customer.name 
-                                : 'Luis Nava'}
-                            </span>
-                            <span className="message-time">{message.time}</span>
+                      ) : (
+                        <>
+                          <div 
+                            className="message-avatar"
+                            style={{ 
+                              background: message.sender === 'customer' 
+                                ? getAvatarGradient(selectedConversation.customer.name) 
+                                : 'linear-gradient(135deg, #0288d1, #26c6da)'
+                            }}
+                          >
+                            {message.sender === 'customer' ? (
+                              selectedConversation.customer.avatar
+                            ) : (
+                              'LN'
+                            )}
                           </div>
-                          <div className="message-body">{message.content}</div>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ))}
+                          <div className="message-content">
+                            <div className="message-header">
+                              <span className="message-sender">
+                                {message.sender === 'customer' 
+                                  ? selectedConversation.customer.name 
+                                  : 'Luis Nava'}
+                              </span>
+                              <span className="message-time">{message.time}</span>
+                            </div>
+                            <div className="message-body">{message.content}</div>
+                          </div>
+                        </>
+                      )}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
                 
-                {newMessageAlert && (
-                  <div className="new-message-alert">
-                    <i className="fas fa-arrow-down"></i>
-                    <span>New message</span>
+                {isTyping && (
+                  <div className="typing-indicator">
+                    <div className="typing-bubble"></div>
+                    <div className="typing-bubble"></div>
+                    <div className="typing-bubble"></div>
+                    <span>{selectedConversation.customer.name} está escribiendo...</span>
                   </div>
                 )}
-              </div>
-              
-              <div className="chat-input">
-                <form onSubmit={handleSendMessage}>
-                  <div className="input-actions">
-                    <button type="button" className="input-action">
-                      <i className="fas fa-paperclip"></i>
-                    </button>
-                    <button type="button" className="input-action">
-                      <i className="fas fa-smile"></i>
-                    </button>
-                    <button type="button" className="input-action">
-                      <i className="fas fa-image"></i>
-                    </button>
-                    <button type="button" className="input-action">
-                      <i className="fas fa-link"></i>
-                    </button>
-                  </div>
-                  <div className="input-container">
-                    <textarea 
-                      placeholder="Type your message..."
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendMessage(e);
-                        }
-                      }}
-                    ></textarea>
-                    <button 
-                      type="submit" 
-                      className="send-button"
-                      disabled={!message.trim()}
-                    >
-                      <i className="fas fa-paper-plane"></i>
-                    </button>
-                  </div>
-                </form>
-                <div className="input-tools">
-                  <div className="quick-responses">
-                    <button className="quick-response">Hello! How can I help you today?</button>
-                    <button className="quick-response">I'm looking into this for you.</button>
-                    <button className="quick-response">Could you provide more details?</button>
-                    <button className="quick-response">Thank you for your patience.</button>
-                    <button className="quick-response more">
-                      <i className="fas fa-ellipsis-h"></i>
-                    </button>
-                  </div>
+                
+                {newMessageAlert && (
+                  <div className="new-message-alert" onClick={() => chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight}>
+                  <i className="fas fa-arrow-down"></i>
+                  <span>Nuevo mensaje</span>
                 </div>
-              </div>
-            </>
-          ) : (
-            <div className="chat-empty">
-              <div className="empty-icon">
-                <i className="fas fa-comments"></i>
-              </div>
-              <h3>No Conversation Selected</h3>
-              <p>Select a conversation from the list to start chatting</p>
+              )}
             </div>
-          )}
-        </div>
-        
-        {/* Información del cliente */}
-        {selectedConversation && (
-          <div className="chat-customer-info">
-            <div className="customer-card">
-              <div className="customer-header">
-                <div className="customer-avatar-large">
-                  <span>{selectedConversation.customer.avatar}</span>
-                </div>
-                <h3 className="customer-name-large">{selectedConversation.customer.name}</h3>
-                <div className="customer-status">
-                  <div 
-                    className="status-indicator" 
-                    style={{ backgroundColor: getStatusColor(selectedConversation.customer.status) }}
-                  ></div>
-                  <span className="status-text">{selectedConversation.customer.status}</span>
-                </div>
-                <div className="customer-email-large">{selectedConversation.customer.email}</div>
-              </div>
-              
-              <div className="customer-details">
-                <div className="detail-item">
-                  <div className="detail-label">
-                    <i className="fas fa-calendar-alt"></i>
-                    <span>Chat Started</span>
-                  </div>
-                  <div className="detail-value">{selectedConversation.startTime}</div>
-                </div>
-                <div className="detail-item">
-                  <div className="detail-label">
-                    <i className="fas fa-clock"></i>
-                    <span>Duration</span>
-                  </div>
-                  <div className="detail-value">{selectedConversation.duration}</div>
-                </div>
-                <div className="detail-item">
-                  <div className="detail-label">
-                    <i className="fas fa-bookmark"></i>
-                    <span>Department</span>
-                  </div>
-                  <div className="detail-value">{selectedConversation.department}</div>
-                </div>
-                <div className="detail-item">
-                  <div className="detail-label">
-                    <i className="fas fa-flag"></i>
-                    <span>Priority</span>
-                  </div>
-                  <div 
-                    className="detail-value priority"
-                    style={{ color: getPriorityColor(selectedConversation.priority) }}
+            
+            <div className="chat-input">
+              <form onSubmit={handleSendMessage}>
+                <div className="input-actions">
+                  <button type="button" className="input-action">
+                    <i className="fas fa-paperclip"></i>
+                    <span className="tooltip">Adjuntar archivo</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    className="input-action"
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                   >
-                    {selectedConversation.priority.charAt(0).toUpperCase() + selectedConversation.priority.slice(1)}
-                  </div>
+                    <i className="fas fa-smile"></i>
+                    <span className="tooltip">Emojis</span>
+                  </button>
+                  <button type="button" className="input-action">
+                    <i className="fas fa-image"></i>
+                    <span className="tooltip">Enviar imagen</span>
+                  </button>
+                  <button 
+                    type="button" 
+                    className="input-action"
+                    onClick={addCustomQuickReply}
+                  >
+                    <i className="fas fa-save"></i>
+                    <span className="tooltip">Guardar respuesta</span>
+                  </button>
                 </div>
-              </div>
-              
-              <div className="customer-tags">
-                <div className="tags-header">
-                  <i className="fas fa-tags"></i>
-                  <span>Tags</span>
-                </div>
-                <div className="tags-list">
-                  {selectedConversation.tags.map((tag, index) => (
-                    <div key={index} className="tag-item">
-                      <span>{tag}</span>
+                
+                {showEmojiPicker && (
+                  <div className="emoji-picker">
+                    <div className="emoji-picker-header">
+                      <span>Emojis</span>
+                      <button 
+                        className="close-emoji-picker"
+                        onClick={() => setShowEmojiPicker(false)}
+                      >
+                        <i className="fas fa-times"></i>
+                      </button>
                     </div>
-                  ))}
-                  <div className="tag-item add">
-                    <i className="fas fa-plus"></i>
+                    <div className="emoji-list">
+                      {["😊", "👍", "🙏", "👋", "🎉", "✅", "⭐", "📌", "📝", "💬", "📞", "📧", "💻", "🔍", "⚙️", "🔒"].map(emoji => (
+                        <button 
+                          key={emoji} 
+                          className="emoji-item"
+                          onClick={() => {
+                            setMessage(prev => prev + emoji);
+                            setShowEmojiPicker(false);
+                          }}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
                   </div>
+                )}
+                
+                <div className="input-container">
+                  <textarea 
+                    placeholder="Escribe tu mensaje..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage(e);
+                      }
+                    }}
+                    ref={messageInputRef}
+                  ></textarea>
+                  <button 
+                    type="submit" 
+                    className={`send-button ${message.trim() ? 'active' : ''}`}
+                    disabled={!message.trim()}
+                  >
+                    <i className="fas fa-paper-plane"></i>
+                  </button>
+                </div>
+              </form>
+              
+              <div className="input-tools">
+  <div className="quick-responses">
+    {quickReplies.slice(0, 4).map((reply, index) => (
+      <button 
+        key={index} 
+        className="quick-response"
+        onClick={() => handleQuickReply(reply)}
+      >
+        {reply}
+      </button>
+    ))}
+    <div className="quick-response-dropdown">
+      <button className="quick-response more">
+        <i className="fas fa-ellipsis-h"></i>
+      </button>
+      <div className="dropdown-content">
+        {quickReplies.slice(4).map((reply, index) => (
+          <button 
+            key={index + 4} 
+            className="dropdown-item"
+            onClick={() => handleQuickReply(reply)}
+          >
+            {reply}
+          </button>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
+            </div>
+          </>
+        ) : (
+          <div className="chat-empty">
+            <div className="empty-icon">
+              <i className="fas fa-comments"></i>
+            </div>
+            <h3>No tienes ninguna conversación seleccionada</h3>
+            <p>Selecciona una conversación de la lista para comenzar a chatear</p>
+            <button className="refresh-btn" onClick={() => window.location.reload()}>
+              <i className="fas fa-sync-alt"></i>
+              <span>Refrescar lista</span>
+            </button>
+          </div>
+        )}
+      </div>
+      
+      {/* Información del cliente */}
+      {selectedConversation && (
+        <div className="chat-customer-info">
+          <div className="customer-card">
+            <div className="customer-header">
+              <div 
+                className="customer-avatar-large"
+                style={{ background: getAvatarGradient(selectedConversation.customer.name) }}
+              >
+                <span>{selectedConversation.customer.avatar}</span>
+              </div>
+              <h3 className="customer-name-large">{selectedConversation.customer.name}</h3>
+              <div className="customer-status">
+                <div 
+                  className="status-indicator" 
+                  style={{ backgroundColor: getStatusColor(selectedConversation.customer.status) }}
+                ></div>
+                <span className="status-text">{selectedConversation.customer.status}</span>
+              </div>
+              <div className="customer-email-large">{selectedConversation.customer.email}</div>
+            </div>
+            
+            <div className="customer-details">
+              <div className="detail-item">
+                <div className="detail-label">
+                  <i className="fas fa-calendar-alt"></i>
+                  <span>Chat Started</span>
+                </div>
+                <div className="detail-value">{selectedConversation.startTime}</div>
+              </div>
+              <div className="detail-item">
+                <div className="detail-label">
+                  <i className="fas fa-clock"></i>
+                  <span>Duration</span>
+                </div>
+                <div className="detail-value">{selectedConversation.duration}</div>
+              </div>
+              <div className="detail-item">
+                <div className="detail-label">
+                  <i className="fas fa-bookmark"></i>
+                  <span>Department</span>
+                </div>
+                <div className="detail-value">{selectedConversation.department}</div>
+              </div>
+              <div className="detail-item">
+                <div className="detail-label">
+                  <i className="fas fa-flag"></i>
+                  <span>Priority</span>
+                </div>
+                <div 
+                  className="detail-value priority"
+                  style={{ color: getPriorityColor(selectedConversation.priority) }}
+                >
+                  {selectedConversation.priority.charAt(0).toUpperCase() + selectedConversation.priority.slice(1)}
                 </div>
               </div>
             </div>
             
-            <div className="customer-actions-panel">
+            <div className="customer-tags">
+              <div className="tags-header">
+                <i className="fas fa-tags"></i>
+                <span>Tags</span>
+              </div>
+              <div className="tags-list">
+                {selectedConversation.tags.map((tag, index) => (
+                  <div key={index} className="tag-item">
+                    <span>{tag}</span>
+                    <button className="tag-remove" onClick={() => {
+                      // Eliminar etiqueta
+                      const updatedConversation = {
+                        ...selectedConversation,
+                        tags: selectedConversation.tags.filter((_, i) => i !== index)
+                      };
+                      
+                      setSelectedConversation(updatedConversation);
+                      
+                      const updatedConversations = conversations.map(c => 
+                        c.id === selectedConversation.id ? updatedConversation : c
+                      );
+                      
+                      setConversations(updatedConversations);
+                    }}>
+                      <i className="fas fa-times"></i>
+                    </button>
+                  </div>
+                ))}
+                <div className="tag-item add" onClick={addTag}>
+                  <i className="fas fa-plus"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="customer-actions-panel">
             <h4>Quick Actions</h4>
             <div className="action-buttons">
-              <button className="customer-action">
+              <button className="customer-action" onClick={viewCustomerProfile}>
                 <i className="fas fa-user-circle"></i>
                 <span>View Profile</span>
               </button>
-              <button className="customer-action">
+              <button className="customer-action" onClick={viewChatHistory}>
                 <i className="fas fa-history"></i>
                 <span>Chat History</span>
               </button>
-              <button className="customer-action">
+              <button className="customer-action" onClick={viewCustomerTickets}>
                 <i className="fas fa-ticket-alt"></i>
                 <span>View Tickets</span>
               </button>
-              <button className="customer-action">
+              <button className="customer-action" onClick={viewPatientRecords}>
                 <i className="fas fa-notes-medical"></i>
                 <span>Patient Records</span>
               </button>
-              <button className="customer-action">
+              <button className="customer-action" onClick={viewBillingInfo}>
                 <i className="fas fa-file-invoice-dollar"></i>
                 <span>Billing Info</span>
               </button>
             </div>
           </div>
           
-          <div className="customer-notes">
-            <div className="notes-header">
-              <h4>
-                <i className="fas fa-sticky-note"></i>
-                <span>Agent Notes</span>
-              </h4>
-              <button className="add-note-button">
-                <i className="fas fa-plus"></i>
-                <span>Add Note</span>
-              </button>
-            </div>
-            <div className="notes-content">
-              <div className="note-item">
-                <div className="note-header">
-                  <div className="note-author">Luis Nava</div>
-                  <div className="note-date">2023-03-14 15:45</div>
+          {/* Resumen de actividad reciente */}
+          <div className="recent-activity">
+            <h4>Recent Activity</h4>
+            <div className="activity-timeline">
+              <div className="activity-item">
+                <div className="activity-icon">
+                  <i className="fas fa-sign-in-alt"></i>
                 </div>
-                <div className="note-text">
-                  Customer has been with us for 3 years. Had similar login issues after the January update. Very patient but needs quick resolution for patient appointments tomorrow.
+                <div className="activity-content">
+                  <div className="activity-title">Last Login</div>
+                  <div className="activity-description">Yesterday, 18:42</div>
                 </div>
               </div>
-              <div className="note-item">
-                <div className="note-header">
-                  <div className="note-author">Support Team</div>
-                  <div className="note-date">2023-03-10 09:30</div>
+              <div className="activity-item">
+                <div className="activity-icon">
+                  <i className="fas fa-ticket-alt"></i>
                 </div>
-                <div className="note-text">
-                  Customer reported billing issues last week that were resolved by updating payment method. May need to check if current issue is related.
+                <div className="activity-content">
+                  <div className="activity-title">Ticket #12854</div>
+                  <div className="activity-description">Created 3 days ago</div>
                 </div>
               </div>
-            </div>
-          </div>
-          
-          <div className="suggested-solutions">
-            <div className="solutions-header">
-              <h4>
-                <i className="fas fa-lightbulb"></i>
-                <span>Suggested Solutions</span>
-              </h4>
-            </div>
-            <div className="solutions-list">
-              <div className="solution-item">
-                <div className="solution-title">
-                  <i className="fas fa-file-alt"></i>
-                  <span>Password Reset Procedure</span>
+              <div className="activity-item">
+                <div className="activity-icon">
+                  <i className="fas fa-credit-card"></i>
                 </div>
-                <div className="solution-preview">
-                  Step-by-step guide for helping customers reset their passwords and troubleshoot login issues.
-                </div>
-                <button className="solution-action">Apply</button>
-              </div>
-              <div className="solution-item">
-                <div className="solution-title">
-                  <i className="fas fa-file-alt"></i>
-                  <span>Account Verification Issues</span>
-                </div>
-                <div className="solution-preview">
-                  Common account verification problems and their solutions, including email verification troubleshooting.
-                </div>
-                <button className="solution-action">Apply</button>
-              </div>
-              <div className="solution-item">
-                <div className="solution-title">
-                  <i className="fas fa-file-alt"></i>
-                  <span>Billing and Login Connection</span>
-                </div>
-                <div className="solution-preview">
-                  How billing status can affect login capabilities and steps to resolve these interdependencies.
-                </div>
-                <button className="solution-action">Apply</button>
-              </div>
-            </div>
-          </div>
-          
-          <div className="satisfaction-status">
-            <div className="satisfaction-header">
-              <h4>Customer Satisfaction</h4>
-            </div>
-            <div className="satisfaction-rating">
-              <div className="rating-score">
-                <span className="score">98%</span>
-                <span className="label">Satisfaction</span>
-              </div>
-              <div className="rating-stars">
-                <i className="fas fa-star"></i>
-                <i className="fas fa-star"></i>
-                <i className="fas fa-star"></i>
-                <i className="fas fa-star"></i>
-                <i className="fas fa-star-half-alt"></i>
-              </div>
-            </div>
-            <div className="satisfaction-history">
-              <div className="history-label">Previous Interactions</div>
-              <div className="history-bars">
-                <div className="history-bar">
-                  <div className="bar-fill" style={{ width: '100%' }}></div>
-                  <span className="bar-label">Mar 05</span>
-                </div>
-                <div className="history-bar">
-                  <div className="bar-fill" style={{ width: '90%' }}></div>
-                  <span className="bar-label">Feb 20</span>
-                </div>
-                <div className="history-bar">
-                  <div className="bar-fill" style={{ width: '100%' }}></div>
-                  <span className="bar-label">Feb 12</span>
-                </div>
-                <div className="history-bar">
-                  <div className="bar-fill" style={{ width: '85%' }}></div>
-                  <span className="bar-label">Jan 28</span>
+                <div className="activity-content">
+                  <div className="activity-title">Payment Failed</div>
+                  <div className="activity-description">Today, 09:15</div>
                 </div>
               </div>
             </div>
           </div>
-          
         </div>
       )}
     </div>
-    </div>
-  );
+    
+    {/* Modal para transferir el chat (ejemplo) */}
+    {/* <div className="transfer-modal">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h3>Transfer Chat</h3>
+          <button className="close-modal">
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
+        <div className="modal-body">
+          <div className="transfer-options">
+            <div className="option-group">
+              <h4>Department</h4>
+              <select className="department-select">
+                <option value="technical">Technical Support</option>
+                <option value="billing">Billing</option>
+                <option value="product">Product Support</option>
+              </select>
+            </div>
+            <div className="option-group">
+              <h4>Agent</h4>
+              <select className="agent-select">
+                <option value="any">Any Available Agent</option>
+                <option value="maria">Maria Lopez</option>
+                <option value="john">John Smith</option>
+                <option value="sarah">Sarah Johnson</option>
+              </select>
+            </div>
+            <div className="option-group">
+              <h4>Transfer Note</h4>
+              <textarea placeholder="Add a note for the receiving agent..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div className="modal-footer">
+          <button className="cancel-btn">Cancel</button>
+          <button className="transfer-btn">Transfer</button>
+        </div>
+      </div>
+    </div> */}
+  </div>
+);
 };
 
 export default SupportChat;

@@ -6,49 +6,56 @@ import SupportTickets from './SupportTickets.jsx';
 import SupportKnowledgeBase from './SupportKnowledgeBase.jsx';
 import SupportChat from './SupportChat.jsx';
 import SupportCorporateEmail from './SupportCorporateEmail.jsx';
-import SupportStats from './SupportStats.jsx';
+import SupportDashboard from './SupportDashboard.jsx';
+// Importar logo correctamente para asegurar que se muestre
+import logoImg from '../../assets/LogoMHC.jpeg';
 
 const SupportPage = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('dashboard');
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [notificationCount, setNotificationCount] = useState(7);
-  const [parallaxPosition, setParallaxPosition] = useState({ x: 0, y: 0 });
-  const containerRef = useRef(null);
+  const backgroundVideoRef = useRef(null);
   
-  // Datos para estadísticas de soporte
-  const supportStats = {
-    ticketsResolved: 1248,
-    avgResponseTime: '1h 24m',
-    customerSatisfaction: 96.7,
-    openTickets: 27,
-    urgentTickets: 4
-  };
-  
-  // Efecto para cargar la página
+  // Efecto para cargar la página con animación mejorada
   useEffect(() => {
-    // Mostrar animación de carga
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-    
-    // Efecto para activar el parallax en el fondo
-    const handleMouseMove = (e) => {
-      if (containerRef.current) {
-        const { clientX, clientY } = e;
-        const { width, height } = containerRef.current.getBoundingClientRect();
-        
-        // Calcular posición relativa al centro
-        const xPos = (clientX / width - 0.5) * 15;
-        const yPos = (clientY / height - 0.5) * 10;
-        
-        setParallaxPosition({ x: xPos, y: yPos });
+    // Simulación de progreso de carga
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+      progress += Math.random() * 15;
+      if (progress > 100) progress = 100;
+      setLoadingProgress(Math.floor(progress));
+      
+      if (progress >= 100) {
+        clearInterval(progressInterval);
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 500); // Pequeño retraso para mostrar el 100% antes de desaparecer
       }
+    }, 150);
+    
+    return () => clearInterval(progressInterval);
+  }, []);
+
+  // Controlar el parallax del fondo
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!backgroundVideoRef.current) return;
+      
+      const x = e.clientX / window.innerWidth;
+      const y = e.clientY / window.innerHeight;
+      
+      // Suave efecto parallax en el fondo
+      backgroundVideoRef.current.style.transform = `translate(${x * -20}px, ${y * -20}px)`;
     };
     
     window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
   }, []);
   
   // Manejo de cambio de sección
@@ -68,31 +75,20 @@ const SupportPage = () => {
       case 'email':
         return <SupportCorporateEmail />;
       default:
-        return (
-          <div className="support-dashboard">
-            <SupportStats stats={supportStats} />
-            <div className="dashboard-sections">
-              <div className="dashboard-column">
-                <SupportTickets preview={true} />
-              </div>
-              <div className="dashboard-column">
-                <SupportKnowledgeBase preview={true} />
-              </div>
-            </div>
-          </div>
-        );
+        return <SupportDashboard />;
     }
   };
   
-  // Animación de partículas de fondo
+  // Renderizar partículas de fondo más eficientes y elegantes
   const renderParticles = () => {
     const particles = [];
-    const particleCount = 30;
+    const particleCount = 25; // Optimizado para rendimiento
     
     for (let i = 0; i < particleCount; i++) {
-      const size = Math.random() * 5 + 3;
-      const opacity = Math.random() * 0.3 + 0.1;
+      const size = Math.random() * 4 + 1;
+      const opacity = Math.random() * 0.12 + 0.03;
       const delay = Math.random() * 5;
+      const duration = Math.random() * 15 + 10;
       
       particles.push(
         <div
@@ -104,7 +100,8 @@ const SupportPage = () => {
             width: `${size}px`,
             height: `${size}px`,
             opacity: opacity,
-            animationDelay: `${delay}s`
+            animationDelay: `${delay}s`,
+            animationDuration: `${duration}s`
           }}
         ></div>
       );
@@ -116,30 +113,61 @@ const SupportPage = () => {
   return (
     <div 
       className={`support-page ${isLoading ? 'is-loading' : 'is-loaded'}`}
-      ref={containerRef}
     >
-      {/* Fondo con efecto parallax */}
-      <div 
-        className="support-background"
-        style={{ 
-          transform: `translate(${parallaxPosition.x}px, ${parallaxPosition.y}px) scale(1.1)` 
-        }}
-      >
+      {/* Fondo premium con imagen HD y efectos */}
+      <div className="support-background">
+        {/* Imagen de fondo HD con blur controlado */}
+        <div 
+          className="background-image" 
+          ref={backgroundVideoRef}
+          style={{
+            backgroundImage: "url('https://images.unsplash.com/photo-1483389127117-b6a2102724ae?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3087&q=80')"
+          }}
+        ></div>
+        
+        {/* Overlay con gradiente refinado */}
         <div className="support-gradient-overlay"></div>
+        
+        {/* Partículas flotantes elegantes */}
         <div className="support-particles-container">
           {renderParticles()}
         </div>
+
+        {/* Efecto de viñeta en las esquinas */}
+        <div className="corner-vignette top-left"></div>
+        <div className="corner-vignette top-right"></div>
+        <div className="corner-vignette bottom-left"></div>
+        <div className="corner-vignette bottom-right"></div>
       </div>
       
-      {/* Animación de carga */}
+      {/* Animación de carga premium */}
       {isLoading && (
         <div className="support-loader">
-          <div className="loader-circle"></div>
-          <div className="loader-text">Loading Support Center</div>
+          <div className="loader-content">
+            <div className="loader-logo">
+              <div className="logo-pulse"></div>
+              {/* Usar el logo importado correctamente */}
+              <img src={logoImg} alt="TherapySync Logo" />
+            </div>
+            
+            <div className="loader-title">
+              <h2>TherapySync Support</h2>
+            </div>
+            
+            <div className="loader-progress">
+              <div className="progress-track">
+                <div 
+                  className="progress-fill"
+                  style={{ width: `${loadingProgress}%` }}
+                ></div>
+              </div>
+              <div className="progress-percentage">{loadingProgress}%</div>
+            </div>
+          </div>
         </div>
       )}
       
-      {/* Contenido principal */}
+      {/* Contenido principal con transiciones refinadas */}
       <div className={`support-content ${isLoading ? 'hidden' : ''}`}>
         <SupportHeader 
           activeSection={activeSection}

@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../../styles/Welcome/InfoWelcome.scss';
 
-const InfoWelcome = () => {
-  // Estado para animaciones
+const InfoWelcome = ({ isMobile, isTablet }) => {
+  // Enhanced state for animations with performance optimizations
   const [animatedStats, setAnimatedStats] = useState({
     activePatients: 0
   });
@@ -19,15 +19,17 @@ const InfoWelcome = () => {
     guide: useRef(null)
   });
   
-  // Datos reales que se mostrarán al final de la animación
+  // Real stats data with adjusted animation timings for mobile
   const stats = {
     activePatients: 128
   };
   
-  // Efecto para animar contador de pacientes con easing personalizado
+  // Enhanced counter animation with optimized timing for mobile
   useEffect(() => {
-    const duration = 2500; // duración en ms
-    const steps = 70;
+    // Shorter animation duration on mobile for better UX
+    const duration = isMobile ? 1800 : 2500;
+    // Fewer steps on mobile for better performance
+    const steps = isMobile ? 50 : 70;
     const stepTime = duration / steps;
     let current = 0;
     
@@ -35,11 +37,12 @@ const InfoWelcome = () => {
       current += 1;
       const progress = current / steps;
       
-      // Función de easing personalizada para un movimiento más natural
-      // Ease Out Cubic + rebote al final
-      const eased = progress < 0.9 
-        ? 1 - Math.pow(1 - progress, 3) 
-        : 1 + Math.sin((progress - 0.9) * Math.PI * 10) * 0.05;
+      // Custom easing function with lighter computation for mobile
+      const eased = isMobile 
+        ? Math.min(1, 1 - Math.pow(1 - progress, 2)) 
+        : (progress < 0.9 
+          ? 1 - Math.pow(1 - progress, 3) 
+          : 1 + Math.sin((progress - 0.9) * Math.PI * 10) * 0.05);
       
       setAnimatedStats({
         activePatients: Math.round(eased * stats.activePatients)
@@ -51,28 +54,31 @@ const InfoWelcome = () => {
     }, stepTime);
     
     return () => clearInterval(timer);
-  }, [stats.activePatients]);
+  }, [stats.activePatients, isMobile]);
   
-  // Manejadores para hover de tarjetas con efectos mejorados
+  // Enhanced card hover handlers with mobile optimizations
   const handleCardHover = (card, isHovering) => {
-    setIsHovering(prev => ({
-      ...prev,
-      [card]: isHovering
-    }));
-    
-    if (isHovering) {
-      generateParticles(card);
-    } else {
-      // Limpiar partículas al quitar el hover
-      setHoveredParticles([]);
+    // Only apply hover effects on non-mobile devices
+    if (!isMobile) {
+      setIsHovering(prev => ({
+        ...prev,
+        [card]: isHovering
+      }));
+      
+      if (isHovering) {
+        generateParticles(card);
+      } else {
+        // Clear particles when hover ends
+        setHoveredParticles([]);
+      }
     }
   };
   
-  // Manejadores para focus con efecto de destaque
+  // Enhanced card focus handler for all devices
   const handleCardFocus = (card) => {
     setIsFocused(card);
     
-    // Aplicar clase de focus a todas las tarjetas
+    // Apply focus class to all cards
     Object.keys(cardRefs).forEach(key => {
       if (cardRefs[key].current) {
         if (key === card) {
@@ -84,11 +90,11 @@ const InfoWelcome = () => {
     });
   };
   
-  // Quitar el focus
+  // Remove focus handler with animation cleanup
   const handleRemoveFocus = () => {
     setIsFocused(null);
     
-    // Quitar todas las clases de focus/blur
+    // Remove all focus/blur classes
     Object.keys(cardRefs).forEach(key => {
       if (cardRefs[key].current) {
         cardRefs[key].current.classList.remove('focus', 'blur');
@@ -96,12 +102,13 @@ const InfoWelcome = () => {
     });
   };
   
-  // Generar partículas para el efecto de hover
+  // Generate particles with count optimization for mobile
   const generateParticles = (card) => {
-    const particlesCount = 15;
+    // Fewer particles on mobile/tablet for better performance
+    const particlesCount = isMobile ? 8 : isTablet ? 12 : 15;
     const particles = [];
     
-    // Determinar colores según la tarjeta
+    // Optimized color palettes
     let colors;
     switch(card) {
       case 'patients':
@@ -117,12 +124,13 @@ const InfoWelcome = () => {
         colors = ['#64B5F6', '#4FC3F7', '#81D4FA'];
     }
     
+    // Generate particles with size scaling for different devices
     for (let i = 0; i < particlesCount; i++) {
       particles.push({
         id: i,
         x: Math.random() * 100,
         y: Math.random() * 100,
-        size: Math.random() * 8 + 2,
+        size: Math.random() * (isMobile ? 5 : 8) + (isMobile ? 2 : 2),
         color: colors[Math.floor(Math.random() * colors.length)],
         duration: Math.random() * 2 + 1,
         delay: Math.random() * 0.5
@@ -133,10 +141,10 @@ const InfoWelcome = () => {
   };
 
   return (
-    <div className="info-welcome-container">
-      {/* Tarjetas principales con efectos premium */}
+    <div className={`info-welcome-container ${isMobile ? 'mobile' : ''} ${isTablet ? 'tablet' : ''}`}>
+      {/* Premium dashboard cards with responsive layout */}
       <div className="dashboard-cards">
-        {/* Tarjeta de pacientes */}
+        {/* Patients card with enhanced responsive design */}
         <div 
           className={`dashboard-card ${isHovering.patients ? 'hover' : ''} ${isFocused === 'patients' ? 'focus' : isFocused ? 'blur' : ''}`}
           onMouseEnter={() => handleCardHover('patients', true)}
@@ -179,8 +187,9 @@ const InfoWelcome = () => {
               </button>
             </div>
           </div>
-          {/* Partículas animadas en hover */}
-          {isHovering.patients && (
+          
+          {/* Optimized particles with conditional rendering for performance */}
+          {isHovering.patients && !isMobile && (
             <div className="particles-container">
               {hoveredParticles.map(particle => (
                 <div 
@@ -199,13 +208,10 @@ const InfoWelcome = () => {
               ))}
             </div>
           )}
-
-<div className="card-bg-decoration"></div>
           
-          {/* Decoración de líneas */}
+          {/* Enhanced background decorations */}
+          <div className="card-bg-decoration"></div>
           <div className="card-grid-lines"></div>
-          
-          {/* Elementos decorativos */}
           <div className="card-decoration">
             <span className="deco-circle"></span>
             <span className="deco-square"></span>
@@ -213,7 +219,7 @@ const InfoWelcome = () => {
           </div>
         </div>
         
-        {/* Tarjeta de soporte */}
+        {/* Support card with enhanced responsive design */}
         <div 
           className={`dashboard-card ${isHovering.support ? 'hover' : ''} ${isFocused === 'support' ? 'focus' : isFocused ? 'blur' : ''}`}
           onMouseEnter={() => handleCardHover('support', true)}
@@ -262,8 +268,8 @@ const InfoWelcome = () => {
             </div>
           </div>
           
-          {/* Partículas animadas en hover */}
-          {isHovering.support && (
+          {/* Optimized particles with conditional rendering */}
+          {isHovering.support && !isMobile && (
             <div className="particles-container">
               {hoveredParticles.map(particle => (
                 <div 
@@ -282,9 +288,9 @@ const InfoWelcome = () => {
               ))}
             </div>
           )}
-          <div className="card-bg-decoration"></div>
           
-          {/* Decoraciones adicionales */}
+          {/* Enhanced background decorations */}
+          <div className="card-bg-decoration"></div>
           <div className="card-grid-lines"></div>
           <div className="card-decoration">
             <span className="deco-circle"></span>
@@ -293,7 +299,7 @@ const InfoWelcome = () => {
           </div>
         </div>
         
-        {/* Tarjeta de guía */}
+        {/* Learning center card with enhanced responsive design */}
         <div 
           className={`dashboard-card ${isHovering.guide ? 'hover' : ''} ${isFocused === 'guide' ? 'focus' : isFocused ? 'blur' : ''}`}
           onMouseEnter={() => handleCardHover('guide', true)}
@@ -341,8 +347,8 @@ const InfoWelcome = () => {
             </div>
           </div>
           
-          {/* Partículas animadas en hover */}
-          {isHovering.guide && (
+          {/* Optimized particles with conditional rendering */}
+          {isHovering.guide && !isMobile && (
             <div className="particles-container">
               {hoveredParticles.map(particle => (
                 <div 
@@ -361,9 +367,9 @@ const InfoWelcome = () => {
               ))}
             </div>
           )}
-          <div className="card-bg-decoration"></div>
           
-          {/* Decoraciones adicionales */}
+          {/* Enhanced background decorations */}
+          <div className="card-bg-decoration"></div>
           <div className="card-grid-lines"></div>
           <div className="card-decoration">
             <span className="deco-circle"></span>
@@ -373,7 +379,7 @@ const InfoWelcome = () => {
         </div>
       </div>
       
-      {/* Botón para quitar el focus */}
+      {/* Reset view button with enhanced position for mobile */}
       {isFocused && (
         <button className="reset-view-button" onClick={handleRemoveFocus}>
           <i className="fas fa-th-large"></i>

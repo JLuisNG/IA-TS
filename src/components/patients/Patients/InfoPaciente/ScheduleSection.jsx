@@ -239,7 +239,7 @@ const ScheduleSection = ({ patientId }) => {
       </div>
     );
   };
-  
+
   // Determinar el color según el tipo de visita
   const getVisitTypeColor = (type) => {
     switch(type) {
@@ -645,12 +645,12 @@ const ScheduleSection = ({ patientId }) => {
                 <span>Post-Hospital</span>
               </div>
             </div>
-            
+
             {/* Contenido del calendario según la vista */}
             <div className={`calendar-wrapper ${isCalendarExpanded ? 'expanded' : 'collapsed'}`}>
               {renderViewContent()}
             </div>
-            
+
             {/* Panel de detalles de visita */}
             {(selectedVisit || isAddingVisit) && (
               <div className="visit-details-panel">
@@ -758,7 +758,7 @@ const ScheduleSection = ({ patientId }) => {
                             {selectedVisit.status}
                           </span>
                         </div>
-                        
+
                         <div className="detail-content">
                           <div className="detail-row">
                             <div className="detail-label">

@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CalendarSelector from './CalendarSelector';
 import '../../../../styles/Patients/InfoPaciente/InfoGeneral.scss';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const InfoGeneral = ({ patientData }) => {
   const navigate = useNavigate();
+  const dropdownRef = useRef(null);
   const [showCertDropdown, setShowCertDropdown] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -18,6 +20,20 @@ const InfoGeneral = ({ patientData }) => {
   const [activeCertPeriod, setActiveCertPeriod] = useState(certPeriods[0]);
   const [newCertPeriod, setNewCertPeriod] = useState({ startDate: "", endDate: "" });
   const [editingCertPeriod, setEditingCertPeriod] = useState(null);
+
+  // Cerrar el dropdown cuando se hace clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowCertDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   // Función para manejar la edición del paciente
   const handleEditPatient = () => {
@@ -131,17 +147,62 @@ const InfoGeneral = ({ patientData }) => {
     activeCertPeriod.endDate
   );
 
+  // Variantes de animación para componentes
+  const fadeInVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  };
+  
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.1,
+        when: "beforeChildren"
+      }
+    }
+  };
+
+  const modalVariants = {
+    hidden: { opacity: 0, y: 50, scale: 0.95 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: { 
+        type: "spring", 
+        damping: 25, 
+        stiffness: 300 
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      y: 30, 
+      scale: 0.95,
+      transition: { duration: 0.2 }
+    }
+  };
+
   return (
-    <div className="general-section">
-      <div className="section-header">
+    <motion.div 
+      className="general-section"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      <motion.div className="section-header" variants={fadeInVariants}>
         <h2 className="section-title">
           <i className="fas fa-user-circle"></i> General Information
         </h2>
-      </div>
+      </motion.div>
 
       <div className="card-container">
         {/* Tarjeta de información del paciente */}
-        <div className="info-card patient-info">
+        <motion.div 
+          className="info-card patient-info"
+          variants={fadeInVariants}
+        >
           <div className="card-header">
             <div className="header-icon">
               <i className="fas fa-user"></i>
@@ -206,17 +267,20 @@ const InfoGeneral = ({ patientData }) => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Tarjeta de información de certificación */}
-        <div className="info-card certification-info">
+        <motion.div 
+          className="info-card certification-info"
+          variants={fadeInVariants}
+        >
           <div className="card-header">
             <div className="header-icon">
               <i className="fas fa-certificate"></i>
             </div>
             <h3>Certification Period</h3>
             <div className="cert-actions">
-              <div className="cert-dropdown-container">
+              <div className="cert-dropdown-container" ref={dropdownRef}>
                 <button 
                   className="cert-dropdown-trigger"
                   onClick={() => setShowCertDropdown(!showCertDropdown)}
@@ -266,7 +330,12 @@ const InfoGeneral = ({ patientData }) => {
 
             <div className="progress-container">
               <div className="progress-bar">
-                <div className="progress-fill" style={{ width: `${progressPercent}%` }}></div>
+                <motion.div 
+                  className="progress-fill"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progressPercent}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                ></motion.div>
               </div>
               <span className="progress-text">{monthsRemaining} months remaining</span>
             </div>
@@ -293,141 +362,209 @@ const InfoGeneral = ({ patientData }) => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
       
       {/* Modal para agregar nuevo período */}
-      {showAddModal && (
-        <div className="modal-overlay">
-          <div className="modal-container">
-            <div className="modal-header">
-              <h3>Add New Certification Period</h3>
-              <button className="close-btn" onClick={() => setShowAddModal(false)}>
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
-            <div className="modal-content">
-              <div className="form-group">
-                <label>Start Date</label>
-                <div className="date-input-container">
-                  <input 
-                    type="text" 
-                    placeholder="MM-DD-YYYY"
-                    value={newCertPeriod.startDate}
-                    onChange={(e) => setNewCertPeriod({...newCertPeriod, startDate: e.target.value})}
-                    readOnly
-                    onClick={() => setShowStartDateCalendar(true)}
-                  />
-                  <i className="fas fa-calendar-alt" onClick={() => setShowStartDateCalendar(true)}></i>
-                  
-                  {showStartDateCalendar && (
-                    <div className="calendar-popup">
-                      <CalendarSelector 
-                        onDateSelect={handleStartDateSelect}
-                        initialDate={newCertPeriod.startDate || null}
-                        onClose={() => setShowStartDateCalendar(false)}
-                      />
-                    </div>
-                  )}
+      <AnimatePresence>
+        {showAddModal && (
+          <motion.div 
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div 
+              className="modal-container"
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <div className="modal-header">
+                <h3>Add New Certification Period</h3>
+                <button className="close-btn" onClick={() => setShowAddModal(false)}>
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+              <div className="modal-content">
+                <div className="form-group">
+                  <label>Start Date</label>
+                  <div className="date-input-container">
+                    <input 
+                      type="text" 
+                      placeholder="MM-DD-YYYY"
+                      value={newCertPeriod.startDate}
+                      onChange={(e) => setNewCertPeriod({...newCertPeriod, startDate: e.target.value})}
+                      readOnly
+                      onClick={() => setShowStartDateCalendar(true)}
+                    />
+                    <i className="fas fa-calendar-alt" onClick={() => setShowStartDateCalendar(true)}></i>
+                    
+                    <AnimatePresence>
+                      {showStartDateCalendar && (
+                        <motion.div 
+                          className="calendar-popup"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <CalendarSelector 
+                            onDateSelect={handleStartDateSelect}
+                            initialDate={newCertPeriod.startDate || null}
+                            onClose={() => setShowStartDateCalendar(false)}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>End Date</label>
+                  <div className="date-input-container">
+                    <input 
+                      type="text" 
+                      placeholder="MM-DD-YYYY"
+                      value={newCertPeriod.endDate}
+                      onChange={(e) => setNewCertPeriod({...newCertPeriod, endDate: e.target.value})}
+                      readOnly
+                      onClick={() => setShowEndDateCalendar(true)}
+                    />
+                    <i className="fas fa-calendar-alt" onClick={() => setShowEndDateCalendar(true)}></i>
+                    
+                    <AnimatePresence>
+                      {showEndDateCalendar && (
+                        <motion.div 
+                          className="calendar-popup"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <CalendarSelector 
+                            onDateSelect={handleEndDateSelect}
+                            initialDate={newCertPeriod.endDate || null}
+                            onClose={() => setShowEndDateCalendar(false)}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
               </div>
-              <div className="form-group">
-                <label>End Date</label>
-                <div className="date-input-container">
-                  <input 
-                    type="text" 
-                    placeholder="MM-DD-YYYY"
-                    value={newCertPeriod.endDate}
-                    onChange={(e) => setNewCertPeriod({...newCertPeriod, endDate: e.target.value})}
-                    readOnly
-                    onClick={() => setShowEndDateCalendar(true)}
-                  />
-                  <i className="fas fa-calendar-alt" onClick={() => setShowEndDateCalendar(true)}></i>
-                  
-                  {showEndDateCalendar && (
-                    <div className="calendar-popup">
-                      <CalendarSelector 
-                        onDateSelect={handleEndDateSelect}
-                        initialDate={newCertPeriod.endDate || null}
-                        onClose={() => setShowEndDateCalendar(false)}
-                      />
-                    </div>
-                  )}
-                </div>
+              <div className="modal-footer">
+                <button className="cancel-btn" onClick={() => setShowAddModal(false)}>
+                  <span>Cancel</span>
+                </button>
+                <button className="save-btn" onClick={handleSaveNewPeriod}>
+                  <i className="fas fa-save"></i> 
+                  <span>Save Period</span>
+                </button>
               </div>
-            </div>
-            <div className="modal-footer">
-              <button className="cancel-btn" onClick={() => setShowAddModal(false)}>Cancel</button>
-              <button className="save-btn" onClick={handleSaveNewPeriod}>Save Period</button>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       {/* Modal para editar período existente */}
-      {showEditModal && editingCertPeriod && (
-        <div className="modal-overlay">
-          <div className="modal-container">
-            <div className="modal-header">
-              <h3>Edit Certification Period</h3>
-              <button className="close-btn" onClick={() => setShowEditModal(false)}>
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
-            <div className="modal-content">
-              <div className="form-group">
-                <label>Start Date</label>
-                <div className="date-input-container">
-                  <input 
-                    type="text" 
-                    value={editingCertPeriod.startDate}
-                    readOnly
-                    onClick={() => setShowStartDateCalendar(true)}
-                  />
-                  <i className="fas fa-calendar-alt" onClick={() => setShowStartDateCalendar(true)}></i>
-                  
-                  {showStartDateCalendar && (
-                    <div className="calendar-popup">
-                      <CalendarSelector 
-                        onDateSelect={handleStartDateSelect}
-                        initialDate={editingCertPeriod.startDate}
-                        onClose={() => setShowStartDateCalendar(false)}
-                      />
-                    </div>
-                  )}
+      <AnimatePresence>
+        {showEditModal && editingCertPeriod && (
+          <motion.div 
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div 
+              className="modal-container"
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              <div className="modal-header">
+                <h3>Edit Certification Period</h3>
+                <button className="close-btn" onClick={() => setShowEditModal(false)}>
+                  <i className="fas fa-times"></i>
+                </button>
+              </div>
+              <div className="modal-content">
+                <div className="form-group">
+                  <label>Start Date</label>
+                  <div className="date-input-container">
+                    <input 
+                      type="text" 
+                      value={editingCertPeriod.startDate}
+                      readOnly
+                      onClick={() => setShowStartDateCalendar(true)}
+                    />
+                    <i className="fas fa-calendar-alt" onClick={() => setShowStartDateCalendar(true)}></i>
+                    
+                    <AnimatePresence>
+                      {showStartDateCalendar && (
+                        <motion.div 
+                          className="calendar-popup"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <CalendarSelector 
+                            onDateSelect={handleStartDateSelect}
+                            initialDate={editingCertPeriod.startDate}
+                            onClose={() => setShowStartDateCalendar(false)}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>End Date</label>
+                  <div className="date-input-container">
+                    <input 
+                      type="text" 
+                      value={editingCertPeriod.endDate}
+                      readOnly
+                      onClick={() => setShowEndDateCalendar(true)}
+                    />
+                    <i className="fas fa-calendar-alt" onClick={() => setShowEndDateCalendar(true)}></i>
+                    
+                    <AnimatePresence>
+                      {showEndDateCalendar && (
+                        <motion.div 
+                          className="calendar-popup"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <CalendarSelector 
+                            onDateSelect={handleEndDateSelect}
+                            initialDate={editingCertPeriod.endDate}
+                            onClose={() => setShowEndDateCalendar(false)}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
               </div>
-              <div className="form-group">
-                <label>End Date</label>
-                <div className="date-input-container">
-                  <input 
-                    type="text" 
-                    value={editingCertPeriod.endDate}
-                    readOnly
-                    onClick={() => setShowEndDateCalendar(true)}
-                  />
-                  <i className="fas fa-calendar-alt" onClick={() => setShowEndDateCalendar(true)}></i>
-                  
-                  {showEndDateCalendar && (
-                    <div className="calendar-popup">
-                      <CalendarSelector 
-                        onDateSelect={handleEndDateSelect}
-                        initialDate={editingCertPeriod.endDate}
-                        onClose={() => setShowEndDateCalendar(false)}
-                      />
-                    </div>
-                  )}
-                </div>
+              <div className="modal-footer">
+                <button className="cancel-btn" onClick={() => setShowEditModal(false)}>
+                  <span>Cancel</span>
+                </button>
+                <button className="save-btn" onClick={handleSaveEditPeriod}>
+                  <i className="fas fa-check"></i> 
+                  <span>Save Changes</span>
+                </button>
               </div>
-            </div>
-            <div className="modal-footer">
-              <button className="cancel-btn" onClick={() => setShowEditModal(false)}>Cancel</button>
-              <button className="save-btn" onClick={handleSaveEditPeriod}>Save Changes</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 

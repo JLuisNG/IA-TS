@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import '../../styles/accounting/PaymentPeriodSelector.scss';
 
 const PaymentPeriodSelector = ({ periods, selectedPeriod, onPeriodChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [animatedPeriods, setAnimatedPeriods] = useState([]);
+  const [hoverIndex, setHoverIndex] = useState(null);
   const containerRef = useRef(null);
   
   // Efecto para animación de entrada escalonada de los períodos
@@ -34,6 +36,15 @@ const PaymentPeriodSelector = ({ periods, selectedPeriod, onPeriodChange }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+  
+  // Funciones para gestionar hover para efectos visuales mejorados
+  const handleMouseEnter = (index) => {
+    setHoverIndex(index);
+  };
+  
+  const handleMouseLeave = () => {
+    setHoverIndex(null);
+  };
   
   // Función para determinar la clase de estado
   const getStatusClass = (status) => {
@@ -76,13 +87,62 @@ const PaymentPeriodSelector = ({ periods, selectedPeriod, onPeriodChange }) => {
         return 'Unknown';
     }
   };
+  
+  // Formatear moneda
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value);
+  };
+  
+  // Configuración de animaciones con framer-motion
+  const containerVariants = {
+    hidden: { opacity: 0, y: -10 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.3, ease: "easeOut" }
+    },
+    exit: {
+      opacity: 0,
+      y: -10,
+      transition: { duration: 0.2, ease: "easeIn" }
+    }
+  };
+  
+  const itemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: (custom) => ({
+      opacity: 1,
+      x: 0,
+      transition: { 
+        delay: custom * 0.05,
+        duration: 0.3,
+        ease: "easeOut"
+      }
+    }),
+    hover: {
+      scale: 1.02,
+      x: 5,
+      backgroundColor: "rgba(255, 255, 255, 0.05)",
+      transition: { duration: 0.2 }
+    }
+  };
 
   return (
     <div className="payment-period-selector" ref={containerRef}>
-      {/* Período seleccionado actualmente */}
-      <div 
+      {/* Período seleccionado actualmente con animaciones mejoradas */}
+      <motion.div 
         className={`selected-period ${isExpanded ? 'expanded' : ''}`} 
         onClick={() => setIsExpanded(!isExpanded)}
+        whileHover={{ y: -3, boxShadow: "0 15px 30px rgba(0, 0, 0, 0.25)" }}
+        whileTap={{ y: -1 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
       >
         {selectedPeriod ? (
           <div className="period-info">
@@ -93,11 +153,22 @@ const PaymentPeriodSelector = ({ periods, selectedPeriod, onPeriodChange }) => {
               </div>
               <div className="period-dates">
                 <span className="period-range">{selectedPeriod.period}</span>
-                <span className="payment-date">Payment: {selectedPeriod.paymentDate}</span>
+                <span className="payment-date">
+                  <i className="fas fa-calendar-check"></i>
+                  Payment: {selectedPeriod.paymentDate}
+                </span>
               </div>
             </div>
+            <div className="period-amount">
+              <span className="amount-label">Total:</span>
+              <span className="amount-value">{formatCurrency(selectedPeriod.amount)}</span>
+            </div>
             <div className="period-arrow">
-              <i className={`fas fa-chevron-${isExpanded ? 'up' : 'down'}`}></i>
+              <motion.i 
+                className={`fas fa-chevron-${isExpanded ? 'up' : 'down'}`}
+                animate={{ rotate: isExpanded ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              ></motion.i>
             </div>
           </div>
         ) : (
@@ -106,76 +177,114 @@ const PaymentPeriodSelector = ({ periods, selectedPeriod, onPeriodChange }) => {
             <span>Select a payment period</span>
           </div>
         )}
-      </div>
+      </motion.div>
       
-      {/* Dropdown con todos los períodos disponibles */}
-      {isExpanded && (
-        <div className="period-dropdown">
-          <div className="period-timeline">
-            {animatedPeriods.map((period, index) => (
-              <div 
-                key={period.id}
-                className={`timeline-item ${getStatusClass(period.status)} ${selectedPeriod && selectedPeriod.id === period.id ? 'active' : ''}`}
-                onClick={() => {
-                  onPeriodChange(period);
-                  setIsExpanded(false);
-                }}
-                style={{
-                  '--animation-order': index,
-                }}
-              >
-                <div className="timeline-connector">
-                  <div className="connector-line"></div>
-                  <div className="connector-dot"></div>
-                </div>
-                <div className="timeline-content">
-                  <div className="timeline-header">
-                    <span className="timeline-period">{period.period}</span>
-                    <div className={`timeline-status ${getStatusClass(period.status)}`}>
-                      <i className={`fas ${getStatusIcon(period.status)}`}></i>
-                      <span>{getStatusText(period.status)}</span>
-                    </div>
+      {/* Dropdown con todos los períodos disponibles - Animado */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div 
+            className="period-dropdown"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <div className="period-timeline">
+              {animatedPeriods.map((period, index) => (
+                <motion.div 
+                  key={period.id}
+                  className={`timeline-item ${getStatusClass(period.status)} ${selectedPeriod && selectedPeriod.id === period.id ? 'active' : ''}`}
+                  onClick={() => {
+                    onPeriodChange(period);
+                    setIsExpanded(false);
+                  }}
+                  onMouseEnter={() => handleMouseEnter(index)}
+                  onMouseLeave={handleMouseLeave}
+                  custom={index}
+                  variants={itemVariants}
+                  initial="hidden"
+                  animate="visible"
+                  whileHover="hover"
+                >
+                  <div className="timeline-connector">
+                    <div className="connector-line"></div>
+                    <div className="connector-dot"></div>
                   </div>
-                  <div className="timeline-details">
-                    <div className="payment-info">
-                      <i className="fas fa-calendar-check"></i>
-                      <span>Payment: {period.paymentDate}</span>
-                    </div>
-                    
-                    {period.status === 'paid' && (
-                      <div className="paid-info">
-                        <i className="fas fa-money-check-alt"></i>
-                        <span>Processed</span>
+                  <div className="timeline-content">
+                    <div className="timeline-header">
+                      <span className="timeline-period">{period.period}</span>
+                      <div className={`timeline-status ${getStatusClass(period.status)}`}>
+                        <i className={`fas ${getStatusIcon(period.status)}`}></i>
+                        <span>{getStatusText(period.status)}</span>
                       </div>
-                    )}
+                    </div>
+                    <div className="timeline-details">
+                      <div className="payment-info">
+                        <i className="fas fa-calendar-check"></i>
+                        <span>Payment: {period.paymentDate}</span>
+                      </div>
+                      
+                      <div className="amount-info">
+                        <i className="fas fa-file-invoice-dollar"></i>
+                        <span>Amount: {formatCurrency(period.amount)}</span>
+                      </div>
+                      
+                      {period.status === 'paid' && (
+                        <div className="paid-info">
+                          <i className="fas fa-money-check-alt"></i>
+                          <span>Processed</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
+                  
+                  {selectedPeriod && selectedPeriod.id === period.id && (
+                    <div className="timeline-active-indicator">
+                      <i className="fas fa-check"></i>
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+            
+            <div className="period-summary">
+              <div className="summary-stats">
+                <div className="summary-stat">
+                  <div className="stat-label">Total Periods</div>
+                  <div className="stat-value">{periods.length}</div>
                 </div>
-                
-                {selectedPeriod && selectedPeriod.id === period.id && (
-                  <div className="timeline-active-indicator">
-                    <i className="fas fa-check"></i>
-                  </div>
-                )}
+                <div className="summary-stat">
+                  <div className="stat-label">Paid</div>
+                  <div className="stat-value">{periods.filter(p => p.status === 'paid').length}</div>
+                </div>
+                <div className="summary-stat">
+                  <div className="stat-label">Pending</div>
+                  <div className="stat-value">{periods.filter(p => p.status === 'pending').length}</div>
+                </div>
+                <div className="summary-stat">
+                  <div className="stat-label">Upcoming</div>
+                  <div className="stat-value">{periods.filter(p => p.status === 'upcoming').length}</div>
+                </div>
               </div>
-            ))}
-          </div>
-          
-          <div className="period-legend">
-            <div className="legend-item">
-              <div className="legend-color status-paid"></div>
-              <span>Paid</span>
+              
+              <div className="period-legend">
+                <div className="legend-item">
+                  <div className="legend-color status-paid"></div>
+                  <span>Paid</span>
+                </div>
+                <div className="legend-item">
+                  <div className="legend-color status-pending"></div>
+                  <span>Pending</span>
+                </div>
+                <div className="legend-item">
+                  <div className="legend-color status-upcoming"></div>
+                  <span>Upcoming</span>
+                </div>
+              </div>
             </div>
-            <div className="legend-item">
-              <div className="legend-color status-pending"></div>
-              <span>Pending</span>
-            </div>
-            <div className="legend-item">
-              <div className="legend-color status-upcoming"></div>
-              <span>Upcoming</span>
-            </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

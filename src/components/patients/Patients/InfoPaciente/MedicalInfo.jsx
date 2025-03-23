@@ -6,7 +6,6 @@ const MedicalInfo = ({ data, onUpdate, expanded, onToggleExpand, isLoading }) =>
   const [formData, setFormData] = useState({...data});
   const [formErrors, setFormErrors] = useState({});
 
-  // Función para manejar el cambio en los campos del formulario
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
