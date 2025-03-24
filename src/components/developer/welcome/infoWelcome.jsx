@@ -21,7 +21,7 @@ const InfoWelcome = ({ isMobile, isTablet }) => {
   
   // Real stats data with adjusted animation timings for mobile
   const stats = {
-    activePatients: 128
+    activePatients: 508
   };
   
   // Enhanced counter animation with optimized timing for mobile

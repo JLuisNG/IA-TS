@@ -198,6 +198,17 @@ const HomePage = () => {
     }, isMobile ? 300 : 500);
   };
   
+  // Handle navigation to profile page
+  const handleNavigateToProfile = () => {
+    setShowUserMenu(false);
+    setMenuTransitioning(true);
+    
+    // Add transition effect before navigation
+    setTimeout(() => {
+      navigate('/profile');
+    }, isMobile ? 300 : 500);
+  };
+  
   // Get visible menu options for carousel with responsive considerations
   const getVisibleMenuOptions = () => {
     const result = [];
@@ -365,7 +376,10 @@ const HomePage = () => {
                 <div className="support-menu-section">
                   <div className="section-title">Account</div>
                   <div className="support-menu-items">
-                    <div className="support-menu-item">
+                    <div 
+                      className="support-menu-item"
+                      onClick={handleNavigateToProfile}
+                    >
                       <i className="fas fa-user-circle"></i>
                       <span>My Profile</span>
                     </div>

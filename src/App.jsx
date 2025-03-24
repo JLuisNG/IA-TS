@@ -9,7 +9,7 @@ import PatientsPage from './components/developer/patients/PatientsPage';
 import StaffingPage from './components/developer/patients/staffing/StaffingPage';
 import InfoPaciente from './components/developer/patients/Patients/InfoPaciente/InfoPaciente';
 import Accounting from './components/developer/accounting/Accounting';
-
+import UserProfile from './components/developer/profile/UserProfile';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function App() {
@@ -25,6 +25,7 @@ function App() {
         <Route path="/paciente/:patientId" element={<InfoPaciente />} />
         <Route path="/staffing" element={<StaffingPage />} />
         <Route path="/accounting" element={<Accounting />} />
+        <Route path="/profile" element={<UserProfile />} />
       </Routes>
     </HashRouter>
   );
